@@ -17,6 +17,7 @@ import {
   Package,
   PanelsTopLeft,
   SearchCheck,
+  ServerCog,
   Settings2,
   ShieldCheck,
   ShoppingBag,
@@ -64,28 +65,28 @@ const websiteQuality = [
 
 const ecommerceHighlights = [
   {
-    title: "Catalogo ordenado",
-    copy: "Productos, categorias, variantes e informacion clara para que el cliente encuentre rapido lo que busca.",
+    title: "Catálogo ordenado",
+    copy: "Productos, categorías, variantes e información clara para que el cliente encuentre rápido lo que busca.",
     icon: Package,
   },
   {
     title: "Compra simple",
-    copy: "Flujo de carrito pensado para reducir friccion y llevar al cliente del interes al pedido.",
+    copy: "Flujo de carrito pensado para reducir fricción y llevar al cliente del interés al pedido.",
     icon: ShoppingBag,
   },
   {
     title: "Pagos integrados",
-    copy: "Conectamos pasarelas como Stripe, Mercado Pago u opciones compatibles con tu operacion.",
+    copy: "Conectamos pasarelas como Stripe, Mercado Pago u opciones compatibles con tu operación.",
     icon: CreditCard,
   },
   {
-    title: "Envios conectados",
-    copy: "Preparamos integraciones con Skydrop, Envia.com u operadores logisticos segun el alcance.",
+    title: "Envíos conectados",
+    copy: "Preparamos integraciones con Skydrop, Envia.com u operadores logísticos según el alcance.",
     icon: Truck,
   },
   {
-    title: "Operacion medible",
-    copy: "Base lista para revisar pedidos, pagos, envios y oportunidades de crecimiento con mas claridad.",
+    title: "Operación medible",
+    copy: "Base lista para revisar pedidos, pagos, envíos y oportunidades de crecimiento con más claridad.",
     icon: BarChart3,
   },
 ];
@@ -105,8 +106,8 @@ const mailHighlights = [
     icon: Globe2,
   },
   {
-    title: "Configuracion segura",
-    copy: "Ajustamos accesos, registros y buenas practicas basicas para proteger la comunicacion.",
+    title: "Configuración segura",
+    copy: "Ajustamos accesos, registros y buenas prácticas básicas para proteger la comunicación.",
     icon: ShieldCheck,
   },
   {
@@ -116,15 +117,22 @@ const mailHighlights = [
   },
   {
     title: "Imagen profesional",
-    copy: "Ordenamos la presentacion de tu negocio desde el primer contacto con clientes.",
+    copy: "Ordenamos la presentación de tu negocio desde el primer contacto con clientes.",
     icon: MailCheck,
   },
+];
+
+const hostingHighlights = [
+  { title: "Entorno administrado", copy: "Configuramos y cuidamos la infraestructura necesaria para operar tu proyecto.", icon: ServerCog },
+  { title: "Respaldos", copy: "Programamos copias de seguridad conforme a la frecuencia incluida en tu plan.", icon: DatabaseZap },
+  { title: "Continuidad", copy: "Supervisamos disponibilidad y atendemos incidencias dentro del alcance contratado.", icon: Gauge },
+  { title: "Buenas prácticas", copy: "Aplicamos actualizaciones y configuraciones técnicas para reducir riesgos operativos.", icon: ShieldCheck },
 ];
 
 const domainHighlights = [
   {
     title: "Nombre de marca",
-    copy: "Buscamos una direccion clara, facil de recordar y alineada con tu negocio.",
+    copy: "Buscamos una dirección clara, fácil de recordar y alineada con tu negocio.",
     icon: Globe2,
   },
   {
@@ -133,13 +141,13 @@ const domainHighlights = [
     icon: DatabaseZap,
   },
   {
-    title: "Conexion completa",
+    title: "Conexión completa",
     copy: "Tu dominio queda listo para sitio web, ecommerce, correos corporativos o Workspace.",
     icon: Wifi,
   },
   {
     title: "Continuidad",
-    copy: "Te acompanamos para cuidar renovaciones, accesos y configuracion basica del dominio.",
+    copy: "Te acompañamos para cuidar renovaciones, accesos y configuración básica del dominio.",
     icon: ShieldCheck,
   },
 ];
@@ -147,7 +155,7 @@ const domainHighlights = [
 const workspaceHighlights = [
   {
     title: "Gmail empresarial",
-    copy: "Correo profesional con dominio propio y configuracion lista para tu equipo.",
+    copy: "Correo profesional con dominio propio y configuración lista para tu equipo.",
     icon: MailCheck,
   },
   {
@@ -162,7 +170,7 @@ const workspaceHighlights = [
   },
   {
     title: "Usuarios y permisos",
-    copy: "Alta de cuentas, accesos y administracion basica para operar con control.",
+    copy: "Alta de cuentas, accesos y administración básica para operar con control.",
     icon: UsersRound,
   },
 ];
@@ -170,7 +178,7 @@ const workspaceHighlights = [
 const giovsoft360Highlights = [
   {
     title: "Ruta clara",
-    copy: "Definimos que necesita tu negocio, que va primero y como construir sin perder tiempo.",
+    copy: "Definimos qué necesita tu negocio, qué va primero y cómo construir sin perder tiempo.",
     icon: SearchCheck,
   },
   {
@@ -179,13 +187,13 @@ const giovsoft360Highlights = [
     icon: PanelsTopLeft,
   },
   {
-    title: "Acompanamiento",
-    copy: "Te guiamos durante la implementacion y despues del lanzamiento para seguir mejorando.",
+    title: "Acompañamiento",
+    copy: "Te guiamos durante la implementación y después del lanzamiento para seguir mejorando.",
     icon: UsersRound,
   },
   {
-    title: "Evolucion continua",
-    copy: "Medimos, ajustamos y preparamos nuevas funciones conforme crece tu operacion.",
+    title: "Evolución continua",
+    copy: "Medimos, ajustamos y preparamos nuevas funciones conforme crece tu operación.",
     icon: Settings2,
   },
 ];
@@ -210,6 +218,7 @@ export default function ServicePage() {
   const isWebsiteService = service.slug === "sitios-web";
   const isEcommerceService = service.slug === "ecommerce";
   const isMailService = service.slug === "correos-corporativos";
+  const isHostingService = service.slug === "hosting-administrado";
   const isDomainService = service.slug === "dominios";
   const isWorkspaceService = service.slug === "google-workspace";
   const isGiovsoft360Service = service.slug === "giovsoft-360";
@@ -334,9 +343,9 @@ export default function ServicePage() {
               <p className="site-kicker">Ecommerce para pequenas empresas</p>
               <h2>Convierte tus productos en una experiencia de compra clara.</h2>
               <p>
-                Disenamos tiendas en linea que ayudan a vender con orden:
-                catalogo facil de navegar, carrito claro, contacto rapido y una
-                base lista para crecer conforme tu operacion avance.
+                Diseñamos tiendas en línea que ayudan a vender con orden:
+                catálogo fácil de navegar, carrito claro, contacto rápido y una
+                base lista para crecer conforme tu operación avance.
               </p>
             </div>
 
@@ -398,7 +407,7 @@ export default function ServicePage() {
               </article>
               <article>
                 <strong>Pedidos</strong>
-                <span>mas orden para operar</span>
+                <span>más orden para operar</span>
               </article>
             </div>
 
@@ -426,7 +435,7 @@ export default function ServicePage() {
               <p>
                 Configuramos correos con dominio propio para que tu empresa se
                 vea confiable, mantenga conversaciones ordenadas y pueda operar
-                desde los dispositivos que usa todos los dias.
+                desde los dispositivos que usa todos los días.
               </p>
             </div>
 
@@ -457,7 +466,7 @@ export default function ServicePage() {
                   <span />
                   <div>
                     <strong>Equipo interno</strong>
-                    <small>Operacion y pendientes</small>
+                    <small>Operación y pendientes</small>
                   </div>
                 </article>
               </div>
@@ -505,6 +514,37 @@ export default function ServicePage() {
           </section>
         )}
 
+        {isHostingService && (
+          <section className="hosting-showcase">
+            <div className="hosting-showcase-copy">
+              <p className="site-kicker">Hosting administrado</p>
+              <h2>La infraestructura de tu proyecto, acompañada por GiovSoft.</h2>
+              <p>
+                Nos encargamos de la operación técnica del alojamiento para que tu
+                sitio o aplicación tenga una base estable, respaldada y preparada para
+                evolucionar conforme cambien sus necesidades.
+              </p>
+            </div>
+
+            <div className="hosting-server-visual" aria-hidden="true">
+              <div className="hosting-status"><i /> Servicio activo</div>
+              <div className="hosting-server-stack">
+                <article><ServerCog size={21} /><span><strong>Aplicación</strong><small>Entorno administrado</small></span><i /></article>
+                <article><DatabaseZap size={21} /><span><strong>Respaldos</strong><small>Copias programadas</small></span><i /></article>
+                <article><Cloud size={21} /><span><strong>Infraestructura</strong><small>Recursos preparados</small></span><i /></article>
+              </div>
+              <div className="hosting-pulse"><span /><span /><span /><span /><span /><span /></div>
+            </div>
+
+            <div className="hosting-quality-grid">
+              {hostingHighlights.map((item) => {
+                const HighlightIcon = item.icon;
+                return <article key={item.title}><HighlightIcon size={22} /><h3>{item.title}</h3><p>{item.copy}</p></article>;
+              })}
+            </div>
+          </section>
+        )}
+
         {isDomainService && (
           <section className="domain-showcase">
             <div className="domain-showcase-copy">
@@ -512,7 +552,7 @@ export default function ServicePage() {
               <h2>El punto de partida para que tu negocio exista en internet.</h2>
               <p>
                 Un buen dominio hace que tus clientes te encuentren, te recuerden
-                y confien mas en tu marca. Lo registramos y configuramos para que
+                y confíen más en tu marca. Lo registramos y configuramos para que
                 funcione con tu web, correos y servicios digitales.
               </p>
             </div>
@@ -671,7 +711,7 @@ export default function ServicePage() {
           <section className="suite-showcase">
             <div className="suite-showcase-copy">
               <p className="site-kicker">GiovSoft 360</p>
-              <h2>Todo tu ecosistema digital acompanado por un aliado.</h2>
+              <h2>Todo tu ecosistema digital acompañado por un aliado.</h2>
               <p>
                 Creamos el paquete digital que tu empresa necesita para iniciar
                 o crecer: presencia web, ventas, dominio, correo, herramientas
@@ -682,7 +722,7 @@ export default function ServicePage() {
             <div className="suite-hub-panel" aria-hidden="true">
               <div className="suite-hub-core">
                 <strong>360</strong>
-                <span>acompanamiento</span>
+                <span>acompañamiento</span>
               </div>
               <article className="suite-hub-node node-web">
                 <MonitorSmartphone size={20} />
@@ -709,11 +749,11 @@ export default function ServicePage() {
             <div className="suite-roadmap" aria-hidden="true">
               <article>
                 <span>01</span>
-                <strong>Diagnostico</strong>
+                <strong>Diagnóstico</strong>
               </article>
               <article>
                 <span>02</span>
-                <strong>Implementacion</strong>
+                <strong>Implementación</strong>
               </article>
               <article>
                 <span>03</span>

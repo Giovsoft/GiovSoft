@@ -1,7 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import CookieConsent from "./components/CookieConsent";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import AdminApplications from "./pages/AdminApplications";
+import AboutPage from "./pages/AboutPage";
+import AcademyPage from "./pages/AcademyPage";
 import AdminBusinessLines from "./pages/AdminBusinessLines";
 import AdminSales from "./pages/AdminSales";
 import AdminAudit from "./pages/AdminAudit";
@@ -25,11 +28,20 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminSupport from "./pages/AdminSupport";
 import AdminTickets from "./pages/AdminTickets";
 import AdminUsers from "./pages/AdminUsers";
+import ApplicationsPortfolioPage from "./pages/ApplicationsPortfolioPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ContactPage from "./pages/ContactPage";
+import CookiesPage from "./pages/CookiesPage";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
+import LegalNoticePage from "./pages/LegalNoticePage";
+import PortfolioPage from "./pages/PortfolioPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import ServicePage from "./pages/ServicePage";
+import SoftwarePortfolioPage from "./pages/SoftwarePortfolioPage";
+import SolutionsPage from "./pages/SolutionsPage";
+import TermsPage from "./pages/TermsPage";
+import WebsitePortfolioPage from "./pages/WebsitePortfolioPage";
 import Website from "./pages/Website";
 
 const isAdminHost =
@@ -42,7 +54,20 @@ function App() {
         <Route path="/" element={isAdminHost ? <Navigate to="/admin" replace /> : <Website />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/academy" element={<AcademyPage />} />
+        <Route path="/cookies" element={<CookiesPage />} />
+        <Route path="/nosotros" element={<AboutPage />} />
+        <Route path="/aviso-legal" element={<LegalNoticePage />} />
+        <Route path="/privacidad" element={<PrivacyPage />} />
         <Route path="/servicios/:slug" element={<ServicePage />} />
+        <Route path="/software" element={<Navigate to="/portafolio/software" replace />} />
+        <Route path="/aplicaciones" element={<Navigate to="/portafolio/aplicaciones" replace />} />
+        <Route path="/portafolio" element={<PortfolioPage />} />
+        <Route path="/portafolio/software" element={<SoftwarePortfolioPage />} />
+        <Route path="/portafolio/aplicaciones" element={<ApplicationsPortfolioPage />} />
+        <Route path="/portafolio/sitios-web" element={<WebsitePortfolioPage />} />
+        <Route path="/portafolio/ecommerce" element={<SolutionsPage type="ecommerce" />} />
+        <Route path="/terminos" element={<TermsPage />} />
         <Route
           path="/admin/restablecer-contrasena"
           element={
@@ -333,6 +358,7 @@ function App() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {!isAdminHost && <CookieConsent />}
     </BrowserRouter>
   );
 }

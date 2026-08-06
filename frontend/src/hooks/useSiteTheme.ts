@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react";
+import { cookieConsentKey, cookieConsentUpdatedEvent } from "../components/CookieConsent";
+
+function canStorePreference() {
+  try {
+    return JSON.parse(window.localStorage.getItem(cookieConsentKey) || "null")?.preferences === true;
+  } catch {
+    return false;
+  }
+}
 
 export function useSiteTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -8,7 +17,16 @@ export function useSiteTheme() {
   });
 
   useEffect(() => {
-    window.localStorage.setItem("site-theme", theme);
+    if (canStorePreference()) window.localStorage.setItem("site-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const syncPreference = () => {
+      if (canStorePreference()) window.localStorage.setItem("site-theme", theme);
+      else window.localStorage.removeItem("site-theme");
+    };
+    window.addEventListener(cookieConsentUpdatedEvent, syncPreference);
+    return () => window.removeEventListener(cookieConsentUpdatedEvent, syncPreference);
   }, [theme]);
 
   const isDark = theme === "dark";

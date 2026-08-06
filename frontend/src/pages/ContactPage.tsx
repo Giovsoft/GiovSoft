@@ -1,23 +1,21 @@
 import {
   ArrowRight,
-  AtSign,
-  ChartNetwork,
   Mail,
   MessageCircle,
   Phone,
   Send,
-  Share2,
 } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTiktok } from "react-icons/fa6";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import { useSiteTheme } from "../hooks/useSiteTheme";
 import { api } from "../lib/api";
 
 const whatsappMessage = encodeURIComponent(
-  "Hola GiovSoft, quiero informacion para iniciar un proyecto digital."
+  "Hola GiovSoft, quiero información para iniciar un proyecto digital."
 );
 const whatsappUrl = `https://wa.me/525566042994?text=${whatsappMessage}`;
 
@@ -35,7 +33,7 @@ const contactChannels = [
     icon: Mail,
   },
   {
-    label: "Telefono",
+    label: "Teléfono",
     value: "Disponible por WhatsApp",
     href: whatsappUrl,
     icon: Phone,
@@ -43,9 +41,10 @@ const contactChannels = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", href: "https://facebook.com", icon: Share2 },
-  { label: "Instagram", href: "https://instagram.com", icon: AtSign },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: ChartNetwork },
+  { label: "Instagram", href: "https://instagram.com", icon: FaInstagram },
+  { label: "Facebook", href: "https://facebook.com", icon: FaFacebookF },
+  { label: "LinkedIn", href: "https://linkedin.com", icon: FaLinkedinIn },
+  { label: "TikTok", href: "https://tiktok.com", icon: FaTiktok },
 ];
 
 export default function ContactPage() {

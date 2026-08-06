@@ -1,4 +1,16 @@
-import { ArrowRight, ChevronDown, Menu, Moon, Sun, X } from "lucide-react";
+import {
+  ArrowRight,
+  Boxes,
+  ChevronDown,
+  Code2,
+  Globe2,
+  Menu,
+  MonitorSmartphone,
+  Moon,
+  ShoppingCart,
+  Sun,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { serviceItems } from "../data/services";
 
@@ -6,6 +18,33 @@ const whatsappMessage = encodeURIComponent(
   "Hola GiovSoft, quiero información sobre sus servicios digitales."
 );
 const whatsappUrl = `https://wa.me/525566042994?text=${whatsappMessage}`;
+
+const portfolioItems = [
+  {
+    title: "Software",
+    copy: "Sistemas y herramientas para optimizar procesos.",
+    href: "/portafolio/software",
+    icon: Code2,
+  },
+  {
+    title: "Aplicaciones",
+    copy: "Aplicaciones web para clientes y equipos.",
+    href: "/portafolio/aplicaciones",
+    icon: MonitorSmartphone,
+  },
+  {
+    title: "Sitios web",
+    copy: "Experiencias digitales para marcas y negocios.",
+    href: "/portafolio/sitios-web",
+    icon: Globe2,
+  },
+  {
+    title: "Ecommerce",
+    copy: "Tiendas y canales digitales preparados para vender.",
+    href: "/portafolio/ecommerce",
+    icon: ShoppingCart,
+  },
+];
 
 interface SiteHeaderProps {
   isDark: boolean;
@@ -18,6 +57,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
   const [mobileSections, setMobileSections] = useState({
     main: true,
     services: false,
+    portfolio: false,
   });
 
   useEffect(() => {
@@ -91,9 +131,30 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
             })}
           </div>
         </div>
+        <div className="nav-dropdown site-desktop-nav-link">
+          <a href="/portafolio" className="nav-dropdown-trigger" onClick={closeMenu}>
+            Portafolio
+          </a>
+          <div className="services-menu portfolio-menu">
+            {portfolioItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <a key={item.href} href={item.href} onClick={closeMenu}>
+                  <Icon size={18} />
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{item.copy}</small>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+        <a className="site-desktop-nav-link" href="/nosotros" onClick={closeMenu}>Nosotros</a>
         <a className="site-desktop-nav-link" href="/#proceso" onClick={closeMenu}>Proceso</a>
         <a className="site-desktop-nav-link" href="/contacto" onClick={closeMenu}>Contacto</a>
-        <a className="site-academy-link site-desktop-nav-link" href="https://academy.giovsoft.com" target="_blank" rel="noreferrer" onClick={closeMenu}>Academy</a>
+        <a className="site-academy-link site-desktop-nav-link" href="/academy" onClick={closeMenu}>Academy</a>
 
         <div className="site-mobile-menu-panel">
           <section className="site-mobile-menu-section">
@@ -104,9 +165,41 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
             {mobileSections.main && (
               <div className="site-mobile-section-content">
                 <a href="/" onClick={closeMenu}>Inicio</a>
+                <a href="/nosotros" onClick={closeMenu}>Nosotros</a>
                 <a href="/#proceso" onClick={closeMenu}>Proceso</a>
                 <a href="/contacto" onClick={closeMenu}>Contacto</a>
-                <a className="site-academy-link" href="https://academy.giovsoft.com" target="_blank" rel="noreferrer" onClick={closeMenu}>Academy</a>
+                <a className="site-academy-link" href="/academy" onClick={closeMenu}>Academy</a>
+              </div>
+            )}
+          </section>
+
+          <section className="site-mobile-menu-section">
+            <button className="site-mobile-section-button" onClick={() => toggleMobileSection("portfolio")} type="button" aria-expanded={mobileSections.portfolio}>
+              Portafolio
+              <ChevronDown size={18} />
+            </button>
+            {mobileSections.portfolio && (
+              <div className="site-mobile-section-content is-services">
+                <a href="/portafolio" onClick={closeMenu}>
+                  <Boxes size={18} />
+                  <span>
+                    <strong>Ver portafolio</strong>
+                    <small>Conoce nuestro enfoque y todas las categorías.</small>
+                  </span>
+                </a>
+                {portfolioItems.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <a key={item.href} href={item.href} onClick={closeMenu}>
+                      <Icon size={18} />
+                      <span>
+                        <strong>{item.title}</strong>
+                        <small>{item.copy}</small>
+                      </span>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </section>

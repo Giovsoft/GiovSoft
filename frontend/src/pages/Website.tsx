@@ -54,7 +54,7 @@ const infrastructureStack = [
   },
   {
     name: "React",
-    copy: "Interfaces modernas, rapidas y preparadas para crecer.",
+    copy: "Interfaces modernas, rápidas y preparadas para crecer.",
     icon: Layers3,
   },
   {
@@ -69,12 +69,12 @@ const infrastructureStack = [
   },
   {
     name: "HTML",
-    copy: "Estructura clara, semantica y compatible para la web.",
+    copy: "Estructura clara, semántica y compatible para la web.",
     icon: Code2,
   },
   {
     name: "CSS",
-    copy: "Diseno responsive, animaciones y experiencia visual cuidada.",
+    copy: "Diseño responsive, animaciones y experiencia visual cuidada.",
     icon: Braces,
   },
 ];
@@ -83,25 +83,25 @@ const processSteps = [
   {
     number: "01",
     title: "Primer contacto",
-    copy: "Escuchamos que necesita tu negocio, en que etapa esta y que objetivo quieres lograr.",
+    copy: "Escuchamos qué necesita tu negocio, en qué etapa está y qué objetivo quieres lograr.",
     icon: MessageCircle,
   },
   {
     number: "02",
-    title: "Diagnostico",
+    title: "Diagnóstico",
     copy: "Revisamos tu presencia actual, canales, dominio, correos y oportunidades digitales.",
     icon: SearchCheck,
   },
   {
     number: "03",
-    title: "Implementacion",
-    copy: "Construimos y conectamos sitio, tienda, dominio, correos o Workspace segun el plan.",
+    title: "Implementación",
+    copy: "Construimos y conectamos sitio, tienda, dominio, correos o Workspace según el plan.",
     icon: Wrench,
   },
   {
     number: "04",
     title: "Lanzamiento y mejora",
-    copy: "Publicamos, acompanamos el arranque y dejamos una ruta para seguir creciendo.",
+    copy: "Publicamos, acompañamos el arranque y dejamos una ruta para seguir creciendo.",
     icon: TrendingUp,
   },
 ];
@@ -116,7 +116,7 @@ export default function Website() {
       <main>
         <section id="inicio" className="site-hero">
           <div className="site-hero-copy">
-            <p className="site-kicker">Tecnología para pequeñas empresas</p>
+            <p className="site-kicker">Tu aliado tecnológico</p>
             <h1>Impulsa tu negocio con presencia digital profesional.</h1>
             <p>
               Creamos sitios web, tiendas en línea, dominios y correos corporativos
@@ -214,7 +214,7 @@ export default function Website() {
             <p className="site-kicker">Proceso con un nuevo cliente</p>
             <h2>Del primer mensaje a una base digital funcionando.</h2>
             <p>
-              Acompanamos a cada nuevo cliente con un flujo claro:
+              Acompañamos a cada nuevo cliente con un flujo claro:
               entendemos el negocio, definimos prioridades, implementamos
               y dejamos una base lista para operar.
             </p>
@@ -226,7 +226,7 @@ export default function Website() {
               <span>03</span>
               <strong>Construimos y conectamos</strong>
               <span>04</span>
-              <strong>Lanzamos y acompanamos</strong>
+              <strong>Lanzamos y acompañamos</strong>
             </div>
           </div>
 
@@ -254,7 +254,7 @@ export default function Website() {
         <section className="site-section infrastructure-section">
           <div className="section-intro">
             <p className="site-kicker">Infraestructura y desarrollo</p>
-            <h2>Construimos con tecnologias modernas y una base preparada para crecer.</h2>
+            <h2>Construimos con tecnologías modernas y una base preparada para crecer.</h2>
           </div>
 
           <div className="infrastructure-layout">

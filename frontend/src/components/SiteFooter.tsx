@@ -1,5 +1,7 @@
-import { AtSign, ChartNetwork, LockKeyhole, Share2 } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTiktok } from "react-icons/fa6";
 import { serviceItems } from "../data/services";
+import { openCookieSettingsEvent } from "./CookieConsent";
 
 const footerSections = [
   {
@@ -8,6 +10,8 @@ const footerSections = [
       { label: "Inicio", href: "/" },
       { label: "Servicios", href: "/#servicios" },
       { label: "Proceso", href: "/#proceso" },
+      { label: "Nosotros", href: "/nosotros" },
+      { label: "Academy", href: "/academy" },
       { label: "Contacto", href: "/contacto" },
     ],
   },
@@ -21,17 +25,19 @@ const footerSections = [
   {
     title: "Legal",
     links: [
-      { label: "Términos y condiciones", href: "#terminos" },
-      { label: "Política de privacidad", href: "#privacidad" },
-      { label: "Aviso legal", href: "#aviso-legal" },
+      { label: "Términos y condiciones", href: "/terminos" },
+      { label: "Política de privacidad", href: "/privacidad" },
+      { label: "Aviso legal", href: "/aviso-legal" },
+      { label: "Política de cookies", href: "/cookies" },
     ],
   },
 ];
 
 const socialLinks = [
-  { label: "Facebook", href: "https://facebook.com", icon: Share2 },
-  { label: "Instagram", href: "https://instagram.com", icon: AtSign },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: ChartNetwork },
+  { label: "Instagram", href: "https://instagram.com", icon: FaInstagram },
+  { label: "Facebook", href: "https://facebook.com", icon: FaFacebookF },
+  { label: "LinkedIn", href: "https://linkedin.com", icon: FaLinkedinIn },
+  { label: "TikTok", href: "https://tiktok.com", icon: FaTiktok },
 ];
 
 interface SiteFooterProps {
@@ -48,8 +54,8 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
             alt="GiovSoft"
           />
           <p>
-            Soluciones tecnológicas para pequeñas empresas que quieren vender,
-            comunicarse y crecer con una base digital profesional.
+            Tu aliado tecnológico para crear soluciones que ayuden a vender,
+            comunicarse, operar y crecer con una base digital profesional.
           </p>
           <a className="footer-contact" href="mailto:contacto@giovsoft.com">
             contacto@giovsoft.com
@@ -90,6 +96,7 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
 
       <div className="footer-bottom">
         <span>© 2026 GiovSoft. Todos los derechos reservados.</span>
+        <button onClick={() => window.dispatchEvent(new Event(openCookieSettingsEvent))} type="button">Preferencias de cookies</button>
       </div>
     </footer>
   );

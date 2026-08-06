@@ -3,6 +3,7 @@ import {
   Mail,
   MonitorSmartphone,
   PanelsTopLeft,
+  ServerCog,
   ShoppingCart,
 } from "lucide-react";
 
@@ -10,15 +11,15 @@ export const serviceItems = [
   {
     slug: "giovsoft-360",
     title: "GiovSoft 360",
-    copy: "Acompanamiento integral para crear, conectar y mantener la base digital de tu negocio en un solo paquete.",
+    copy: "Acompañamiento integral para crear, conectar y mantener la base digital de tu negocio en un solo paquete.",
     detail:
-      "Unimos sitio web o ecommerce, dominio, correos corporativos, Google Workspace y acompanamiento continuo para que tu empresa avance con una estrategia digital ordenada.",
-    outcome: "Un aliado tecnologico que acompana tu crecimiento digital de punta a punta.",
+      "Unimos sitio web o ecommerce, dominio, correos corporativos, Google Workspace y acompañamiento continuo para que tu empresa avance con una estrategia digital ordenada.",
+    outcome: "Un aliado tecnológico que acompaña tu crecimiento digital de punta a punta.",
     features: [
-      "Diagnostico inicial y ruta de implementacion.",
-      "Sitio web o tienda en linea segun las necesidades del negocio.",
+      "Diagnóstico inicial y ruta de implementación.",
+      "Sitio web o tienda en línea según las necesidades del negocio.",
       "Dominio, correos corporativos y herramientas de trabajo conectadas.",
-      "Acompanamiento para mejoras, soporte y evolucion del paquete.",
+      "Acompañamiento para mejoras, soporte y evolución del paquete.",
     ],
     icon: PanelsTopLeft,
   },
@@ -27,7 +28,7 @@ export const serviceItems = [
     title: "Sitios web",
     copy: "Páginas modernas, rápidas y claras para presentar tu negocio, captar clientes y transmitir confianza.",
     detail:
-      "Creamos sitios web profesionales pensados para pequeñas empresas que necesitan verse confiables, explicar sus servicios y recibir nuevos contactos.",
+      "Creamos sitios web profesionales para negocios y organizaciones que necesitan verse confiables, explicar sus servicios y recibir nuevos contactos.",
     outcome: "Tu negocio disponible en internet con una imagen clara y profesional.",
     features: [
       "Diseño adaptable a celular, tablet y escritorio.",
@@ -40,18 +41,34 @@ export const serviceItems = [
   {
     slug: "ecommerce",
     title: "Ecommerce",
-    copy: "Tiendas en linea para vender productos, recibir pedidos e integrar pagos y envios con plataformas externas.",
+    copy: "Tiendas en línea para vender productos, recibir pedidos e integrar pagos y envíos con plataformas externas.",
     detail:
-      "Implementamos tiendas en linea para que puedas mostrar productos, recibir pedidos, conectar pagos con Stripe o Mercado Pago e integrar soluciones de envio como Skydrop o Envia.com segun la etapa del negocio.",
-    outcome: "Un canal de venta digital listo para cobrar, gestionar pedidos y coordinar envios.",
+      "Implementamos tiendas en línea para que puedas mostrar productos, recibir pedidos, conectar pagos con Stripe o Mercado Pago e integrar soluciones de envío como Skydrop o Envia.com según la etapa del negocio.",
+    outcome: "Un canal de venta digital listo para cobrar, gestionar pedidos y coordinar envíos.",
     features: [
-      "Catalogo de productos organizado por categorias.",
+      "Catálogo de productos organizado por categorías.",
       "Carrito, flujo de compra y pedidos.",
       "Integraciones con Stripe, Mercado Pago u otros medios de pago.",
-      "Conexiones con Skydrop, Envia.com u operadores logisticos compatibles.",
-      "Panel o flujo operativo para administrar ventas, pagos y envios.",
+      "Conexiones con Skydrop, Envia.com u operadores logísticos compatibles.",
+      "Panel o flujo operativo para administrar ventas, pagos y envíos.",
     ],
     icon: ShoppingCart,
+  },
+  {
+    slug: "hosting-administrado",
+    title: "Hosting administrado",
+    copy: "Alojamiento supervisado para mantener tu sitio o aplicación disponible, actualizado y respaldado.",
+    detail:
+      "Administramos la infraestructura de tu sitio web o aplicación para que tu equipo pueda concentrarse en el negocio mientras cuidamos despliegues, actualizaciones, respaldos y operación técnica.",
+    outcome: "Infraestructura administrada por un aliado tecnológico que acompaña la continuidad de tu proyecto.",
+    features: [
+      "Configuración y puesta en marcha del entorno de alojamiento.",
+      "Despliegues y actualizaciones técnicas controladas.",
+      "Respaldos periódicos conforme al plan contratado.",
+      "Supervisión de disponibilidad y atención de incidencias.",
+      "Acompañamiento para escalar recursos cuando el proyecto lo requiera.",
+    ],
+    icon: ServerCog,
   },
   {
     slug: "correos-corporativos",
@@ -71,15 +88,15 @@ export const serviceItems = [
   {
     slug: "dominios",
     title: "Dominios",
-    copy: "Registro, configuracion y conexion de dominios para que tu marca tenga una direccion profesional en internet.",
+    copy: "Registro, configuración y conexión de dominios para que tu marca tenga una dirección profesional en internet.",
     detail:
       "Te ayudamos a elegir, registrar y configurar el dominio de tu negocio para conectarlo con tu sitio web, correos corporativos y servicios digitales.",
-    outcome: "Tu marca con una direccion propia, clara y lista para operar en internet.",
+    outcome: "Tu marca con una dirección propia, clara y lista para operar en internet.",
     features: [
-      "Busqueda y seleccion de dominio disponible.",
-      "Configuracion de DNS para web, correo y servicios externos.",
-      "Conexion con sitio web, tienda en linea o correos corporativos.",
-      "Acompanamiento para renovaciones y administracion basica.",
+      "Búsqueda y selección de dominio disponible.",
+      "Configuración de DNS para web, correo y servicios externos.",
+      "Conexión con sitio web, tienda en línea o correos corporativos.",
+      "Acompañamiento para renovaciones y administración básica.",
     ],
     icon: Globe2,
   },
