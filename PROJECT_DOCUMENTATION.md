@@ -4,7 +4,7 @@
 
 GiovSoft es una aplicacion web con arquitectura frontend-backend. El frontend esta construido con React, Vite y TypeScript, e incluye dos experiencias principales:
 
-- Un sitio web publico para promocionar servicios tecnologicos para pequenas empresas.
+- Un sitio web publico para presentar a GiovSoft como aliado tecnologico y promocionar soluciones digitales.
 - Un panel administrativo interno disponible en una ruta separada.
 
 El backend se mantiene en fase inicial con configuracion base en Node.js, preparado para futuras APIs.
@@ -101,7 +101,7 @@ El sitio publico esta implementado en `frontend/src/pages/Website.tsx` y se sirv
 
 ### Objetivo Comercial
 
-Promocionar a GiovSoft como aliado tecnologico para pequenas empresas, con enfoque en construir una base digital profesional para vender, comunicarse y crecer.
+Promocionar a GiovSoft como aliado tecnologico para organizaciones que necesitan construir, integrar y evolucionar soluciones digitales.
 
 Servicios promocionados:
 
@@ -168,7 +168,7 @@ Elementos visuales:
 
 Ruta: `/servicios/ecommerce`
 
-Pagina enfocada en tiendas en linea para pequenas empresas.
+Pagina enfocada en tiendas en linea y canales de venta digitales escalables.
 
 Elementos visuales:
 
@@ -283,7 +283,7 @@ Incluyen:
 
 ### Consideraciones de Diseno
 
-- El sitio publico prioriza una estetica tecnologica, limpia y orientada a pequenas empresas.
+- El sitio publico prioriza una estetica tecnologica, limpia y orientada a posicionar a GiovSoft como aliado estrategico.
 - El panel admin conserva su diseno operativo.
 - El sitio publico y el admin comparten archivo CSS, pero usan clases diferenciadas (`site-*`, `service-*`, `footer-*`, `timeline-*`, etc.) para reducir interferencias.
 - Las paginas de servicio usan bloques visuales propios para reforzar el valor de cada oferta.
@@ -535,7 +535,10 @@ Scripts principales:
   - Politica de privacidad.
   - Aviso legal.
 - Sustituir enlaces temporales de redes sociales por URLs oficiales.
-- Optimizar SEO: meta tags, Open Graph, descripcion y favicon final.
+- SEO tecnico implementado: titulos y descripciones por ruta, canonical, Open Graph, Twitter Cards, datos estructurados, `robots.txt` y sitemap XML.
+- Las rutas administrativas se excluyen de indexacion y las direcciones inexistentes responden con HTTP 404.
+- La analitica es opcional mediante `VITE_GA_MEASUREMENT_ID` y solo se carga despues del consentimiento explicito.
+- El panel administrativo utiliza carga diferida para reducir el JavaScript inicial del sitio publico.
 - Agregar formulario de contacto o integracion CRM.
 - Definir precios, alcances y entregables para GiovSoft 360.
 

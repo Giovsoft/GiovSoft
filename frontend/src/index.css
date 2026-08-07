@@ -14401,6 +14401,15 @@ tr:has(.clients-action-menu.is-open) {
 .lead-intelligence-table input, .lead-intelligence-table select { background: var(--admin-surface, #fff); border: 1px solid #dfe6ef; border-radius: .55rem; min-height: 2.6rem; padding: 0 .7rem; min-width: 9rem; }
 .lead-intelligence-table a { align-items: center; color: #4169ff; display: inline-flex; font-weight: 800; gap: .4rem; }
 
+.route-loading { min-height: 100vh; display: grid; place-items: center; color: #496174; background: #f6f9fb; font-weight: 800; }
+.not-found-page { min-height: 66vh; display: grid; place-items: center; align-content: center; gap: 1rem; padding: 7rem max(1.25rem, 6vw); text-align: center; }
+.not-found-page > svg { color: var(--site-accent); }
+.not-found-page h1 { max-width: 760px; margin: 0; color: var(--site-heading); font-size: clamp(2.4rem, 6vw, 5.2rem); line-height: .98; letter-spacing: -.055em; }
+.not-found-page > p:not(.site-kicker) { max-width: 650px; margin: 0; color: var(--site-muted); line-height: 1.75; }
+.not-found-page > div { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: .7rem; }
+.not-found-page > div > button { display: inline-flex; align-items: center; gap: .5rem; min-height: 3rem; padding: 0 1.2rem; color: var(--site-heading); border: 1px solid var(--site-border-strong); border-radius: 999px; background: var(--site-surface); font-weight: 850; cursor: pointer; }
+.not-found-shell.is-dark .route-loading { color: #bed0da; background: #081823; }
+
 /* The full desktop navigation no longer fits once all public modules are present. */
 @media (min-width: 768px) and (max-width: 1100px) {
   .site-nav {

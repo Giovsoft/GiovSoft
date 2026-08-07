@@ -1,40 +1,17 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import CookieConsent from "./components/CookieConsent";
+import Analytics from "./components/Analytics";
+import SeoManager from "./components/SeoManager";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
-import AdminApplications from "./pages/AdminApplications";
 import AboutPage from "./pages/AboutPage";
 import AcademyPage from "./pages/AcademyPage";
-import AdminBusinessLines from "./pages/AdminBusinessLines";
-import AdminSales from "./pages/AdminSales";
-import AdminAudit from "./pages/AdminAudit";
-import AdminClients from "./pages/AdminClients";
-import AdminCompanies from "./pages/AdminCompanies";
-import AdminFollowups from "./pages/AdminFollowups";
-import AdminPlaceholder from "./pages/AdminPlaceholder";
-import AdminBilling from "./pages/AdminBilling";
-import AdminIntegrations from "./pages/AdminIntegrations";
-import AdminLeadIntelligence from "./pages/AdminLeadIntelligence";
-import AdminPayments from "./pages/AdminPayments";
-import AdminProfile from "./pages/AdminProfile";
-import AdminProjects from "./pages/AdminProjects";
-import AdminQuotes from "./pages/AdminQuotes";
-import AdminReceipts from "./pages/AdminReceipts";
-import AdminRequests from "./pages/AdminRequests";
-import AdminRoles from "./pages/AdminRoles";
-import AdminReports from "./pages/AdminReports";
-import AdminServices from "./pages/AdminServices";
-import AdminSettings from "./pages/AdminSettings";
-import AdminSupport from "./pages/AdminSupport";
-import AdminTickets from "./pages/AdminTickets";
-import AdminUsers from "./pages/AdminUsers";
 import ApplicationsPortfolioPage from "./pages/ApplicationsPortfolioPage";
-import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ContactPage from "./pages/ContactPage";
 import CookiesPage from "./pages/CookiesPage";
-import Dashboard from "./pages/Dashboard";
-import LoginPage from "./pages/LoginPage";
 import LegalNoticePage from "./pages/LegalNoticePage";
+import NotFoundPage from "./pages/NotFoundPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import ServicePage from "./pages/ServicePage";
@@ -44,12 +21,43 @@ import TermsPage from "./pages/TermsPage";
 import WebsitePortfolioPage from "./pages/WebsitePortfolioPage";
 import Website from "./pages/Website";
 
+const AdminApplications = lazy(() => import("./pages/AdminApplications"));
+const AdminBusinessLines = lazy(() => import("./pages/AdminBusinessLines"));
+const AdminSales = lazy(() => import("./pages/AdminSales"));
+const AdminAudit = lazy(() => import("./pages/AdminAudit"));
+const AdminClients = lazy(() => import("./pages/AdminClients"));
+const AdminCompanies = lazy(() => import("./pages/AdminCompanies"));
+const AdminFollowups = lazy(() => import("./pages/AdminFollowups"));
+const AdminPlaceholder = lazy(() => import("./pages/AdminPlaceholder"));
+const AdminBilling = lazy(() => import("./pages/AdminBilling"));
+const AdminIntegrations = lazy(() => import("./pages/AdminIntegrations"));
+const AdminLeadIntelligence = lazy(() => import("./pages/AdminLeadIntelligence"));
+const AdminPayments = lazy(() => import("./pages/AdminPayments"));
+const AdminProfile = lazy(() => import("./pages/AdminProfile"));
+const AdminProjects = lazy(() => import("./pages/AdminProjects"));
+const AdminQuotes = lazy(() => import("./pages/AdminQuotes"));
+const AdminReceipts = lazy(() => import("./pages/AdminReceipts"));
+const AdminRequests = lazy(() => import("./pages/AdminRequests"));
+const AdminRoles = lazy(() => import("./pages/AdminRoles"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
+const AdminServices = lazy(() => import("./pages/AdminServices"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminSupport = lazy(() => import("./pages/AdminSupport"));
+const AdminTickets = lazy(() => import("./pages/AdminTickets"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const ChangePasswordPage = lazy(() => import("./pages/ChangePasswordPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+
 const isAdminHost =
   typeof window !== "undefined" && window.location.hostname === "admin.giovsoft.com";
 
 function App() {
   return (
     <BrowserRouter>
+      <SeoManager />
+      <Analytics />
+      <Suspense fallback={<div className="route-loading" role="status">Cargando…</div>}>
       <Routes>
         <Route path="/" element={isAdminHost ? <Navigate to="/admin" replace /> : <Website />} />
         <Route path="/login" element={<LoginPage />} />
@@ -356,8 +364,9 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </Suspense>
       {!isAdminHost && <CookieConsent />}
     </BrowserRouter>
   );

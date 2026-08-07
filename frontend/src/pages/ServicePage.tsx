@@ -340,7 +340,7 @@ export default function ServicePage() {
         {isEcommerceService && (
           <section className="commerce-showcase">
             <div className="commerce-showcase-copy">
-              <p className="site-kicker">Ecommerce para pequenas empresas</p>
+              <p className="site-kicker">Ecommerce para negocios en crecimiento</p>
               <h2>Convierte tus productos en una experiencia de compra clara.</h2>
               <p>
                 Diseñamos tiendas en línea que ayudan a vender con orden:
