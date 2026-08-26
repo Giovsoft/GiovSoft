@@ -17,6 +17,7 @@ import {
   Plus,
   Save,
   Search,
+  ShoppingCart,
   UserPlus,
   X,
   UserRound,
@@ -28,6 +29,7 @@ import { useCloseOnOutsideClick } from "../hooks/useCloseOnOutsideClick";
 import { api } from "../lib/api";
 
 interface ClientItem {
+  preferences?: { industry?: string; companySize?: string; executive?: string; category?: string; sendWelcomeEmail?: boolean; welcomeEmail?: { status: string; reason?: string } };
   id: string;
   businessName: string;
   legalName?: string;
@@ -49,11 +51,25 @@ interface ClientItem {
   contracts: Record<string, string>[];
   documents: Record<string, string>[];
   activity: Record<string, string>[];
+  ecommerce?: {
+    status: string;
+    storeId: string;
+    storeName?: string;
+    adminUrl?: string;
+    userId?: string;
+    userEmail?: string;
+    enabledAt?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 interface ClientForm {
+  industry: string;
+  companySize: string;
+  executive: string;
+  category: string;
+  sendWelcomeEmail: boolean;
   businessName: string;
   legalName: string;
   rfc: string;
@@ -85,6 +101,11 @@ interface ClientForm {
 }
 
 const emptyForm: ClientForm = {
+  industry: "",
+  companySize: "",
+  executive: "",
+  category: "",
+  sendWelcomeEmail: false,
   businessName: "",
   legalName: "",
   rfc: "",
@@ -170,10 +191,22 @@ function formatLines(items: Record<string, string>[] = [], keys: string[]) {
   return items.map((item) => keys.map((key) => item[key] || "").join(" | ")).join("\n");
 }
 
+// El contacto principal se edita campo por campo. No agregamos espacios
+// alrededor del separador porque serían indistinguibles de un espacio que el
+// usuario acaba de escribir antes de su apellido.
+function formatContactLines(items: Record<string, string>[] = []) {
+  return items.map((item) => [item.name || "", item.role || "", item.email || "", item.phone || ""].join("|")).join("\n");
+}
+
 function clientToForm(client: ClientItem): ClientForm {
   const fiscalAddress = client.fiscalAddress || {};
 
   return {
+    industry: client.preferences?.industry || "",
+    companySize: client.preferences?.companySize || "",
+    executive: client.preferences?.executive || "",
+    category: client.preferences?.category || "",
+    sendWelcomeEmail: Boolean(client.preferences?.sendWelcomeEmail),
     businessName: client.businessName || "",
     legalName: client.legalName || client.businessName || "",
     rfc: client.rfc || "",
@@ -193,7 +226,7 @@ function clientToForm(client: ClientItem): ClientForm {
     fiscalExteriorNumber: fiscalAddress.exteriorNumber || "",
     fiscalInteriorNumber: fiscalAddress.interiorNumber || "",
     fiscalReference: fiscalAddress.reference || "",
-    contacts: formatLines(client.contacts, ["name", "role", "email", "phone"]),
+    contacts: formatContactLines(client.contacts),
     services: formatLines(client.services, ["name", "status", "startDate", "renewalDate"]),
     domains: formatLines(client.domains, ["domain", "registrar", "expiresAt", "dnsStatus"]),
     hosting: formatLines(client.hosting, ["provider", "plan", "expiresAt", "access"]),
@@ -207,6 +240,7 @@ function clientToForm(client: ClientItem): ClientForm {
 
 function formToPayload(form: ClientForm) {
   return {
+    preferences: { industry: form.industry, companySize: form.companySize, executive: form.executive, category: form.category, sendWelcomeEmail: form.sendWelcomeEmail },
     businessName: form.businessName,
     legalName: form.legalName,
     rfc: form.rfc,
@@ -296,6 +330,7 @@ export default function AdminClients() {
   const [cfdiUse, setCfdiUse] = useState(defaultCfdiUse);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [enablingEcommerceId, setEnablingEcommerceId] = useState("");
   const [message, setMessage] = useState("");
 
   useCloseOnOutsideClick(Boolean(actionClientId), () => setActionClientId(""));
@@ -347,14 +382,14 @@ export default function AdminClients() {
   }
 
   function getModalContactParts() {
-    const [name = "", role = "", email = "", phone = ""] = modalForm.contacts.split("|").map((part) => part.trim());
+    const [name = "", role = "", email = "", phone = ""] = modalForm.contacts.split("|");
     return { name, role, email, phone };
   }
 
   function updateModalContact(key: "name" | "role" | "email" | "phone", value: string) {
     const contact = getModalContactParts();
     const nextContact = { ...contact, [key]: value };
-    updateModalForm("contacts", `${nextContact.name} | ${nextContact.role} | ${nextContact.email} | ${nextContact.phone}`);
+    updateModalForm("contacts", `${nextContact.name}|${nextContact.role}|${nextContact.email}|${nextContact.phone}`);
   }
 
   function selectClient(client: ClientItem) {
@@ -411,6 +446,32 @@ export default function AdminClients() {
     }
   }
 
+  async function enableEcommerce(client: ClientItem) {
+    if (client.ecommerce?.status === "active" && client.ecommerce?.userId) {
+      window.open(client.ecommerce.adminUrl || "http://localhost:5188", "_blank", "noopener,noreferrer");
+      setActionClientId("");
+      return;
+    }
+    setActionClientId("");
+    setEnablingEcommerceId(client.id);
+    setMessage("");
+    try {
+      const response = await api.post<{ client: ClientItem; message: string; temporaryPassword?: string }>(`/api/admin/clients/${client.id}/ecommerce/enable`);
+      setClients((current) => current.map((item) => item.id === client.id ? response.data.client : item));
+      const loginDetail = response.data.temporaryPassword
+        ? ` Usuario: ${response.data.client.ecommerce?.userEmail}. Contraseña temporal: ${response.data.temporaryPassword}`
+        : "";
+      setMessage(`${response.data.message || "Ecommerce habilitado correctamente."}${loginDetail}`);
+    } catch (error: unknown) {
+      const apiMessage = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : "";
+      setMessage(apiMessage || "No se pudo habilitar el ecommerce.");
+    } finally {
+      setEnablingEcommerceId("");
+    }
+  }
+
   async function handleModalSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -427,7 +488,7 @@ export default function AdminClients() {
       const response = await api.post<{ client: ClientItem }>("/api/admin/clients", payload);
 
       setClients((currentClients) => [response.data.client, ...currentClients]);
-      setMessage("Cliente creado.");
+      setMessage(response.data.client.preferences?.welcomeEmail?.status === "sent" ? "Cliente creado. Correo de bienvenida enviado." : response.data.client.preferences?.sendWelcomeEmail ? `Cliente creado. No se envió la bienvenida: ${response.data.client.preferences?.welcomeEmail?.reason || "revisa SMTP"}.` : "Cliente creado.");
       closeClientModal(true);
     } catch {
       setMessage("No se pudo guardar el cliente.");
@@ -454,7 +515,7 @@ export default function AdminClients() {
         }
         return [response.data.client, ...currentClients];
       });
-      setMessage(editingClientId ? "Cliente actualizado." : "Cliente creado.");
+      setMessage(editingClientId ? "Cliente actualizado." : response.data.client.preferences?.welcomeEmail?.status === "sent" ? "Cliente creado. Correo de bienvenida enviado." : response.data.client.preferences?.sendWelcomeEmail ? `Cliente creado. No se envió la bienvenida: ${response.data.client.preferences?.welcomeEmail?.reason || "revisa SMTP"}.` : "Cliente creado.");
       closeClientModal(true);
     } catch {
       setMessage("No se pudo guardar el cliente.");
@@ -465,6 +526,14 @@ export default function AdminClients() {
 
   const canMoveForward = modalStep !== 0 || Boolean(modalForm.businessName.trim());
   const modalContact = getModalContactParts();
+  const editingClient = clients.find((client) => client.id === editingClientId);
+  const ecommerceReady = Boolean(editingClient?.ecommerce?.status === "active" && editingClient.ecommerce.userId);
+  const ecommerceDetailsChanged = Boolean(editingClient && (
+    modalForm.businessName !== editingClient.businessName ||
+    modalForm.website !== (editingClient.website || "") ||
+    modalForm.status !== editingClient.status ||
+    modalForm.contacts !== clientToForm(editingClient).contacts
+  ));
 
   if (isClientModalOpen) {
     return (
@@ -686,7 +755,7 @@ export default function AdminClients() {
             <div className="client-register-grid is-two">
               <label>
                 Tipo de industria
-                <select defaultValue="">
+                <select value={modalForm.industry} onChange={(event) => updateModalForm("industry", event.target.value)}>
                   <option value="">Seleccionar industria</option>
                   <option>Salud</option>
                   <option>Servicios</option>
@@ -695,7 +764,7 @@ export default function AdminClients() {
               </label>
               <label>
                 Tamaño de empresa
-                <select defaultValue="">
+                <select value={modalForm.companySize} onChange={(event) => updateModalForm("companySize", event.target.value)}>
                   <option value="">Seleccionar tamaño</option>
                   <option>1-10</option>
                   <option>11-50</option>
@@ -721,14 +790,14 @@ export default function AdminClients() {
             <div className="client-register-grid is-two">
               <label>
                 Asignar ejecutivo
-                <select defaultValue="">
+                <select value={modalForm.executive} onChange={(event) => updateModalForm("executive", event.target.value)}>
                   <option value="">Seleccionar ejecutivo</option>
                   <option>Giovanni Ramos</option>
                 </select>
               </label>
               <label>
                 Grupo / Categoría
-                <select defaultValue="">
+                <select value={modalForm.category} onChange={(event) => updateModalForm("category", event.target.value)}>
                   <option value="">Seleccionar grupo</option>
                   <option>Premium</option>
                   <option>Operativo</option>
@@ -753,14 +822,49 @@ export default function AdminClients() {
                 </select>
               </label>
               <label className="client-register-check">
-                <input type="checkbox" />
+                <input type="checkbox" checked={modalForm.sendWelcomeEmail} disabled={Boolean(editingClientId)} onChange={(event) => updateModalForm("sendWelcomeEmail", event.target.checked)} />
                 Enviar correo de bienvenida al registrar el cliente
               </label>
             </div>
           </article>
         </section>
 
-        {message && <p className={`request-admin-message ${message.startsWith("No se") ? "is-error" : ""}`}>{message}</p>}
+        <section className="client-register-card" aria-labelledby="client-ecommerce-title">
+          <h3 id="client-ecommerce-title"><ShoppingCart size={19} /> Ecommerce · GiovCommerce</h3>
+          {!editingClient ? (
+            <p>Guarda el cliente primero. Después podrás habilitar su tienda desde esta sección al editarlo.</p>
+          ) : (
+            <>
+              <div className="client-register-grid is-two">
+                <div>
+                  <strong>Estado</strong>
+                  <p>{editingClient.ecommerce?.status === "active" ? "Ecommerce habilitado" : "Sin habilitar"}</p>
+                  {editingClient.ecommerce?.storeName && <p>Tienda: {editingClient.ecommerce.storeName}</p>}
+                </div>
+                <div>
+                  <strong>Usuario del cliente</strong>
+                  <p>{editingClient.ecommerce?.userEmail || getPrimaryContact(editingClient)?.email || "Agrega un correo al contacto principal."}</p>
+                  <small>{ecommerceReady ? "El cliente administra su tienda con su cuenta de GiovCommerce." : "Al habilitar se crea el usuario con contraseña temporal y cambio obligatorio en el primer acceso."}</small>
+                </div>
+              </div>
+              {!ecommerceReady && ecommerceDetailsChanged && <p role="status">Guarda los cambios de nombre, contacto, sitio web o estado antes de habilitar el ecommerce.</p>}
+              {editingClient.status === "inactive" && <p>Activa y guarda el cliente antes de habilitar su ecommerce.</p>}
+              <div className="client-register-actions">
+                <button
+                  className="client-register-save"
+                  type="button"
+                  disabled={Boolean(enablingEcommerceId) || saving || editingClient.status === "inactive" || (!ecommerceReady && ecommerceDetailsChanged)}
+                  onClick={() => void enableEcommerce(editingClient)}
+                >
+                  <ShoppingCart size={18} />
+                  {enablingEcommerceId === editingClient.id ? "Habilitando..." : ecommerceReady ? "Abrir ecommerce" : editingClient.ecommerce?.status === "active" ? "Generar usuario ecommerce" : "Habilitar ecommerce"}
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+
+        {message && <p role="status" className={`request-admin-message ${message.startsWith("No se") ? "is-error" : ""}`}>{message}</p>}
       </form>
     );
   }

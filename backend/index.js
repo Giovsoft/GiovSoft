@@ -10,6 +10,7 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const { Pool } = require("pg");
 const SVGtoPDF = require("svg-to-pdfkit");
+const { sendClientWelcome } = require("./clientWelcome");
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
@@ -20,7 +21,7 @@ const allowedOrigins = (
   .split(",")
   .map((origin) => origin.trim());
 const localDevHostnames = new Set(["localhost", "127.0.0.1", "admin.localhost"]);
-const dataDir = path.join(__dirname, "data");
+const dataDir = process.env.GIOVSOFT_DATA_DIR || path.join(__dirname, "data");
 const requestsFile = path.join(dataDir, "contact-requests.json");
 const clientsFile = path.join(dataDir, "clients.json");
 const adminUsersFile = path.join(dataDir, "admin-users.json");
@@ -40,9 +41,11 @@ const giovsoftLegalName = "GiovSoft Technologies, S.A.S.";
 const adminEmail = process.env.ADMIN_EMAIL || "contacto@giovsoft.com";
 const adminPassword = process.env.ADMIN_PASSWORD || "GiovSoft2026!";
 const adminName = process.env.ADMIN_NAME || "Giovanni Ramos";
-const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || "").toLowerCase();
-const masterAdminPassword = process.env.MASTER_ADMIN_PASSWORD || "";
-const masterAdminName = process.env.MASTER_ADMIN_NAME || "Master GiovSoft";
+const isProduction = process.env.NODE_ENV === "production";
+const developmentMasterEmail = "dev@giovsoft.com";
+const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || (!isProduction ? developmentMasterEmail : "")).toLowerCase();
+const masterAdminPassword = process.env.MASTER_ADMIN_PASSWORD || (!isProduction ? "GiovSoftDev2026!" : "");
+const masterAdminName = process.env.MASTER_ADMIN_NAME || (!isProduction ? "GiovSoft Dev" : "Master GiovSoft");
 const temporaryAdminPassword = "123456";
 const adminTokenSecret = process.env.ADMIN_TOKEN_SECRET || "giovsoft-local-admin-secret";
 const adminTokenTtlMs = Number(process.env.ADMIN_TOKEN_TTL_HOURS || 12) * 60 * 60 * 1000;
@@ -51,6 +54,9 @@ const masterTwoFactorEnabled = process.env.MASTER_ADMIN_2FA_ENABLED === "true";
 const twoFactorCodeTtlMs = Number(process.env.ADMIN_2FA_CODE_TTL_MINUTES || 10) * 60 * 1000;
 const twoFactorMaxAttempts = Number(process.env.ADMIN_2FA_MAX_ATTEMPTS || 5);
 const genericPublicRfc = "XAXX010101000";
+const giovCommerceApiUrl = (process.env.GIOVCOMMERCE_API_URL || "http://localhost:4010").replace(/\/$/, "");
+const giovCommerceHubSecret = process.env.GIOVCOMMERCE_HUB_SECRET || "giovsoft-commerce-dev-secret";
+const giovCommercePublicUrl = process.env.GIOVCOMMERCE_PUBLIC_URL || "http://localhost:5188";
 const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 const cloudSqlHost = process.env.CLOUD_SQL_CONNECTION_NAME
   ? `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`
@@ -518,6 +524,9 @@ function createTransporter() {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === "true",
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -1316,6 +1325,7 @@ async function ensureDatabase() {
       contracts JSONB NOT NULL DEFAULT '[]'::jsonb,
       documents JSONB NOT NULL DEFAULT '[]'::jsonb,
       activity JSONB NOT NULL DEFAULT '[]'::jsonb,
+      ecommerce JSONB NOT NULL DEFAULT '{}'::jsonb,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -1329,6 +1339,8 @@ async function ensureDatabase() {
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS tax_regime TEXT;
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS cfdi_use TEXT;
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS fiscal_address JSONB NOT NULL DEFAULT '{}'::jsonb;
+    ALTER TABLE clients ADD COLUMN IF NOT EXISTS ecommerce JSONB NOT NULL DEFAULT '{}'::jsonb;
+    ALTER TABLE clients ADD COLUMN IF NOT EXISTS preferences JSONB NOT NULL DEFAULT '{}'::jsonb;
 
     CREATE TABLE IF NOT EXISTS admin_users (
       id UUID PRIMARY KEY,
@@ -1871,6 +1883,8 @@ function mapClientRow(row) {
     contracts: safeArray(row.contracts),
     documents: safeArray(row.documents),
     activity: safeArray(row.activity),
+    ecommerce: sanitizePlainObject(row.ecommerce),
+    preferences: sanitizePlainObject(row.preferences),
     createdAt: toIsoDate(row.created_at),
     updatedAt: toIsoDate(row.updated_at),
   };
@@ -2178,7 +2192,7 @@ async function ensureMasterAdminUser(users) {
     return users;
   }
 
-  const existingMasterIndex = users.findIndex((user) => user.isMaster || user.email === masterAdminEmail);
+  const existingMasterIndex = users.findIndex((user) => user.email === masterAdminEmail);
   const now = new Date().toISOString();
 
   if (existingMasterIndex >= 0) {
@@ -2189,7 +2203,8 @@ async function ensureMasterAdminUser(users) {
       currentMaster.role !== "Master" ||
       currentMaster.status !== "active" ||
       currentMaster.isMaster !== true ||
-      currentMaster.passwordChangeRequired !== false;
+      currentMaster.passwordChangeRequired !== false ||
+      !verifyPassword(masterAdminPassword, currentMaster.passwordHash);
 
     if (!needsUpdate) {
       return users;
@@ -2202,6 +2217,7 @@ async function ensureMasterAdminUser(users) {
       role: "Master",
       status: "active",
       isMaster: true,
+      passwordHash: createPasswordHash(masterAdminPassword),
       passwordChangeRequired: false,
       updatedAt: now,
     };
@@ -2360,13 +2376,13 @@ async function writeClients(clients) {
           `
             INSERT INTO clients (
               id, business_name, legal_name, rfc, tax_regime, cfdi_use, status, segment, website, primary_service, notes,
-              fiscal_address, contacts, services, domains, hosting, payments, reminders, contracts, documents, activity,
+              fiscal_address, contacts, services, domains, hosting, payments, reminders, contracts, documents, activity, ecommerce, preferences,
               created_at, updated_at
             )
             VALUES (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
-              $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18::jsonb, $19::jsonb, $20::jsonb, $21::jsonb,
-              $22, $23
+              $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18::jsonb, $19::jsonb, $20::jsonb, $21::jsonb, $22::jsonb,
+              $23::jsonb, $24, $25
             )
             ON CONFLICT (id) DO UPDATE SET
               business_name = EXCLUDED.business_name,
@@ -2389,6 +2405,8 @@ async function writeClients(clients) {
               contracts = EXCLUDED.contracts,
               documents = EXCLUDED.documents,
               activity = EXCLUDED.activity,
+              ecommerce = EXCLUDED.ecommerce,
+              preferences = EXCLUDED.preferences,
               created_at = EXCLUDED.created_at,
               updated_at = EXCLUDED.updated_at
           `,
@@ -2414,6 +2432,8 @@ async function writeClients(clients) {
             JSON.stringify(safeArray(item.contracts)),
             JSON.stringify(safeArray(item.documents)),
             JSON.stringify(safeArray(item.activity)),
+            JSON.stringify(sanitizePlainObject(item.ecommerce)),
+            JSON.stringify(sanitizePlainObject(item.preferences)),
             item.createdAt || new Date().toISOString(),
             item.updatedAt || new Date().toISOString(),
           ]
@@ -4029,8 +4049,8 @@ function validateClientPayload(body, existingClient) {
     status: sanitizeText(body.status || existingClient?.status || "active"),
     segment: sanitizeText(body.segment || existingClient?.segment),
     website: sanitizeText(body.website || existingClient?.website),
-    primaryService: sanitizeText(body.primaryService || existingClient?.primaryService),
-    notes: sanitizeText(body.notes || existingClient?.notes),
+    primaryService: sanitizeText(body.primaryService ?? existingClient?.primaryService),
+    notes: sanitizeText(body.notes ?? existingClient?.notes),
     fiscalAddress: body.fiscalAddress !== undefined ? sanitizePlainObject(body.fiscalAddress) : sanitizePlainObject(existingClient?.fiscalAddress),
     contacts: body.contacts !== undefined ? sanitizeCollection(body.contacts) : safeArray(existingClient?.contacts),
     services: body.services !== undefined ? sanitizeCollection(body.services) : safeArray(existingClient?.services),
@@ -4040,6 +4060,12 @@ function validateClientPayload(body, existingClient) {
     reminders: body.reminders !== undefined ? sanitizeCollection(body.reminders) : safeArray(existingClient?.reminders),
     contracts: body.contracts !== undefined ? sanitizeCollection(body.contracts) : safeArray(existingClient?.contracts),
     documents: body.documents !== undefined ? sanitizeCollection(body.documents) : safeArray(existingClient?.documents),
+    ecommerce: body.ecommerce !== undefined ? sanitizePlainObject(body.ecommerce) : sanitizePlainObject(existingClient?.ecommerce),
+    preferences: {
+      ...sanitizePlainObject(existingClient?.preferences),
+      ...Object.fromEntries(["industry", "companySize", "executive", "category"].map((key) => [key, sanitizeText(body.preferences?.[key] ?? existingClient?.preferences?.[key])])),
+      sendWelcomeEmail: existingClient ? Boolean(existingClient.preferences?.sendWelcomeEmail) : body.preferences?.sendWelcomeEmail === true,
+    },
   };
 
   if (!payload.businessName) {
@@ -4076,7 +4102,8 @@ app.post("/api/admin/login", async (req, res, next) => {
       return res.status(401).json({ message: "Correo o contraseña incorrectos." });
     }
 
-    const requiresTwoFactor = adminTwoFactorEnabled && (!user.isMaster || masterTwoFactorEnabled);
+    const isDevelopmentMaster = !isProduction && user.email === developmentMasterEmail;
+    const requiresTwoFactor = !isDevelopmentMaster && adminTwoFactorEnabled && (!user.isMaster || masterTwoFactorEnabled);
 
     if (requiresTwoFactor) {
       const { challengeId, code, expiresAt } = createTwoFactorChallenge(user);
@@ -5255,6 +5282,21 @@ app.post("/api/admin/clients", async (req, res, next) => {
     clients.unshift(newClient);
     await writeClients(clients);
 
+    if (newClient.preferences.sendWelcomeEmail) {
+      const delivery = await sendClientWelcome(newClient, {
+        transporter: createTransporter(),
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      });
+      // Reload so a slow SMTP response does not overwrite intervening edits.
+      const latestClients = await readClients();
+      const saved = latestClients.find((item) => item.id === newClient.id);
+      if (saved) {
+        saved.preferences = { ...saved.preferences, welcomeEmail: delivery };
+        saved.activity = [{ id: crypto.randomUUID(), type: "Bienvenida", detail: delivery.status === "sent" ? "Correo de bienvenida aceptado por SMTP." : delivery.reason, createdAt: new Date().toISOString() }, ...safeArray(saved.activity)];
+        await writeClients(latestClients);
+        Object.assign(newClient, saved);
+      }
+    }
     res.status(201).json({ message: "Cliente creado.", client: newClient });
   } catch (error) {
     next(error);
@@ -5297,6 +5339,33 @@ app.patch("/api/admin/clients/:id", async (req, res, next) => {
     res.json({ message: "Cliente actualizado.", client: updatedClient });
   } catch (error) {
     next(error);
+  }
+});
+
+app.post("/api/admin/clients/:id/ecommerce/enable", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const clientIndex = clients.findIndex((client) => client.id === req.params.id);
+    if (clientIndex === -1) return res.status(404).json({ message: "Cliente no encontrado." });
+    const client = clients[clientIndex];
+    if (client.status === "inactive") return res.status(409).json({ message: "Activa el cliente antes de habilitar su ecommerce." });
+    const primaryContact = safeArray(client.contacts)[0] || {};
+    const response = await fetch(`${giovCommerceApiUrl}/api/integrations/giovsoft/clients`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-giovsoft-hub-secret": giovCommerceHubSecret },
+      body: JSON.stringify({ clientId: client.id, businessName: client.businessName, website: client.website, email: primaryContact.email || "", contactName: primaryContact.name || client.businessName, currency: "MXN" }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) return res.status(502).json({ message: result.message || "GiovCommerce no pudo habilitar la tienda." });
+    const now = new Date().toISOString();
+    const ecommerce = { status: "active", storeId: result.store.id, storeName: result.store.name, adminUrl: result.adminUrl || giovCommercePublicUrl, userId: result.user?.id || client.ecommerce?.userId || "", userEmail: result.user?.email || primaryContact.email || client.ecommerce?.userEmail || "", enabledAt: client.ecommerce?.enabledAt || now, source: "giovcommerce-api" };
+    clients[clientIndex] = { ...client, ecommerce, primaryService: client.primaryService || "Ecommerce", activity: [{ id: crypto.randomUUID(), type: "Ecommerce", detail: "Ecommerce habilitado en GiovCommerce.", createdAt: now }, ...safeArray(client.activity)], updatedAt: now };
+    await writeClients(clients);
+    return res.status(result.created || result.userCreated ? 201 : 200).json({ message: result.userCreated ? "Ecommerce habilitado y usuario creado." : result.created ? "Ecommerce habilitado correctamente." : "Ecommerce vinculado correctamente.", client: clients[clientIndex], ecommerce, temporaryPassword: result.temporaryPassword || "" });
+  } catch (error) {
+    if (error?.name === "TimeoutError") return res.status(504).json({ message: "GiovCommerce no respondió a tiempo." });
+    return next(error);
   }
 });
 

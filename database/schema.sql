@@ -64,6 +64,8 @@ CREATE TABLE IF NOT EXISTS clients (
   contracts JSONB NOT NULL DEFAULT '[]'::jsonb,
   documents JSONB NOT NULL DEFAULT '[]'::jsonb,
   activity JSONB NOT NULL DEFAULT '[]'::jsonb,
+  ecommerce JSONB NOT NULL DEFAULT '{}'::jsonb,
+  preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
