@@ -59,6 +59,7 @@ interface ClientItem {
     userId?: string;
     userEmail?: string;
     enabledAt?: string;
+    stripeConnectedAccountId?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -98,6 +99,7 @@ interface ClientForm {
   contracts: string;
   documents: string;
   activityNote: string;
+  stripeConnectedAccountId: string;
 }
 
 const emptyForm: ClientForm = {
@@ -134,6 +136,7 @@ const emptyForm: ClientForm = {
   contracts: "",
   documents: "",
   activityNote: "",
+  stripeConnectedAccountId: "",
 };
 
 const genericPublicRfc = "XAXX010101000";
@@ -235,6 +238,7 @@ function clientToForm(client: ClientItem): ClientForm {
     contracts: formatLines(client.contracts, ["name", "status", "signedAt", "url"]),
     documents: formatLines(client.documents, ["name", "type", "status", "url"]),
     activityNote: "",
+    stripeConnectedAccountId: client.ecommerce?.stripeConnectedAccountId || "",
   };
 }
 
@@ -270,6 +274,7 @@ function formToPayload(form: ClientForm) {
     reminders: parseLines(form.reminders, ["date", "title", "owner"]),
     contracts: parseLines(form.contracts, ["name", "status", "signedAt", "url"]),
     documents: parseLines(form.documents, ["name", "type", "status", "url"]),
+    ecommerce: { stripeConnectedAccountId: form.stripeConnectedAccountId },
     activityNote: form.activityNote,
   };
 }
@@ -846,6 +851,15 @@ export default function AdminClients() {
                   <p>{editingClient.ecommerce?.userEmail || getPrimaryContact(editingClient)?.email || "Agrega un correo al contacto principal."}</p>
                   <small>{ecommerceReady ? "El cliente administra su tienda con su cuenta de GiovCommerce." : "Al habilitar se crea el usuario con contraseña temporal y cambio obligatorio en el primer acceso."}</small>
                 </div>
+                <label>
+                  Cuenta conectada de Stripe
+                  <input
+                    placeholder="acct_..."
+                    value={modalForm.stripeConnectedAccountId}
+                    onChange={(event) => updateModalForm("stripeConnectedAccountId", event.target.value)}
+                  />
+                  <small>Los pagos de esta tienda se procesarán directamente en esta cuenta.</small>
+                </label>
               </div>
               {!ecommerceReady && ecommerceDetailsChanged && <p role="status">Guarda los cambios de nombre, contacto, sitio web o estado antes de habilitar el ecommerce.</p>}
               {editingClient.status === "inactive" && <p>Activa y guarda el cliente antes de habilitar su ecommerce.</p>}

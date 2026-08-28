@@ -74,7 +74,7 @@ let pool;
 let databaseReady = false;
 const twoFactorChallenges = new Map();
 const IVA_RATE = 0.16;
-const orderStatuses = new Set(["draft", "pending", "paid", "failed", "expired", "refunded"]);
+const orderStatuses = new Set(["draft", "pending", "pending_invoice", "paid", "failed", "expired", "refunded"]);
 // Reintentos de webhooks salientes: 5 intentos con backoff creciente.
 const outboundRetryDelaysMs = [30 * 1000, 2 * 60 * 1000, 10 * 60 * 1000, 30 * 60 * 1000, 2 * 60 * 60 * 1000];
 const outboundTimeoutMs = 10 * 1000;
@@ -4060,7 +4060,9 @@ function validateClientPayload(body, existingClient) {
     reminders: body.reminders !== undefined ? sanitizeCollection(body.reminders) : safeArray(existingClient?.reminders),
     contracts: body.contracts !== undefined ? sanitizeCollection(body.contracts) : safeArray(existingClient?.contracts),
     documents: body.documents !== undefined ? sanitizeCollection(body.documents) : safeArray(existingClient?.documents),
-    ecommerce: body.ecommerce !== undefined ? sanitizePlainObject(body.ecommerce) : sanitizePlainObject(existingClient?.ecommerce),
+    ecommerce: body.ecommerce !== undefined
+      ? { ...sanitizePlainObject(existingClient?.ecommerce), ...sanitizePlainObject(body.ecommerce) }
+      : sanitizePlainObject(existingClient?.ecommerce),
     preferences: {
       ...sanitizePlainObject(existingClient?.preferences),
       ...Object.fromEntries(["industry", "companySize", "executive", "category"].map((key) => [key, sanitizeText(body.preferences?.[key] ?? existingClient?.preferences?.[key])])),
@@ -4487,6 +4489,36 @@ function publicOrder(order) {
   };
 }
 
+// Incrementos de licencia reportados por productos conectados. Se registran
+// como cargos idempotentes pendientes de la próxima factura; el precio siempre
+// lo determina el Hub, nunca la aplicación cliente.
+app.post("/api/v1/billing/license-adjustments", requireApplicationAuth, async (req, res, next) => {
+  try {
+    const application = req.application;
+    const idempotencyKey = sanitizeText(req.get("x-idempotency-key"));
+    if (!idempotencyKey) return res.status(400).json({ message: "El encabezado x-idempotency-key es requerido." });
+    const existingOrder = await findOrder({ applicationId: application.id, idempotencyKey });
+    if (existingOrder) return res.json({ adjustment: publicOrder(existingOrder), replayed: true });
+
+    const clientId = sanitizeText(req.body.clientId); const storeId = sanitizeText(req.body.storeId);
+    const previousUsers = Math.max(1, Math.trunc(Number(req.body.previousUsers || 1)));
+    const requestedUsers = Math.max(1, Math.trunc(Number(req.body.requestedUsers || 1)));
+    const additionalUsers = requestedUsers - previousUsers;
+    if (!clientId || !storeId || additionalUsers <= 0) return res.status(400).json({ message: "Cliente, tienda y un incremento válido de licencias son obligatorios." });
+
+    const clients = await readClients(); const client = clients.find((item) => item.id === clientId);
+    if (!client) return res.status(404).json({ message: "El cliente relacionado no existe en GiovSoft." });
+    const configuredPrice = Number(application.config?.licenseUnitPrice ?? process.env.GIOVCOMMERCE_LICENSE_UNIT_PRICE ?? 350);
+    const unitPrice = Number.isFinite(configuredPrice) && configuredPrice > 0 ? roundMoney(configuredPrice) : 0;
+    const amount = roundMoney(unitPrice * additionalUsers); const subtotal = amount ? roundMoney(amount / (1 + IVA_RATE)) : 0; const now = new Date().toISOString();
+    const primaryContact = (client.contacts || []).find((item) => item.primary) || (client.contacts || [])[0] || {};
+    const order = { id: crypto.randomUUID(), applicationId: application.id, businessLineId: application.businessLineId || "", sku: "GIOVCOMMERCE-USER-LICENSE", plan: "Licencia por usuario", concept: `GiovCommerce · ${additionalUsers} licencia(s) adicional(es)`, amount, subtotal, tax: roundMoney(amount - subtotal), currency: "MXN", status: "pending_invoice", stripeSessionId: "", stripePaymentIntentId: "", externalRef: sanitizeText(req.body.adjustmentId) || idempotencyKey, idempotencyKey, customer: { id: client.id, name: client.businessName || client.name || "", email: primaryContact.email || "" }, metadata: { source: "giovcommerce", billingCycle: "next_invoice", pricingPending: unitPrice === 0, unitPrice, quantity: additionalUsers, previousUsers, requestedUsers, storeId, acceptedAt: sanitizeText(req.body.acceptedAt), requestedByEmail: sanitizeText(req.body.requestedByEmail) }, cfdiId: "", paidAt: null, createdAt: now, updatedAt: now };
+    await saveOrder(order);
+    await storeApplicationWebhookEvent(application, { eventType: "invoice.created", amount, currency: "MXN", occurredAt: now, payload: { orderId: order.id, externalRef: order.externalRef, status: order.status, pricingPending: unitPrice === 0 } }).catch(() => {});
+    return res.status(201).json({ adjustment: publicOrder(order), replayed: false, message: unitPrice ? "Cargo agregado a la próxima facturación." : "Incremento recibido; falta configurar el precio unitario en el Hub." });
+  } catch (error) { return next(error); }
+});
+
 // Marca una orden como pagada y propaga: métricas de la aplicación (motor de
 // pagos existente) y, en fases siguientes, webhook saliente al producto.
 async function handleOrderPaid(order, application, extra = {}) {
@@ -4609,6 +4641,23 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
     const externalRef = sanitizeText(req.body.externalRef);
     const successUrl = sanitizeText(req.body.successUrl);
     const cancelUrl = sanitizeText(req.body.cancelUrl);
+    const clientId = sanitizeText(req.body.customer?.id || req.body.metadata?.clientId);
+
+    if (!clientId) {
+      return res.status(400).json({ message: "El cliente de GiovSoft es requerido para seleccionar su cuenta conectada." });
+    }
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === clientId);
+    if (!client) {
+      return res.status(404).json({ message: "El cliente relacionado no existe en GiovSoft." });
+    }
+    const connectedAccountId = sanitizeText(client.ecommerce?.stripeConnectedAccountId);
+    if (!/^acct_[A-Za-z0-9]+$/.test(connectedAccountId)) {
+      return res.status(409).json({
+        code: "STRIPE_CONNECTED_ACCOUNT_REQUIRED",
+        message: "Configura la cuenta conectada de Stripe del cliente antes de recibir pagos.",
+      });
+    }
 
     if (!concept) {
       return res.status(400).json({ message: "El concepto es requerido." });
@@ -4651,7 +4700,7 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       externalRef,
       idempotencyKey,
       customer: sanitizePlainObject(req.body.customer),
-      metadata: sanitizePlainObject(req.body.metadata),
+      metadata: { ...sanitizePlainObject(req.body.metadata), clientId, connectedAccountId },
       cfdiId: "",
       paidAt: null,
       createdAt: now,
@@ -4666,6 +4715,22 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       order.metadata = { ...order.metadata, simulated: true };
       await saveOrder(order);
       return res.status(201).json({ order: publicOrder(order), checkoutUrl: null, simulated: true });
+    }
+
+    try {
+      const connectedAccount = await stripe.accounts.retrieve(connectedAccountId);
+      if (connectedAccount.deleted || connectedAccount.charges_enabled !== true) {
+        return res.status(409).json({
+          code: "STRIPE_CONNECTED_ACCOUNT_NOT_READY",
+          message: "La cuenta conectada del cliente todavía no está habilitada para recibir cargos.",
+        });
+      }
+    } catch (accountError) {
+      console.error(`No se pudo validar la cuenta conectada ${connectedAccountId}:`, accountError.message);
+      return res.status(409).json({
+        code: "STRIPE_CONNECTED_ACCOUNT_INVALID",
+        message: "La cuenta conectada no pertenece a la plataforma Stripe o no está disponible.",
+      });
     }
 
     const session = await stripe.checkout.sessions.create(
@@ -4696,7 +4761,7 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
         },
         payment_intent_data: { metadata: { orderId: order.id } },
       },
-      { idempotencyKey: `checkout-${order.id}` }
+      { idempotencyKey: `checkout-${order.id}`, stripeAccount: connectedAccountId }
     );
 
     order.stripeSessionId = session.id;
@@ -4730,7 +4795,12 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
     const stripe = getStripe();
     if (order.status === "pending" && order.stripeSessionId && stripe) {
       try {
-        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
+        const stripeAccount = sanitizeText(order.metadata?.connectedAccountId);
+        const session = await stripe.checkout.sessions.retrieve(
+          order.stripeSessionId,
+          {},
+          stripeAccount ? { stripeAccount } : undefined
+        );
 
         if (session.payment_status === "paid") {
           console.log(`[conciliación] orden ${order.id} pagada en Stripe sin webhook; actualizando.`);
@@ -4930,6 +5000,12 @@ app.post("/api/webhooks/stripe", async (req, res) => {
         // Evento de una sesión que no creó el hub (p. ej. stripe trigger): se ignora.
         console.warn(`Webhook Stripe sin orden asociada (session ${session.id}).`);
         return res.json({ received: true, ignored: true });
+      }
+
+      const expectedAccount = sanitizeText(order.metadata?.connectedAccountId);
+      if (expectedAccount && sanitizeText(event.account) !== expectedAccount) {
+        console.warn(`Webhook Stripe de cuenta ${event.account || "plataforma"} no coincide con la orden ${order.id}.`);
+        return res.status(409).json({ message: "La cuenta conectada del evento no coincide con la orden." });
       }
 
       const applications = await readApplications();
@@ -5359,7 +5435,7 @@ app.post("/api/admin/clients/:id/ecommerce/enable", async (req, res, next) => {
     const result = await response.json().catch(() => ({}));
     if (!response.ok) return res.status(502).json({ message: result.message || "GiovCommerce no pudo habilitar la tienda." });
     const now = new Date().toISOString();
-    const ecommerce = { status: "active", storeId: result.store.id, storeName: result.store.name, adminUrl: result.adminUrl || giovCommercePublicUrl, userId: result.user?.id || client.ecommerce?.userId || "", userEmail: result.user?.email || primaryContact.email || client.ecommerce?.userEmail || "", enabledAt: client.ecommerce?.enabledAt || now, source: "giovcommerce-api" };
+    const ecommerce = { ...sanitizePlainObject(client.ecommerce), status: "active", storeId: result.store.id, storeName: result.store.name, adminUrl: result.adminUrl || giovCommercePublicUrl, userId: result.user?.id || client.ecommerce?.userId || "", userEmail: result.user?.email || primaryContact.email || client.ecommerce?.userEmail || "", enabledAt: client.ecommerce?.enabledAt || now, source: "giovcommerce-api" };
     clients[clientIndex] = { ...client, ecommerce, primaryService: client.primaryService || "Ecommerce", activity: [{ id: crypto.randomUUID(), type: "Ecommerce", detail: "Ecommerce habilitado en GiovCommerce.", createdAt: now }, ...safeArray(client.activity)], updatedAt: now };
     await writeClients(clients);
     return res.status(result.created || result.userCreated ? 201 : 200).json({ message: result.userCreated ? "Ecommerce habilitado y usuario creado." : result.created ? "Ecommerce habilitado correctamente." : "Ecommerce vinculado correctamente.", client: clients[clientIndex], ecommerce, temporaryPassword: result.temporaryPassword || "" });
