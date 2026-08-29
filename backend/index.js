@@ -268,6 +268,9 @@ const defaultPaymentEngineState = {
       "payment_intent.succeeded",
       "payment_intent.payment_failed",
       "checkout.session.completed",
+      "checkout.session.async_payment_succeeded",
+      "checkout.session.async_payment_failed",
+      "checkout.session.expired",
       "invoice.paid",
       "invoice.payment_failed",
       "customer.subscription.created",
@@ -4733,9 +4736,43 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       });
     }
 
+    const customerEmail = sanitizeText(order.customer.email).toLowerCase();
+    const customerName = sanitizeText(order.customer.name || order.customer.fullName || order.customer.contactName);
+    let stripeCustomer = null;
+
+    if (customerEmail) {
+      const existingCustomers = await stripe.customers.list(
+        { email: customerEmail, limit: 1 },
+        { stripeAccount: connectedAccountId }
+      );
+      stripeCustomer = existingCustomers.data[0] || null;
+    }
+
+    if (!stripeCustomer) {
+      stripeCustomer = await stripe.customers.create(
+        {
+          email: customerEmail || undefined,
+          name: customerName || undefined,
+          metadata: {
+            giovsoftClientId: clientId,
+            applicationId: application.id,
+          },
+        },
+        { stripeAccount: connectedAccountId }
+      );
+    }
+
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        customer: stripeCustomer.id,
+        payment_method_types: ["customer_balance"],
+        payment_method_options: {
+          customer_balance: {
+            funding_type: "bank_transfer",
+            bank_transfer: { type: "mx_bank_transfer" },
+          },
+        },
         line_items: [
           {
             quantity: 1,
@@ -4748,7 +4785,6 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
         ],
         success_url: successUrl,
         cancel_url: cancelUrl,
-        customer_email: order.customer.email || undefined,
         metadata: {
           orderId: order.id,
           applicationId: application.id,
@@ -4765,7 +4801,12 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
     );
 
     order.stripeSessionId = session.id;
-    order.metadata = { ...order.metadata, checkoutUrl: session.url };
+    order.metadata = {
+      ...order.metadata,
+      checkoutUrl: session.url,
+      stripeCustomerId: stripeCustomer.id,
+      paymentMethod: "mx_bank_transfer",
+    };
     await saveOrder(order);
 
     return res.status(201).json({
@@ -4992,7 +5033,7 @@ app.post("/api/webhooks/stripe", async (req, res) => {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
       const session = event.data.object;
       const order =
         (session.metadata?.orderId && (await findOrder({ id: session.metadata.orderId }))) ||
@@ -5010,14 +5051,41 @@ app.post("/api/webhooks/stripe", async (req, res) => {
         return res.status(409).json({ message: "La cuenta conectada del evento no coincide con la orden." });
       }
 
-      const applications = await readApplications();
-      const application = applications.find((item) => item.id === order.applicationId) || null;
-      await handleOrderPaid(order, application, { paymentIntentId: session.payment_intent || "" });
+      if (session.payment_status === "paid" || event.type === "checkout.session.async_payment_succeeded") {
+        const applications = await readApplications();
+        const application = applications.find((item) => item.id === order.applicationId) || null;
+        await handleOrderPaid(order, application, { paymentIntentId: session.payment_intent || "" });
+      } else if (order.status === "pending") {
+        await saveOrder({
+          ...order,
+          status: "awaiting_payment",
+          stripePaymentIntentId: session.payment_intent || order.stripePaymentIntentId,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    } else if (event.type === "checkout.session.async_payment_failed") {
+      const session = event.data.object;
+      const order =
+        (session.metadata?.orderId && (await findOrder({ id: session.metadata.orderId }))) ||
+        (await findOrder({ stripeSessionId: session.id }));
+
+      if (order && ["pending", "awaiting_payment"].includes(order.status)) {
+        const failedOrder = {
+          ...order,
+          status: "payment_failed",
+          stripePaymentIntentId: session.payment_intent || order.stripePaymentIntentId,
+          updatedAt: new Date().toISOString(),
+        };
+        await saveOrder(failedOrder);
+        const applications = await readApplications();
+        const application = applications.find((item) => item.id === order.applicationId) || null;
+        await notifyOrderEvent(failedOrder, application, "order.payment_failed");
+      }
     } else if (event.type === "checkout.session.expired") {
       const session = event.data.object;
       const order = await findOrder({ stripeSessionId: session.id });
 
-      if (order && order.status === "pending") {
+      if (order && ["pending", "awaiting_payment"].includes(order.status)) {
         await saveOrder({ ...order, status: "expired", updatedAt: new Date().toISOString() });
       }
     } else if (event.type === "charge.refunded") {
