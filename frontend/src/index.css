@@ -13308,3 +13308,50 @@ tr:has(.clients-action-menu.is-open) {
 .lead-intelligence-shell { display: grid; gap: 1.4rem; }
 .lead-intelligence-table input, .lead-intelligence-table select { background: var(--admin-surface, #fff); border: 1px solid #dfe6ef; border-radius: .55rem; min-height: 2.6rem; padding: 0 .7rem; min-width: 9rem; }
 .lead-intelligence-table a { align-items: center; color: #4169ff; display: inline-flex; font-weight: 800; gap: .4rem; }
+.ecommerce-access-panel {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.ecommerce-access-heading,
+.ecommerce-device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.ecommerce-access-heading p,
+.ecommerce-access-user p { margin: 4px 0 0; }
+.ecommerce-access-heading span { color: #3451d1; font-weight: 700; }
+
+.ecommerce-access-user {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.ecommerce-device-list { margin-top: 12px; }
+.ecommerce-device-row { padding: 10px 0; border-top: 1px solid #edf2f7; }
+.ecommerce-device-row > div { flex: 1; }
+.ecommerce-device-row small { display: block; margin-top: 3px; color: #64748b; }
+.ecommerce-device-row button {
+  padding: 8px 12px;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  color: #b91c1c;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ecommerce-device-row button:disabled { opacity: .55; cursor: wait; }
+
+@media (max-width: 720px) {
+  .ecommerce-access-heading,
+  .ecommerce-device-row { align-items: flex-start; flex-direction: column; }
+}

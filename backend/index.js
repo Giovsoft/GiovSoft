@@ -5515,6 +5515,51 @@ app.post("/api/admin/clients/:id/ecommerce/enable", async (req, res, next) => {
   }
 });
 
+app.get("/api/admin/clients/:id/ecommerce/access", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === req.params.id);
+    if (!client) return res.status(404).json({ message: "Cliente no encontrado." });
+    const storeId = sanitizeText(client.ecommerce?.storeId);
+    if (!storeId) return res.status(409).json({ message: "El cliente todavía no tiene una tienda vinculada." });
+    const response = await fetch(`${giovCommerceApiUrl}/api/integrations/giovsoft/stores/${encodeURIComponent(storeId)}/access`, {
+      headers: { "x-giovsoft-hub-secret": giovCommerceHubSecret },
+      signal: AbortSignal.timeout(8000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) return res.status(response.status === 404 ? 404 : 502).json({ message: result.message || "No se pudo consultar el acceso de GiovCommerce." });
+    return res.json(result);
+  } catch (error) {
+    if (error?.name === "TimeoutError") return res.status(504).json({ message: "GiovCommerce no respondió a tiempo." });
+    return next(error);
+  }
+});
+
+app.delete("/api/admin/clients/:id/ecommerce/users/:userId/devices/:deviceId", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const clientIndex = clients.findIndex((item) => item.id === req.params.id);
+    if (clientIndex === -1) return res.status(404).json({ message: "Cliente no encontrado." });
+    const client = clients[clientIndex];
+    const storeId = sanitizeText(client.ecommerce?.storeId);
+    if (!storeId) return res.status(409).json({ message: "El cliente todavía no tiene una tienda vinculada." });
+    const response = await fetch(`${giovCommerceApiUrl}/api/integrations/giovsoft/stores/${encodeURIComponent(storeId)}/users/${encodeURIComponent(req.params.userId)}/devices/${encodeURIComponent(req.params.deviceId)}`, {
+      method: "DELETE",
+      headers: { "x-giovsoft-hub-secret": giovCommerceHubSecret },
+      signal: AbortSignal.timeout(8000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) return res.status(response.status === 404 ? 404 : 502).json({ message: result.message || "No se pudo desvincular el dispositivo." });
+    const now = new Date().toISOString();
+    clients[clientIndex] = { ...client, activity: [{ id: crypto.randomUUID(), type: "Seguridad ecommerce", detail: `Dispositivo desvinculado del usuario ${req.params.userId}.`, createdAt: now }, ...safeArray(client.activity)], updatedAt: now };
+    await writeClients(clients);
+    return res.json(result);
+  } catch (error) {
+    if (error?.name === "TimeoutError") return res.status(504).json({ message: "GiovCommerce no respondió a tiempo." });
+    return next(error);
+  }
+});
+
 app.get("/api/admin/quotes", async (_req, res, next) => {
   try {
     const [quotes, clients] = await Promise.all([readQuotes(), readClients()]);

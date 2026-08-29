@@ -102,6 +102,19 @@ interface ClientForm {
   stripeConnectedAccountId: string;
 }
 
+interface EcommerceAccess {
+  store: { id: string; name: string; status: string };
+  license: { used: number; limit: number };
+  users: Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
+    devices: Array<{ id: string; name?: string; authorizedAt?: string; lastSeenAt?: string; deviceType?: string; backedUp?: boolean }>;
+  }>;
+}
+
 const emptyForm: ClientForm = {
   industry: "",
   companySize: "",
@@ -336,6 +349,9 @@ export default function AdminClients() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [enablingEcommerceId, setEnablingEcommerceId] = useState("");
+  const [ecommerceAccess, setEcommerceAccess] = useState<EcommerceAccess | null>(null);
+  const [loadingEcommerceAccess, setLoadingEcommerceAccess] = useState(false);
+  const [unlinkingDeviceId, setUnlinkingDeviceId] = useState("");
   const [message, setMessage] = useState("");
 
   useCloseOnOutsideClick(Boolean(actionClientId), () => setActionClientId(""));
@@ -353,6 +369,19 @@ export default function AdminClients() {
   useEffect(() => {
     setCurrentPage(1);
   }, [pageSize, planFilter, query, statusFilter, typeFilter]);
+
+  useEffect(() => {
+    const client = clients.find((item) => item.id === editingClientId);
+    if (!isClientModalOpen || !client?.ecommerce?.storeId) {
+      setEcommerceAccess(null);
+      return;
+    }
+    setLoadingEcommerceAccess(true);
+    api.get<EcommerceAccess>(`/api/admin/clients/${client.id}/ecommerce/access`)
+      .then((response) => setEcommerceAccess(response.data))
+      .catch(() => setEcommerceAccess(null))
+      .finally(() => setLoadingEcommerceAccess(false));
+  }, [clients, editingClientId, isClientModalOpen]);
 
   const filteredClients = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -474,6 +503,27 @@ export default function AdminClients() {
       setMessage(apiMessage || "No se pudo habilitar el ecommerce.");
     } finally {
       setEnablingEcommerceId("");
+    }
+  }
+
+  async function unlinkEcommerceDevice(client: ClientItem, userId: string, deviceId: string) {
+    if (!window.confirm("¿Desvincular este dispositivo? La sesión activa del usuario se cerrará inmediatamente.")) return;
+    setUnlinkingDeviceId(deviceId);
+    setMessage("");
+    try {
+      const response = await api.delete<{ message: string }>(`/api/admin/clients/${client.id}/ecommerce/users/${userId}/devices/${encodeURIComponent(deviceId)}`);
+      setEcommerceAccess((current) => current ? {
+        ...current,
+        users: current.users.map((user) => user.id === userId ? { ...user, devices: user.devices.filter((device) => device.id !== deviceId) } : user),
+      } : current);
+      setMessage(response.data.message || "Dispositivo desvinculado.");
+    } catch (error: unknown) {
+      const apiMessage = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : "";
+      setMessage(apiMessage || "No se pudo desvincular el dispositivo.");
+    } finally {
+      setUnlinkingDeviceId("");
     }
   }
 
@@ -863,6 +913,50 @@ export default function AdminClients() {
               </div>
               {!ecommerceReady && ecommerceDetailsChanged && <p role="status">Guarda los cambios de nombre, contacto, sitio web o estado antes de habilitar el ecommerce.</p>}
               {editingClient.status === "inactive" && <p>Activa y guarda el cliente antes de habilitar su ecommerce.</p>}
+              {ecommerceReady && (
+                <div className="ecommerce-access-panel">
+                  <div className="ecommerce-access-heading">
+                    <div>
+                      <strong>Usuarios, licencias y dispositivos</strong>
+                      <p>Administra las passkeys autorizadas para esta cuenta.</p>
+                    </div>
+                    {ecommerceAccess && <span>{ecommerceAccess.license.used} de {ecommerceAccess.license.limit} licencias usadas</span>}
+                  </div>
+                  {loadingEcommerceAccess ? <p>Consultando dispositivos...</p> : !ecommerceAccess ? (
+                    <p>No fue posible consultar los dispositivos vinculados.</p>
+                  ) : ecommerceAccess.users.map((user) => (
+                    <article className="ecommerce-access-user" key={user.id}>
+                      <div>
+                        <strong>{user.name}</strong>
+                        <p>{user.email} · {user.role} · {user.status === "active" ? "Activo" : "Inactivo"}</p>
+                      </div>
+                      {!user.devices.length ? <small>Sin dispositivos vinculados. En el próximo acceso deberá registrar una passkey.</small> : (
+                        <div className="ecommerce-device-list">
+                          {user.devices.map((device) => (
+                            <div className="ecommerce-device-row" key={device.id}>
+                              <HardDrive size={18} />
+                              <div>
+                                <strong>{device.name || "Passkey"}</strong>
+                                <small>
+                                  Vinculado: {device.authorizedAt ? formatClientDate(device.authorizedAt) : "Sin fecha"}
+                                  {device.lastSeenAt ? ` · Último uso: ${formatClientDate(device.lastSeenAt)}` : " · Sin uso registrado"}
+                                </small>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={unlinkingDeviceId === device.id}
+                                onClick={() => void unlinkEcommerceDevice(editingClient, user.id, device.id)}
+                              >
+                                {unlinkingDeviceId === device.id ? "Desvinculando..." : "Desvincular"}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
               <div className="client-register-actions">
                 <button
                   className="client-register-save"
