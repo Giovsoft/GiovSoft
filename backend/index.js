@@ -5560,6 +5560,32 @@ app.delete("/api/admin/clients/:id/ecommerce/users/:userId/devices/:deviceId", a
   }
 });
 
+app.post("/api/admin/clients/:id/ecommerce/users/:userId/reset-password", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const clientIndex = clients.findIndex((item) => item.id === req.params.id);
+    if (clientIndex === -1) return res.status(404).json({ message: "Cliente no encontrado." });
+    const client = clients[clientIndex];
+    const storeId = sanitizeText(client.ecommerce?.storeId);
+    if (!storeId) return res.status(409).json({ message: "El cliente todavía no tiene una tienda vinculada." });
+    const response = await fetch(`${giovCommerceApiUrl}/api/integrations/giovsoft/stores/${encodeURIComponent(storeId)}/users/${encodeURIComponent(req.params.userId)}/reset-password`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-giovsoft-hub-secret": giovCommerceHubSecret },
+      body: "{}",
+      signal: AbortSignal.timeout(8000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) return res.status([403, 404].includes(response.status) ? response.status : 502).json({ message: result.message || "No se pudo restablecer la contraseña." });
+    const now = new Date().toISOString();
+    clients[clientIndex] = { ...client, activity: [{ id: crypto.randomUUID(), type: "Seguridad ecommerce", detail: "Contraseña de la cuenta propietaria restablecida por soporte.", createdAt: now }, ...safeArray(client.activity)], updatedAt: now };
+    await writeClients(clients);
+    return res.json(result);
+  } catch (error) {
+    if (error?.name === "TimeoutError") return res.status(504).json({ message: "GiovCommerce no respondió a tiempo." });
+    return next(error);
+  }
+});
+
 app.get("/api/admin/quotes", async (_req, res, next) => {
   try {
     const [quotes, clients] = await Promise.all([readQuotes(), readClients()]);

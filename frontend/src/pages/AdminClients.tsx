@@ -352,6 +352,7 @@ export default function AdminClients() {
   const [ecommerceAccess, setEcommerceAccess] = useState<EcommerceAccess | null>(null);
   const [loadingEcommerceAccess, setLoadingEcommerceAccess] = useState(false);
   const [unlinkingDeviceId, setUnlinkingDeviceId] = useState("");
+  const [resettingPasswordUserId, setResettingPasswordUserId] = useState("");
   const [message, setMessage] = useState("");
 
   useCloseOnOutsideClick(Boolean(actionClientId), () => setActionClientId(""));
@@ -524,6 +525,23 @@ export default function AdminClients() {
       setMessage(apiMessage || "No se pudo desvincular el dispositivo.");
     } finally {
       setUnlinkingDeviceId("");
+    }
+  }
+
+  async function resetOwnerPassword(client: ClientItem, userId: string) {
+    if (!window.confirm("¿Restablecer la contraseña de la cuenta propietaria a 123456? Se cerrarán todas sus sesiones y deberá cambiarla al volver a entrar.")) return;
+    setResettingPasswordUserId(userId);
+    setMessage("");
+    try {
+      const response = await api.post<{ message: string; temporaryPassword: string }>(`/api/admin/clients/${client.id}/ecommerce/users/${userId}/reset-password`);
+      setMessage(`${response.data.message} Contraseña temporal: ${response.data.temporaryPassword}`);
+    } catch (error: unknown) {
+      const apiMessage = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : "";
+      setMessage(apiMessage || "No se pudo restablecer la contraseña.");
+    } finally {
+      setResettingPasswordUserId("");
     }
   }
 
@@ -926,9 +944,22 @@ export default function AdminClients() {
                     <p>No fue posible consultar los dispositivos vinculados.</p>
                   ) : ecommerceAccess.users.map((user) => (
                     <article className="ecommerce-access-user" key={user.id}>
-                      <div>
-                        <strong>{user.name}</strong>
-                        <p>{user.email} · {user.role} · {user.status === "active" ? "Activo" : "Inactivo"}</p>
+                      <div className="ecommerce-access-user-heading">
+                        <div>
+                          <strong>{user.name}</strong>
+                          <p>{user.email} · {user.role} · {user.status === "active" ? "Activo" : "Inactivo"}</p>
+                        </div>
+                        {user.role === "owner" && (
+                          <button
+                            className="ecommerce-reset-password"
+                            type="button"
+                            disabled={resettingPasswordUserId === user.id}
+                            onClick={() => void resetOwnerPassword(editingClient, user.id)}
+                          >
+                            <UserRound size={16} />
+                            {resettingPasswordUserId === user.id ? "Restableciendo..." : "Restablecer contraseña"}
+                          </button>
+                        )}
                       </div>
                       {!user.devices.length ? <small>Sin dispositivos vinculados. En el próximo acceso deberá registrar una passkey.</small> : (
                         <div className="ecommerce-device-list">
