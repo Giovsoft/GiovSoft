@@ -4977,14 +4977,16 @@ app.get("/api/v1/orders/:orderId/cfdi/document/:type", requireApplicationAuth, a
 // sigue funcionando igual que antes).
 app.post("/api/webhooks/stripe", async (req, res) => {
   const stripe = getStripe();
+  const stripeConnectWebhookSecret =
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET || "";
 
-  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!stripe || !stripeConnectWebhookSecret) {
     return res.status(503).json({ message: "Stripe no está configurado en el hub." });
   }
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.rawBody, req.get("stripe-signature"), process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(req.rawBody, req.get("stripe-signature"), stripeConnectWebhookSecret);
   } catch (error) {
     return res.status(400).json({ message: `Firma de Stripe inválida: ${error.message}` });
   }
