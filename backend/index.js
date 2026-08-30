@@ -327,6 +327,35 @@ function signPayload(payload) {
   return crypto.createHmac("sha256", adminTokenSecret).update(payload).digest("base64url");
 }
 
+function createStripeConnectAccessToken(clientId, accountId) {
+  const payload = base64UrlEncode(JSON.stringify({
+    type: "stripe-connect-customer-access",
+    clientId,
+    accountId,
+    exp: Date.now() + (Number(process.env.STRIPE_CONNECT_LINK_TTL_DAYS || 7) * 24 * 60 * 60 * 1000),
+  }));
+
+  return `${payload}.${signPayload(payload)}`;
+}
+
+function verifyStripeConnectAccessToken(token) {
+  if (!token || !token.includes(".")) return null;
+  const [encodedPayload, signature] = token.split(".");
+  const expectedSignature = signPayload(encodedPayload);
+  const signatureBuffer = Buffer.from(signature || "");
+  const expectedBuffer = Buffer.from(expectedSignature);
+
+  if (signatureBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
+
+  try {
+    const payload = JSON.parse(base64UrlDecode(encodedPayload));
+    if (payload.type !== "stripe-connect-customer-access" || !payload.clientId || !payload.accountId || Number(payload.exp) <= Date.now()) return null;
+    return payload;
+  } catch (_error) {
+    return null;
+  }
+}
+
 function createLeadSsoToken(user) {
   const secret = String(process.env.GIOVSOFT_SSO_SECRETS || "").split(",").map((item) => item.trim()).filter(Boolean)[0] || "";
   if (secret.length < 32) throw Object.assign(new Error("GIOVSOFT_SSO_SECRETS no está configurado."), { code: "SSO_NOT_CONFIGURED" });
@@ -5109,6 +5138,38 @@ app.post("/api/webhooks/stripe", async (req, res) => {
   }
 });
 
+app.get("/api/stripe/connect/onboarding", async (req, res) => {
+  const access = verifyStripeConnectAccessToken(req.query.token);
+  if (!access) return res.status(401).send("El enlace de acceso a Stripe es inválido o expiró.");
+
+  try {
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === access.clientId);
+    if (!client || sanitizeText(client.ecommerce?.stripeConnectedAccountId) !== access.accountId) {
+      return res.status(404).send("La cuenta conectada ya no está vinculada a este cliente.");
+    }
+
+    const origin = process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
+    const token = encodeURIComponent(req.query.token);
+    const accountLink = await getStripe().accountLinks.create({
+      account: access.accountId,
+      refresh_url: `${origin}/api/stripe/connect/onboarding?token=${token}`,
+      return_url: `${origin}/api/stripe/connect/onboarding/complete?token=${token}`,
+      type: "account_onboarding",
+    });
+    return res.redirect(303, accountLink.url);
+  } catch (error) {
+    console.error("No se pudo crear el acceso de onboarding de Stripe:", error);
+    return res.status(502).send("Stripe no pudo iniciar el proceso. Intenta abrir nuevamente el enlace.");
+  }
+});
+
+app.get("/api/stripe/connect/onboarding/complete", (req, res) => {
+  const access = verifyStripeConnectAccessToken(req.query.token);
+  if (!access) return res.status(401).send("El enlace de acceso a Stripe es inválido o expiró.");
+  return res.type("html").send(`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Configuración enviada</title><style>body{font-family:system-ui;background:#f3f7f8;color:#0c3440;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:white;padding:40px;border-radius:20px;box-shadow:0 16px 48px #0c34401f;max-width:540px;text-align:center}a{display:inline-block;background:#0d4857;color:white;padding:13px 20px;border-radius:10px;text-decoration:none;font-weight:700}</style></head><body><main class="card"><h1>Información enviada a Stripe</h1><p>Stripe revisará los datos de la cuenta. Puedes volver a GiovCommerce; si Stripe solicita información adicional, abre nuevamente el enlace que te compartió GiovSoft.</p><a href="${giovCommercePublicUrl}">Volver a GiovCommerce</a></main></body></html>`);
+});
+
 app.use("/api/admin", requireAdminAuth);
 
 app.get("/api/admin/profile", (req, res) => {
@@ -5485,6 +5546,65 @@ app.patch("/api/admin/clients/:id", async (req, res, next) => {
     res.json({ message: "Cliente actualizado.", client: updatedClient });
   } catch (error) {
     next(error);
+  }
+});
+
+app.get("/api/admin/clients/:id/stripe-connect", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === req.params.id);
+    if (!client) return res.status(404).json({ message: "Cliente no encontrado." });
+    const accountId = sanitizeText(client.ecommerce?.stripeConnectedAccountId);
+    if (!accountId) return res.status(409).json({ message: "Este cliente no tiene una cuenta de Stripe Connect vinculada." });
+
+    const stripe = getStripe();
+    const [account, capability] = await Promise.all([
+      stripe.accounts.retrieve(accountId),
+      stripe.accounts.retrieveCapability(accountId, "mx_bank_transfer_payments").catch(() => null),
+    ]);
+    return res.json({
+      account: {
+        id: account.id,
+        chargesEnabled: Boolean(account.charges_enabled),
+        payoutsEnabled: Boolean(account.payouts_enabled),
+        detailsSubmitted: Boolean(account.details_submitted),
+        currentlyDue: safeArray(account.requirements?.currently_due),
+        pendingVerification: safeArray(account.requirements?.pending_verification),
+      },
+      capability: capability ? {
+        id: capability.id,
+        requested: Boolean(capability.requested),
+        status: capability.status || "inactive",
+        currentlyDue: safeArray(capability.requirements?.currently_due),
+        pendingVerification: safeArray(capability.requirements?.pending_verification),
+      } : null,
+      directLoginUrl: "https://connect.stripe.com/express_login",
+    });
+  } catch (error) {
+    if (error?.type?.startsWith?.("Stripe")) return res.status(502).json({ message: error.message || "Stripe no respondió correctamente." });
+    return next(error);
+  }
+});
+
+app.post("/api/admin/clients/:id/stripe-connect/onboarding-link", async (req, res, next) => {
+  try {
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === req.params.id);
+    if (!client) return res.status(404).json({ message: "Cliente no encontrado." });
+    const accountId = sanitizeText(client.ecommerce?.stripeConnectedAccountId);
+    if (!accountId) return res.status(409).json({ message: "Guarda primero la cuenta de Stripe Connect del cliente." });
+    await getStripe().accounts.retrieve(accountId);
+
+    const origin = process.env.API_PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
+    const accessToken = createStripeConnectAccessToken(client.id, accountId);
+    const expiresInDays = Number(process.env.STRIPE_CONNECT_LINK_TTL_DAYS || 7);
+    return res.json({
+      url: `${origin}/api/stripe/connect/onboarding?token=${encodeURIComponent(accessToken)}`,
+      expiresInDays,
+    });
+  } catch (error) {
+    if (error?.type?.startsWith?.("Stripe")) return res.status(502).json({ message: error.message || "Stripe no respondió correctamente." });
+    return next(error);
   }
 });
 

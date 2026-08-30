@@ -5,16 +5,19 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  Copy,
   Download,
   FileSignature,
   Filter,
   FolderCheck,
   Globe2,
   HardDrive,
+  Landmark,
   Mail,
   MoreVertical,
   Phone,
   Plus,
+  RefreshCw,
   Save,
   Search,
   ShoppingCart,
@@ -113,6 +116,12 @@ interface EcommerceAccess {
     status: string;
     devices: Array<{ id: string; name?: string; authorizedAt?: string; lastSeenAt?: string; deviceType?: string; backedUp?: boolean }>;
   }>;
+}
+
+interface StripeConnectStatus {
+  account: { id: string; chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean; currentlyDue: string[]; pendingVerification: string[] };
+  capability: { id: string; requested: boolean; status: string; currentlyDue: string[]; pendingVerification: string[] } | null;
+  directLoginUrl: string;
 }
 
 const emptyForm: ClientForm = {
@@ -353,6 +362,11 @@ export default function AdminClients() {
   const [loadingEcommerceAccess, setLoadingEcommerceAccess] = useState(false);
   const [unlinkingDeviceId, setUnlinkingDeviceId] = useState("");
   const [resettingPasswordUserId, setResettingPasswordUserId] = useState("");
+  const [stripeConnectStatus, setStripeConnectStatus] = useState<StripeConnectStatus | null>(null);
+  const [loadingStripeConnect, setLoadingStripeConnect] = useState(false);
+  const [creatingStripeLink, setCreatingStripeLink] = useState(false);
+  const [stripeOnboardingUrl, setStripeOnboardingUrl] = useState("");
+  const [stripeLinkDays, setStripeLinkDays] = useState(0);
   const [message, setMessage] = useState("");
 
   useCloseOnOutsideClick(Boolean(actionClientId), () => setActionClientId(""));
@@ -382,6 +396,20 @@ export default function AdminClients() {
       .then((response) => setEcommerceAccess(response.data))
       .catch(() => setEcommerceAccess(null))
       .finally(() => setLoadingEcommerceAccess(false));
+  }, [clients, editingClientId, isClientModalOpen]);
+
+  useEffect(() => {
+    const client = clients.find((item) => item.id === editingClientId);
+    if (!isClientModalOpen || !client?.ecommerce?.stripeConnectedAccountId) {
+      setStripeConnectStatus(null);
+      setStripeOnboardingUrl("");
+      return;
+    }
+    setLoadingStripeConnect(true);
+    api.get<StripeConnectStatus>(`/api/admin/clients/${client.id}/stripe-connect`)
+      .then((response) => setStripeConnectStatus(response.data))
+      .catch(() => setStripeConnectStatus(null))
+      .finally(() => setLoadingStripeConnect(false));
   }, [clients, editingClientId, isClientModalOpen]);
 
   const filteredClients = useMemo(() => {
@@ -543,6 +571,57 @@ export default function AdminClients() {
     } finally {
       setResettingPasswordUserId("");
     }
+  }
+
+  async function refreshStripeConnectStatus(client: ClientItem) {
+    setLoadingStripeConnect(true);
+    setMessage("");
+    try {
+      const response = await api.get<StripeConnectStatus>(`/api/admin/clients/${client.id}/stripe-connect`);
+      setStripeConnectStatus(response.data);
+      setMessage("Estado de Stripe actualizado.");
+    } catch (error: unknown) {
+      const apiMessage = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : "";
+      setMessage(apiMessage || "No se pudo consultar la cuenta conectada.");
+    } finally {
+      setLoadingStripeConnect(false);
+    }
+  }
+
+  async function createStripeOnboardingLink(client: ClientItem) {
+    setCreatingStripeLink(true);
+    setMessage("");
+    try {
+      const response = await api.post<{ url: string; expiresInDays: number }>(`/api/admin/clients/${client.id}/stripe-connect/onboarding-link`);
+      setStripeOnboardingUrl(response.data.url);
+      setStripeLinkDays(response.data.expiresInDays);
+      try { await navigator.clipboard.writeText(response.data.url); } catch { /* El enlace permanece visible para copiarlo manualmente. */ }
+      setMessage("Enlace de configuración generado y copiado. Compártelo con el cliente.");
+    } catch (error: unknown) {
+      const apiMessage = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : "";
+      setMessage(apiMessage || "No se pudo generar el enlace de Stripe.");
+    } finally {
+      setCreatingStripeLink(false);
+    }
+  }
+
+  async function copyStripeOnboardingLink() {
+    if (!stripeOnboardingUrl) return;
+    try {
+      await navigator.clipboard.writeText(stripeOnboardingUrl);
+      setMessage("Enlace de Stripe copiado.");
+    } catch {
+      setMessage("No se pudo copiar automáticamente; selecciona el enlace y cópialo manualmente.");
+    }
+  }
+
+  function stripeRequirementLabel(value: string) {
+    if (value === "individual.verification.proof_of_liveness") return "Prueba de identidad y presencia del titular";
+    return value.replaceAll(".", " · ").replaceAll("_", " ");
   }
 
   async function handleModalSubmit(event: FormEvent<HTMLFormElement>) {
@@ -929,6 +1008,64 @@ export default function AdminClients() {
                   <small>Los pagos de esta tienda se procesarán directamente en esta cuenta.</small>
                 </label>
               </div>
+              {editingClient.ecommerce?.stripeConnectedAccountId && (
+                <section className="stripe-connect-panel">
+                  <div className="stripe-connect-heading">
+                    <div>
+                      <strong><Landmark size={18} /> Acceso del cliente a Stripe</strong>
+                      <p>Envía un acceso renovable para que el cliente complete requisitos sin depender de un enlace de Stripe de un solo uso.</p>
+                    </div>
+                    <span className={stripeConnectStatus?.capability?.status === "active" ? "is-active" : "is-pending"}>
+                      {loadingStripeConnect ? "Consultando..." : stripeConnectStatus?.capability?.status === "active" ? "Transferencias MXN activas" : "Requiere atención"}
+                    </span>
+                  </div>
+                  {stripeConnectStatus && (
+                    <div className="stripe-connect-facts">
+                      <span>Cargos: <b>{stripeConnectStatus.account.chargesEnabled ? "activos" : "pendientes"}</b></span>
+                      <span>Retiros: <b>{stripeConnectStatus.account.payoutsEnabled ? "activos" : "pendientes"}</b></span>
+                      <span>Cuenta: <b>{stripeConnectStatus.account.id}</b></span>
+                    </div>
+                  )}
+                  {stripeConnectStatus && Array.from(new Set([
+                    ...stripeConnectStatus.account.currentlyDue,
+                    ...stripeConnectStatus.account.pendingVerification,
+                    ...(stripeConnectStatus.capability?.currentlyDue || []),
+                    ...(stripeConnectStatus.capability?.pendingVerification || []),
+                  ])).length > 0 && (
+                    <div className="stripe-connect-requirements">
+                      <strong>Información solicitada por Stripe</strong>
+                      <ul>{Array.from(new Set([
+                        ...stripeConnectStatus.account.currentlyDue,
+                        ...stripeConnectStatus.account.pendingVerification,
+                        ...(stripeConnectStatus.capability?.currentlyDue || []),
+                        ...(stripeConnectStatus.capability?.pendingVerification || []),
+                      ])).map((requirement) => <li key={requirement}>{stripeRequirementLabel(requirement)}</li>)}</ul>
+                    </div>
+                  )}
+                  <div className="stripe-connect-actions">
+                    <button type="button" onClick={() => void refreshStripeConnectStatus(editingClient)} disabled={loadingStripeConnect}>
+                      <RefreshCw size={16} /> Actualizar estado
+                    </button>
+                    <button className="is-primary" type="button" onClick={() => void createStripeOnboardingLink(editingClient)} disabled={creatingStripeLink}>
+                      <Landmark size={16} /> {creatingStripeLink ? "Generando..." : "Generar enlace para cliente"}
+                    </button>
+                    <a href={stripeConnectStatus?.directLoginUrl || "https://connect.stripe.com/express_login"} target="_blank" rel="noreferrer">
+                      Ingreso directo a Stripe
+                    </a>
+                  </div>
+                  {stripeOnboardingUrl && (
+                    <div className="stripe-connect-link">
+                      <input aria-label="Enlace de configuración de Stripe" readOnly value={stripeOnboardingUrl} onFocus={(event) => event.currentTarget.select()} />
+                      <button type="button" onClick={() => void copyStripeOnboardingLink()}><Copy size={16} /> Copiar</button>
+                      <a href={stripeOnboardingUrl} target="_blank" rel="noreferrer">Probar enlace</a>
+                      <small>Vigente por {stripeLinkDays} días. Cada apertura genera un acceso nuevo y válido de Stripe.</small>
+                    </div>
+                  )}
+                </section>
+              )}
+              {modalForm.stripeConnectedAccountId && modalForm.stripeConnectedAccountId !== (editingClient.ecommerce?.stripeConnectedAccountId || "") && (
+                <p role="status">Guarda la cuenta conectada antes de generar el acceso para el cliente.</p>
+              )}
               {!ecommerceReady && ecommerceDetailsChanged && <p role="status">Guarda los cambios de nombre, contacto, sitio web o estado antes de habilitar el ecommerce.</p>}
               {editingClient.status === "inactive" && <p>Activa y guarda el cliente antes de habilitar su ecommerce.</p>}
               {ecommerceReady && (

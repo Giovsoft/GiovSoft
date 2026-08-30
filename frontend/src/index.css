@@ -13373,8 +13373,42 @@ tr:has(.clients-action-menu.is-open) {
 }
 .ecommerce-device-row button:disabled { opacity: .55; cursor: wait; }
 
+.stripe-connect-panel {
+  background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+  border: 1px solid #b9e8df;
+  border-radius: 14px;
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 18px;
+}
+.stripe-connect-heading { align-items: flex-start; display: flex; gap: 16px; justify-content: space-between; }
+.stripe-connect-heading strong { align-items: center; display: inline-flex; gap: 8px; }
+.stripe-connect-heading p { color: #64748b; margin: 5px 0 0; max-width: 720px; }
+.stripe-connect-heading > span { border-radius: 999px; flex: 0 0 auto; font-size: .78rem; font-weight: 800; padding: 7px 10px; }
+.stripe-connect-heading > span.is-active { background: #d1fae5; color: #047857; }
+.stripe-connect-heading > span.is-pending { background: #fef3c7; color: #92400e; }
+.stripe-connect-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.stripe-connect-facts span { background: #fff; border: 1px solid #dbe4f0; border-radius: 999px; color: #64748b; padding: 7px 10px; }
+.stripe-connect-facts b { color: #173844; }
+.stripe-connect-requirements { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px 14px; }
+.stripe-connect-requirements ul { margin: 7px 0 0 20px; }
+.stripe-connect-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.stripe-connect-actions button,
+.stripe-connect-actions a,
+.stripe-connect-link button,
+.stripe-connect-link a { align-items: center; background: #fff; border: 1px solid #0f766e; border-radius: 9px; color: #0f5f5a; cursor: pointer; display: inline-flex; font: inherit; font-weight: 750; gap: 7px; justify-content: center; padding: 9px 12px; text-decoration: none; }
+.stripe-connect-actions button.is-primary { background: #0d4857; border-color: #0d4857; color: #fff; }
+.stripe-connect-actions button:disabled { cursor: wait; opacity: .55; }
+.stripe-connect-link { display: grid; gap: 9px; grid-template-columns: minmax(0, 1fr) auto auto; }
+.stripe-connect-link input { background: #fff; border: 1px solid #cbd5e1; border-radius: 9px; font: inherit; min-width: 0; padding: 10px 12px; }
+.stripe-connect-link small { color: #64748b; grid-column: 1 / -1; }
+
 @media (max-width: 720px) {
   .ecommerce-access-heading,
   .ecommerce-access-user-heading,
   .ecommerce-device-row { align-items: flex-start; flex-direction: column; }
+  .stripe-connect-heading { flex-direction: column; }
+  .stripe-connect-link { grid-template-columns: 1fr; }
+  .stripe-connect-link small { grid-column: auto; }
 }
