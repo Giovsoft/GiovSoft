@@ -261,7 +261,12 @@ const defaultPaymentEngineState = {
     supportedEvents: [
       "payment_intent.succeeded",
       "payment_intent.payment_failed",
+      "payment_intent.canceled",
       "checkout.session.completed",
+      "checkout.session.async_payment_succeeded",
+      "checkout.session.async_payment_failed",
+      "checkout.session.expired",
+      "charge.refunded",
       "invoice.paid",
       "invoice.payment_failed",
       "customer.subscription.created",
@@ -3112,6 +3117,10 @@ async function findOrder(criteria) {
       values.push(criteria.stripeSessionId);
       conditions.push(`stripe_session_id = $${values.length}`);
     }
+    if (criteria.stripePaymentIntentId) {
+      values.push(criteria.stripePaymentIntentId);
+      conditions.push(`stripe_payment_intent_id = $${values.length}`);
+    }
     if (criteria.applicationId) {
       values.push(criteria.applicationId);
       conditions.push(`application_id = $${values.length}`);
@@ -3138,6 +3147,7 @@ async function findOrder(criteria) {
       (order) =>
         (!criteria.id || order.id === criteria.id) &&
         (!criteria.stripeSessionId || order.stripeSessionId === criteria.stripeSessionId) &&
+        (!criteria.stripePaymentIntentId || order.stripePaymentIntentId === criteria.stripePaymentIntentId) &&
         (!criteria.applicationId || order.applicationId === criteria.applicationId) &&
         (!criteria.idempotencyKey || order.idempotencyKey === criteria.idempotencyKey)
     ) || null
@@ -4496,6 +4506,26 @@ async function handleOrderPaid(order, application, extra = {}) {
   return paidOrder;
 }
 
+async function updateOrderPaymentStatus(order, application, status, eventType, details = {}) {
+  const reason = sanitizeText(details.reason || details.failureMessage || details.cancellationReason);
+  const updatedOrder = {
+    ...order,
+    status,
+    stripePaymentIntentId: details.paymentIntentId || order.stripePaymentIntentId || "",
+    metadata: {
+      ...(order.metadata || {}),
+      paymentReason: reason,
+      failureCode: sanitizeText(details.failureCode),
+      failureMessage: sanitizeText(details.failureMessage),
+      cancellationReason: sanitizeText(details.cancellationReason),
+    },
+    updatedAt: new Date().toISOString(),
+  };
+  await saveOrder(updatedOrder);
+  await notifyOrderEvent(updatedOrder, application, eventType);
+  return updatedOrder;
+}
+
 // Webhook saliente al producto: crea el registro de entrega y hace el primer
 // intento en línea (los reintentos corren en el barrido cada 30s).
 async function notifyOrderEvent(order, application, eventType) {
@@ -4536,6 +4566,12 @@ async function notifyOrderEvent(order, application, eventType) {
         status: order.status,
         paidAt: order.paidAt || null,
         stripeSessionId: order.stripeSessionId,
+        stripePaymentIntentId: order.stripePaymentIntentId || null,
+        reason: order.metadata?.paymentReason || "",
+        failureCode: order.metadata?.failureCode || "",
+        failureMessage: order.metadata?.failureMessage || "",
+        cancellationReason: order.metadata?.cancellationReason || "",
+        updatedAt: order.updatedAt || null,
         customer: order.customer,
         metadata: order.metadata,
       },
@@ -4893,7 +4929,7 @@ app.post("/api/webhooks/stripe", async (req, res) => {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed"].includes(event.type)) {
       const session = event.data.object;
       const order =
         (session.metadata?.orderId && (await findOrder({ id: session.metadata.orderId }))) ||
@@ -4907,25 +4943,62 @@ app.post("/api/webhooks/stripe", async (req, res) => {
 
       const applications = await readApplications();
       const application = applications.find((item) => item.id === order.applicationId) || null;
-      await handleOrderPaid(order, application, { paymentIntentId: session.payment_intent || "" });
+      if (event.type === "checkout.session.async_payment_failed") {
+        await updateOrderPaymentStatus(order, application, "failed", "order.payment_failed", {
+          paymentIntentId: session.payment_intent || "",
+          failureCode: "async_payment_failed",
+          failureMessage: "Stripe informó que la transferencia no pudo completarse.",
+          reason: "La transferencia bancaria falló o fue rechazada.",
+        });
+      } else if (event.type === "checkout.session.async_payment_succeeded" || session.payment_status === "paid") {
+        await handleOrderPaid(order, application, { paymentIntentId: session.payment_intent || "" });
+      } else {
+        await updateOrderPaymentStatus(order, application, "pending", "order.payment_pending", {
+          paymentIntentId: session.payment_intent || "",
+          reason: "Stripe creó el pago y está esperando recibir la transferencia bancaria.",
+        });
+      }
     } else if (event.type === "checkout.session.expired") {
       const session = event.data.object;
       const order = await findOrder({ stripeSessionId: session.id });
 
-      if (order && order.status === "pending") {
-        await saveOrder({ ...order, status: "expired", updatedAt: new Date().toISOString() });
+      if (order && !["paid", "refunded"].includes(order.status)) {
+        const applications = await readApplications();
+        const application = applications.find((item) => item.id === order.applicationId) || null;
+        await updateOrderPaymentStatus(order, application, "expired", "order.expired", { reason: "La sesión de pago expiró antes de recibir los fondos." });
+      }
+    } else if (["payment_intent.canceled", "payment_intent.payment_failed"].includes(event.type)) {
+      const paymentIntent = event.data.object;
+      const order =
+        (paymentIntent.metadata?.orderId && (await findOrder({ id: paymentIntent.metadata.orderId }))) ||
+        (await findOrder({ stripePaymentIntentId: paymentIntent.id }));
+      if (order && order.status !== "refunded") {
+        const applications = await readApplications();
+        const application = applications.find((item) => item.id === order.applicationId) || null;
+        const failed = event.type === "payment_intent.payment_failed";
+        const failureMessage = paymentIntent.last_payment_error?.message || "";
+        const cancellationReason = paymentIntent.cancellation_reason || "";
+        await updateOrderPaymentStatus(order, application, failed ? "failed" : "cancelled", failed ? "order.payment_failed" : "order.cancelled", {
+          paymentIntentId: paymentIntent.id,
+          failureCode: paymentIntent.last_payment_error?.code || "",
+          failureMessage,
+          cancellationReason,
+          reason: failureMessage || cancellationReason || (failed ? "Stripe informó que el pago falló." : "El pago fue cancelado en Stripe."),
+        });
       }
     } else if (event.type === "charge.refunded") {
       const charge = event.data.object;
       const orderId = charge.metadata?.orderId || "";
-      const order = orderId ? await findOrder({ id: orderId }) : null;
+      const order =
+        (orderId && (await findOrder({ id: orderId }))) ||
+        (charge.payment_intent && (await findOrder({ stripePaymentIntentId: charge.payment_intent }))) ||
+        null;
 
       if (order && order.status === "paid") {
-        const refundedOrder = { ...order, status: "refunded", updatedAt: new Date().toISOString() };
-        await saveOrder(refundedOrder);
         const applications = await readApplications();
         const application = applications.find((item) => item.id === order.applicationId) || null;
-        await notifyOrderEvent(refundedOrder, application, "order.refunded");
+        const refund = charge.refunds?.data?.[0];
+        await updateOrderPaymentStatus(order, application, "refunded", "order.refunded", { paymentIntentId: charge.payment_intent || "", reason: refund?.reason || "El pago fue reembolsado en Stripe." });
       }
     }
 
