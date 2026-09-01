@@ -68,6 +68,7 @@ let pool;
 let databaseReady = false;
 const twoFactorChallenges = new Map();
 const IVA_RATE = 0.16;
+const stripeApplicationFeePercent = Number(process.env.STRIPE_APPLICATION_FEE_PERCENT || 2);
 const orderStatuses = new Set(["draft", "pending", "paid", "failed", "expired", "refunded"]);
 // Reintentos de webhooks salientes: 5 intentos con backoff creciente.
 const outboundRetryDelaysMs = [30 * 1000, 2 * 60 * 1000, 10 * 60 * 1000, 30 * 60 * 1000, 2 * 60 * 60 * 1000];
@@ -85,6 +86,18 @@ function getStripe() {
     stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
   }
   return stripeClient;
+}
+
+function getStripeApplicationFeePercent() {
+  if (
+    !Number.isFinite(stripeApplicationFeePercent) ||
+    stripeApplicationFeePercent <= 0 ||
+    stripeApplicationFeePercent >= 100
+  ) {
+    throw new Error("STRIPE_APPLICATION_FEE_PERCENT debe ser mayor a 0 y menor a 100.");
+  }
+
+  return stripeApplicationFeePercent;
 }
 
 // Líneas de negocio de GiovSoft. UUIDs fijos para que despliegues en JSON y
@@ -1320,6 +1333,7 @@ async function ensureDatabase() {
       reminders JSONB NOT NULL DEFAULT '[]'::jsonb,
       contracts JSONB NOT NULL DEFAULT '[]'::jsonb,
       documents JSONB NOT NULL DEFAULT '[]'::jsonb,
+      ecommerce JSONB NOT NULL DEFAULT '{}'::jsonb,
       activity JSONB NOT NULL DEFAULT '[]'::jsonb,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -1334,6 +1348,7 @@ async function ensureDatabase() {
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS tax_regime TEXT;
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS cfdi_use TEXT;
     ALTER TABLE clients ADD COLUMN IF NOT EXISTS fiscal_address JSONB NOT NULL DEFAULT '{}'::jsonb;
+    ALTER TABLE clients ADD COLUMN IF NOT EXISTS ecommerce JSONB NOT NULL DEFAULT '{}'::jsonb;
 
     CREATE TABLE IF NOT EXISTS admin_users (
       id UUID PRIMARY KEY,
@@ -1875,6 +1890,7 @@ function mapClientRow(row) {
     reminders: safeArray(row.reminders),
     contracts: safeArray(row.contracts),
     documents: safeArray(row.documents),
+    ecommerce: sanitizePlainObject(row.ecommerce),
     activity: safeArray(row.activity),
     createdAt: toIsoDate(row.created_at),
     updatedAt: toIsoDate(row.updated_at),
@@ -2365,13 +2381,13 @@ async function writeClients(clients) {
           `
             INSERT INTO clients (
               id, business_name, legal_name, rfc, tax_regime, cfdi_use, status, segment, website, primary_service, notes,
-              fiscal_address, contacts, services, domains, hosting, payments, reminders, contracts, documents, activity,
+              fiscal_address, contacts, services, domains, hosting, payments, reminders, contracts, documents, ecommerce, activity,
               created_at, updated_at
             )
             VALUES (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
-              $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18::jsonb, $19::jsonb, $20::jsonb, $21::jsonb,
-              $22, $23
+              $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18::jsonb, $19::jsonb, $20::jsonb, $21::jsonb, $22::jsonb,
+              $23, $24
             )
             ON CONFLICT (id) DO UPDATE SET
               business_name = EXCLUDED.business_name,
@@ -2393,6 +2409,7 @@ async function writeClients(clients) {
               reminders = EXCLUDED.reminders,
               contracts = EXCLUDED.contracts,
               documents = EXCLUDED.documents,
+              ecommerce = EXCLUDED.ecommerce,
               activity = EXCLUDED.activity,
               created_at = EXCLUDED.created_at,
               updated_at = EXCLUDED.updated_at
@@ -2418,6 +2435,7 @@ async function writeClients(clients) {
             JSON.stringify(safeArray(item.reminders)),
             JSON.stringify(safeArray(item.contracts)),
             JSON.stringify(safeArray(item.documents)),
+            JSON.stringify(sanitizePlainObject(item.ecommerce)),
             JSON.stringify(safeArray(item.activity)),
             item.createdAt || new Date().toISOString(),
             item.updatedAt || new Date().toISOString(),
@@ -4050,6 +4068,7 @@ function validateClientPayload(body, existingClient) {
     reminders: body.reminders !== undefined ? sanitizeCollection(body.reminders) : safeArray(existingClient?.reminders),
     contracts: body.contracts !== undefined ? sanitizeCollection(body.contracts) : safeArray(existingClient?.contracts),
     documents: body.documents !== undefined ? sanitizeCollection(body.documents) : safeArray(existingClient?.documents),
+    ecommerce: body.ecommerce !== undefined ? sanitizePlainObject(body.ecommerce) : sanitizePlainObject(existingClient?.ecommerce),
   };
 
   if (!payload.businessName) {
@@ -4677,6 +4696,37 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       return res.status(201).json({ order: publicOrder(order), checkoutUrl: null, simulated: true });
     }
 
+    const clientId = sanitizeText(order.customer.id || order.metadata.clientId);
+    const clients = await readClients();
+    const client = clients.find((item) => item.id === clientId);
+
+    if (!client) {
+      return res.status(409).json({
+        message: "El cliente de la tienda no está registrado en GiovSoft.",
+        code: "COMMERCE_CLIENT_NOT_FOUND",
+      });
+    }
+
+    const connectedAccountId = sanitizeText(client.ecommerce?.stripeConnectedAccountId);
+
+    if (!connectedAccountId.startsWith("acct_")) {
+      return res.status(409).json({
+        message: "La tienda no tiene una cuenta de Stripe conectada válida.",
+        code: "STRIPE_CONNECTED_ACCOUNT_REQUIRED",
+      });
+    }
+
+    const applicationFeePercent = getStripeApplicationFeePercent();
+    const amountTotalCents = Math.round(order.amount * 100);
+    const applicationFeeAmount = Math.round(amountTotalCents * (applicationFeePercent / 100));
+
+    if (applicationFeeAmount <= 0 || applicationFeeAmount >= amountTotalCents) {
+      return res.status(400).json({
+        message: "No se pudo calcular una comisión de plataforma válida para este pago.",
+        code: "INVALID_APPLICATION_FEE",
+      });
+    }
+
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
@@ -4685,7 +4735,7 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
             quantity: 1,
             price_data: {
               currency: order.currency.toLowerCase(),
-              unit_amount: Math.round(order.amount * 100),
+              unit_amount: amountTotalCents,
               product_data: { name: order.concept },
             },
           },
@@ -4703,13 +4753,29 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
           subtotal: String(order.subtotal),
           tax: String(order.tax),
         },
-        payment_intent_data: { metadata: { orderId: order.id } },
+        payment_intent_data: {
+          application_fee_amount: applicationFeeAmount,
+          metadata: {
+            orderId: order.id,
+            applicationFeePercent: String(applicationFeePercent),
+            applicationFeeAmount: String(applicationFeeAmount),
+          },
+        },
       },
-      { idempotencyKey: `checkout-${order.id}` }
+      {
+        stripeAccount: connectedAccountId,
+        idempotencyKey: `checkout-${order.id}`,
+      }
     );
 
     order.stripeSessionId = session.id;
-    order.metadata = { ...order.metadata, checkoutUrl: session.url };
+    order.metadata = {
+      ...order.metadata,
+      checkoutUrl: session.url,
+      connectedAccountId,
+      applicationFeePercent,
+      applicationFeeAmount,
+    };
     await saveOrder(order);
 
     return res.status(201).json({
@@ -4739,7 +4805,9 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
     const stripe = getStripe();
     if (order.status === "pending" && order.stripeSessionId && stripe) {
       try {
-        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
+        const connectedAccountId = sanitizeText(order.metadata?.connectedAccountId);
+        const requestOptions = connectedAccountId.startsWith("acct_") ? { stripeAccount: connectedAccountId } : undefined;
+        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, requestOptions);
 
         if (session.payment_status === "paid") {
           console.log(`[conciliación] orden ${order.id} pagada en Stripe sin webhook; actualizando.`);
