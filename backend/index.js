@@ -100,6 +100,28 @@ function getStripeApplicationFeePercent() {
   return stripeApplicationFeePercent;
 }
 
+async function findOrCreateConnectedStripeCustomer(stripe, connectedAccountId, customer) {
+  const email = sanitizeText(customer.email).toLowerCase();
+  const requestOptions = { stripeAccount: connectedAccountId };
+  const existingCustomers = await stripe.customers.list({ email, limit: 1 }, requestOptions);
+
+  if (existingCustomers.data.length > 0) {
+    return existingCustomers.data[0];
+  }
+
+  return stripe.customers.create(
+    {
+      email,
+      name: sanitizeText(customer.name) || undefined,
+      phone: sanitizeText(customer.phone) || undefined,
+      metadata: {
+        giovsoftClientId: sanitizeText(customer.id),
+      },
+    },
+    requestOptions
+  );
+}
+
 // Líneas de negocio de GiovSoft. UUIDs fijos para que despliegues en JSON y
 // PostgreSQL produzcan los mismos ids (las aplicaciones referencian estos ids).
 const defaultBusinessLines = [
@@ -4727,9 +4749,35 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       });
     }
 
+    if (order.currency !== "MXN") {
+      return res.status(400).json({
+        message: "La transferencia bancaria mexicana requiere que el pago esté expresado en MXN.",
+        code: "MX_BANK_TRANSFER_REQUIRES_MXN",
+      });
+    }
+
+    if (!sanitizeText(order.customer.email)) {
+      return res.status(400).json({
+        message: "El correo del comprador es requerido para crear su cuenta bancaria virtual en Stripe.",
+        code: "STRIPE_CUSTOMER_EMAIL_REQUIRED",
+      });
+    }
+
+    const stripeCustomer = await findOrCreateConnectedStripeCustomer(stripe, connectedAccountId, order.customer);
+
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        customer: stripeCustomer.id,
+        payment_method_types: ["customer_balance"],
+        payment_method_options: {
+          customer_balance: {
+            funding_type: "bank_transfer",
+            bank_transfer: {
+              type: "mx_bank_transfer",
+            },
+          },
+        },
         line_items: [
           {
             quantity: 1,
@@ -4742,7 +4790,6 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
         ],
         success_url: successUrl,
         cancel_url: cancelUrl,
-        customer_email: order.customer.email || undefined,
         metadata: {
           orderId: order.id,
           applicationId: application.id,
@@ -4773,6 +4820,7 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       ...order.metadata,
       checkoutUrl: session.url,
       connectedAccountId,
+      stripeCustomerId: stripeCustomer.id,
       applicationFeePercent,
       applicationFeeAmount,
     };
