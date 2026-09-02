@@ -4855,11 +4855,13 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
       try {
         const connectedAccountId = sanitizeText(order.metadata?.connectedAccountId);
         const requestOptions = connectedAccountId.startsWith("acct_") ? { stripeAccount: connectedAccountId } : undefined;
-        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, requestOptions);
+        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, { expand: ["payment_intent"] }, requestOptions);
+        const paymentIntent = typeof session.payment_intent === "object" ? session.payment_intent : null;
+        const paymentSucceeded = session.payment_status === "paid" || paymentIntent?.status === "succeeded";
 
-        if (session.payment_status === "paid") {
+        if (paymentSucceeded) {
           console.log(`[conciliación] orden ${order.id} pagada en Stripe sin webhook; actualizando.`);
-          order = await handleOrderPaid(order, req.application, { paymentIntentId: session.payment_intent || "" });
+          order = await handleOrderPaid(order, req.application, { paymentIntentId: paymentIntent?.id || session.payment_intent || "" });
         } else if (session.status === "expired" && order.status === "pending") {
           order = { ...order, status: "expired", updatedAt: new Date().toISOString() };
           await saveOrder(order);
@@ -5082,6 +5084,18 @@ app.post("/api/webhooks/stripe", async (req, res) => {
         const applications = await readApplications();
         const application = applications.find((item) => item.id === order.applicationId) || null;
         await updateOrderPaymentStatus(order, application, "expired", "order.expired", { reason: "La sesión de pago expiró antes de recibir los fondos." });
+      }
+    } else if (event.type === "payment_intent.succeeded") {
+      const paymentIntent = event.data.object;
+      const order =
+        (paymentIntent.metadata?.orderId && (await findOrder({ id: paymentIntent.metadata.orderId }))) ||
+        (await findOrder({ stripePaymentIntentId: paymentIntent.id }));
+      if (order) {
+        const applications = await readApplications();
+        const application = applications.find((item) => item.id === order.applicationId) || null;
+        await handleOrderPaid(order, application, { paymentIntentId: paymentIntent.id });
+      } else {
+        console.warn(`Webhook Stripe sin orden asociada (PaymentIntent ${paymentIntent.id}).`);
       }
     } else if (["payment_intent.canceled", "payment_intent.payment_failed"].includes(event.type)) {
       const paymentIntent = event.data.object;
