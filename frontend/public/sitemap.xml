@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://giovsoft.com/</loc><lastmod>2026-08-06</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://giovsoft.com/servicios/</loc><lastmod>2026-08-07</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://giovsoft.com/proceso/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/articulos/</loc><lastmod>2026-08-08</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/articulos/guia-ciberseguridad-empresas/</loc><lastmod>2026-08-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/articulos/guia-digitalizar-proceso-negocio/</loc><lastmod>2026-08-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/articulos/como-elegir-solucion-tecnologica-negocio/</loc><lastmod>2026-08-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://giovsoft.com/articulos/sitio-web-preparado-para-crecer/</loc><lastmod>2026-08-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://giovsoft.com/articulos/red-empresa-estable-segura/</loc><lastmod>2026-08-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://giovsoft.com/servicios/desarrollo-aplicaciones-moviles/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/nosotros/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/portafolio/</loc><lastmod>2026-08-06</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://giovsoft.com/portafolio/software/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -8,6 +17,8 @@
   <url><loc>https://giovsoft.com/portafolio/sitios-web/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/portafolio/ecommerce/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/academy/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/studios/</loc><lastmod>2026-08-13</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://giovsoft.com/payments/</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://giovsoft.com/contacto/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/servicios/giovsoft-360/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://giovsoft.com/servicios/sitios-web/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -16,8 +27,12 @@
   <url><loc>https://giovsoft.com/servicios/correos-corporativos/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://giovsoft.com/servicios/dominios/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://giovsoft.com/servicios/google-workspace/</loc><lastmod>2026-08-06</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://giovsoft.com/terminos/</loc><lastmod>2026-08-06</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://giovsoft.com/privacidad/</loc><lastmod>2026-08-06</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://giovsoft.com/cookies/</loc><lastmod>2026-08-06</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://giovsoft.com/aviso-legal/</loc><lastmod>2026-08-06</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://giovsoft.com/servicios/videos-publicitarios/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/servicios/community-management/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/servicios/pautas-publicitarias/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/servicios/infraestructura-de-red/</loc><lastmod>2026-08-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://giovsoft.com/terminos/</loc><lastmod>2026-09-02</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://giovsoft.com/privacidad/</loc><lastmod>2026-09-02</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://giovsoft.com/cookies/</loc><lastmod>2026-09-02</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://giovsoft.com/aviso-legal/</loc><lastmod>2026-09-02</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

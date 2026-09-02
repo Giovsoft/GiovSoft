@@ -1,18 +1,25 @@
 import {
   ArrowRight,
+  Check,
+  ChevronDown,
+  Clock3,
   Mail,
   MessageCircle,
   Phone,
+  Search,
   Send,
+  Sparkles,
 } from "lucide-react";
 import axios from "axios";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTiktok } from "react-icons/fa6";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
+import { serviceCategories, serviceItems } from "../data/services";
 import { useSiteTheme } from "../hooks/useSiteTheme";
 import { api } from "../lib/api";
+import "./ContactPage.css";
 
 const whatsappMessage = encodeURIComponent(
   "Hola GiovSoft, quiero información para iniciar un proyecto digital."
@@ -28,8 +35,8 @@ const contactChannels = [
   },
   {
     label: "Correo",
-    value: "contacto@giovsoft.com",
-    href: "mailto:contacto@giovsoft.com",
+    value: "hola@giovsoft.com",
+    href: "mailto:hola@giovsoft.com",
     icon: Mail,
   },
   {
@@ -47,10 +54,31 @@ const socialLinks = [
   { label: "TikTok", href: "https://tiktok.com", icon: FaTiktok },
 ];
 
+const contactServiceOptions = [
+  { value: "GiovSoft Payments", copy: "Pagos digitales, Tap to Pay y facturación conectada.", category: "estrategia" },
+  ...serviceItems.map((service) => ({ value: service.title, copy: service.copy, category: service.category })),
+  { value: "Software a la medida", copy: "Desarrollo adaptado a procesos específicos.", category: "desarrollo" },
+  { value: "Otro / Necesito orientación", copy: "Ayuda para identificar la solución adecuada.", category: "orientacion" },
+];
+
 export default function ContactPage() {
   const { isDark, toggleTheme } = useSiteTheme();
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const [serviceQuery, setServiceQuery] = useState("");
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const servicePickerRef = useRef<HTMLDivElement>(null);
+  const normalizedServiceQuery = serviceQuery.trim().toLocaleLowerCase("es");
+  const filteredServices = contactServiceOptions.filter((option) =>
+    `${option.value} ${option.copy}`.toLocaleLowerCase("es").includes(normalizedServiceQuery)
+  );
+
+  const chooseService = (value: string) => {
+    setServiceQuery(value);
+    setServiceOpen(false);
+    setActiveServiceIndex(0);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,6 +99,7 @@ export default function ContactPage() {
     try {
       await api.post("/api/contact-requests", payload);
       form.reset();
+      setServiceQuery("");
       setStatus("success");
       setStatusMessage("Solicitud enviada. Te contactaremos pronto.");
     } catch (error) {
@@ -83,17 +112,19 @@ export default function ContactPage() {
   };
 
   return (
-    <div className={`service-page-shell ${isDark ? "is-dark" : ""}`}>
+    <div className={`service-page-shell contact-page-shell ${isDark ? "is-dark" : ""}`}>
       <SiteHeader isDark={isDark} toggleTheme={toggleTheme} />
 
       <main className="contact-page">
         <section className="contact-hero">
           <div className="contact-copy">
+            <span className="contact-intro-label"><Sparkles size={15} /> Empecemos una conversación</span>
             <p className="site-kicker">Contacto</p>
-            <h1>Cuéntanos qué necesita tu negocio.</h1>
+            <h1>Hablemos de lo que quieres lograr.</h1>
             <p>
-              Podemos ayudarte con sitio web, ecommerce, dominios, correos,
-              Google Workspace o un paquete GiovSoft 360 para avanzar con orden.
+              Cuéntanos el reto, la oportunidad o la idea. Te ayudaremos a identificar
+              una ruta clara entre software, Payments, presencia digital, marketing e
+              infraestructura.
             </p>
 
             <div className="contact-actions">
@@ -106,14 +137,22 @@ export default function ContactPage() {
                 Enviar WhatsApp
                 <ArrowRight size={17} />
               </a>
-              <a className="site-secondary-button" href="mailto:contacto@giovsoft.com">
-                contacto@giovsoft.com
+              <a className="site-secondary-button" href="mailto:hola@giovsoft.com">
+                hola@giovsoft.com
                 <Mail size={17} />
               </a>
+            </div>
+            <div className="contact-expectation">
+              <Clock3 size={19} />
+              <span><strong>Respuesta personal</strong><small>Revisamos cada solicitud y te contactamos con contexto.</small></span>
             </div>
           </div>
 
           <form className="contact-form" onSubmit={handleSubmit}>
+            <header className="contact-form-heading">
+              <div><span>01</span><h2>Cuéntanos lo esencial</h2></div>
+              <p>Con estos datos podemos entender mejor tu necesidad antes de contactarte.</p>
+            </header>
             <label>
               Nombre
               <input name="nombre" type="text" placeholder="Tu nombre" required />
@@ -130,25 +169,88 @@ export default function ContactPage() {
               WhatsApp
               <input name="telefono" type="tel" placeholder="55 6604 2994" />
             </label>
-            <label>
-              Servicio
-              <select name="servicio" defaultValue="">
-                <option value="" disabled>
-                  Selecciona una opción
-                </option>
-                <option>GiovSoft 360</option>
-                <option>Sitio web</option>
-                <option>Ecommerce</option>
-                <option>Dominios</option>
-                <option>Correos corporativos</option>
-                <option>Google Workspace</option>
-              </select>
-            </label>
+            <div
+              className="contact-service-field"
+              ref={servicePickerRef}
+              onBlur={() => window.setTimeout(() => {
+                if (!servicePickerRef.current?.contains(document.activeElement)) setServiceOpen(false);
+              }, 0)}
+            >
+              <label htmlFor="contact-service-search">Servicio de interés</label>
+              <div
+                className={`contact-service-combobox ${serviceOpen ? "is-open" : ""}`}
+                role="combobox"
+                aria-expanded={serviceOpen}
+                aria-haspopup="listbox"
+                aria-owns="contact-service-listbox"
+              >
+                <span className="contact-service-search">
+                <Search aria-hidden="true" size={18} />
+                <input
+                  id="contact-service-search"
+                  name="servicio"
+                  type="search"
+                  placeholder="Buscar un servicio..."
+                  autoComplete="off"
+                  required
+                  value={serviceQuery}
+                  aria-autocomplete="list"
+                  aria-controls="contact-service-listbox"
+                  onFocus={() => setServiceOpen(true)}
+                  onChange={(event) => {
+                    setServiceQuery(event.target.value);
+                    setServiceOpen(true);
+                    setActiveServiceIndex(0);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowDown") {
+                      event.preventDefault();
+                      setServiceOpen(true);
+                      setActiveServiceIndex((index) => Math.min(index + 1, filteredServices.length - 1));
+                    } else if (event.key === "ArrowUp") {
+                      event.preventDefault();
+                      setActiveServiceIndex((index) => Math.max(index - 1, 0));
+                    } else if (event.key === "Enter" && serviceOpen && filteredServices[activeServiceIndex]) {
+                      event.preventDefault();
+                      chooseService(filteredServices[activeServiceIndex].value);
+                    } else if (event.key === "Escape") {
+                      setServiceOpen(false);
+                    }
+                  }}
+                />
+                  <button aria-label={serviceOpen ? "Cerrar lista de servicios" : "Mostrar servicios"} onClick={() => setServiceOpen((open) => !open)} type="button"><ChevronDown size={17} /></button>
+                </span>
+                {serviceOpen && (
+                  <div className="contact-service-options" id="contact-service-listbox" role="listbox">
+                    {filteredServices.length ? filteredServices.map((option, index) => (
+                      <div className="contact-service-option-wrap" key={option.value}>
+                      {(index === 0 || filteredServices[index - 1]?.category !== option.category) && (
+                        <p className="contact-service-category">{serviceCategories.find((category) => category.id === option.category)?.title ?? "Orientación"}</p>
+                      )}
+                      <button
+                        className={`${index === activeServiceIndex ? "is-active" : ""} ${serviceQuery === option.value ? "is-selected" : ""}`}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onMouseEnter={() => setActiveServiceIndex(index)}
+                        onClick={() => chooseService(option.value)}
+                        role="option"
+                        aria-selected={serviceQuery === option.value}
+                        type="button"
+                      >
+                        <span><strong>{option.value}</strong><small>{option.copy}</small></span>
+                        {serviceQuery === option.value && <Check size={17} />}
+                      </button>
+                      </div>
+                    )) : <p>No encontramos coincidencias. Puedes escribir tu necesidad.</p>}
+                  </div>
+                )}
+              </div>
+              <small>Escribe para filtrar o selecciona una opción del catálogo.</small>
+            </div>
             <label className="contact-form-wide">
               Mensaje
               <textarea
                 name="mensaje"
-                placeholder="Cuéntanos brevemente qué quieres construir."
+                placeholder="Describe tu objetivo, el problema que quieres resolver o la solución que tienes en mente."
                 rows={5}
                 required
               />

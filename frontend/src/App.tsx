@@ -8,15 +8,21 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import AboutPage from "./pages/AboutPage";
 import AcademyPage from "./pages/AcademyPage";
 import ApplicationsPortfolioPage from "./pages/ApplicationsPortfolioPage";
+import ArticlePage from "./pages/ArticlePage";
+import ArticlesPage from "./pages/ArticlesPage";
 import ContactPage from "./pages/ContactPage";
 import CookiesPage from "./pages/CookiesPage";
 import LegalNoticePage from "./pages/LegalNoticePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PortfolioPage from "./pages/PortfolioPage";
+import PaymentsPage from "./pages/PaymentsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import ProcessPage from "./pages/ProcessPage";
 import ServicePage from "./pages/ServicePage";
+import ServicesPage from "./pages/ServicesPage";
 import SoftwarePortfolioPage from "./pages/SoftwarePortfolioPage";
 import SolutionsPage from "./pages/SolutionsPage";
+import StudiosPage from "./pages/StudiosPage";
 import TermsPage from "./pages/TermsPage";
 import WebsitePortfolioPage from "./pages/WebsitePortfolioPage";
 import Website from "./pages/Website";
@@ -63,11 +69,17 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contacto" element={<ContactPage />} />
         <Route path="/academy" element={<AcademyPage />} />
+        <Route path="/studios" element={<StudiosPage />} />
+        <Route path="/payments" element={<PaymentsPage />} />
+        <Route path="/articulos" element={<ArticlesPage />} />
+        <Route path="/articulos/:slug" element={<ArticlePage />} />
         <Route path="/cookies" element={<CookiesPage />} />
         <Route path="/nosotros" element={<AboutPage />} />
         <Route path="/aviso-legal" element={<LegalNoticePage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
+        <Route path="/servicios" element={<ServicesPage />} />
         <Route path="/servicios/:slug" element={<ServicePage />} />
+        <Route path="/proceso" element={<ProcessPage />} />
         <Route path="/software" element={<Navigate to="/portafolio/software" replace />} />
         <Route path="/aplicaciones" element={<Navigate to="/portafolio/aplicaciones" replace />} />
         <Route path="/portafolio" element={<PortfolioPage />} />

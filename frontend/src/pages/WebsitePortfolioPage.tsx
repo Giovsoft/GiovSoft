@@ -41,7 +41,7 @@ export default function WebsitePortfolioPage() {
       <main className="web-catalog-page">
         <section className="web-catalog-hero">
           <div className="web-catalog-breadcrumb">
-            <a href="/portafolio">Portafolio</a>
+            <a href="/portafolio">Soluciones</a>
             <span>/</span>
             <strong>Sitios web</strong>
           </div>

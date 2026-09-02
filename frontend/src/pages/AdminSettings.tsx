@@ -60,7 +60,7 @@ export default function AdminSettings() {
         <article className="settings-panel">
           <header><div><h3>Configuración general</h3><p>Datos base del panel y operación administrativa.</p></div><Settings2 size={21} /></header>
           <div className="settings-form-grid">
-            <label><span>Correo administrativo</span><input value={settings?.adminEmail || "contacto@giovsoft.com"} readOnly /></label>
+            <label><span>Correo administrativo</span><input value={settings?.adminEmail || "hola@giovsoft.com"} readOnly /></label>
             <label><span>Cuenta SMTP</span><input value={settings?.smtpUser || "Sin cuenta configurada"} readOnly /></label>
             <label><span>Almacenamiento</span><input value={settings?.dataStore || "JSON local"} readOnly /></label>
             <label><span>Zona horaria</span><input defaultValue="America/Mexico_City" /></label>

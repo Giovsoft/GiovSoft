@@ -8,10 +8,13 @@ const footerSections = [
     title: "Mapa del sitio",
     links: [
       { label: "Inicio", href: "/" },
-      { label: "Servicios", href: "/#servicios" },
-      { label: "Proceso", href: "/#proceso" },
+      { label: "Servicios", href: "/servicios" },
+      { label: "Proceso", href: "/proceso" },
+      { label: "Artículos", href: "/articulos" },
       { label: "Nosotros", href: "/nosotros" },
       { label: "Academy", href: "/academy" },
+      { label: "Studios", href: "/studios" },
+      { label: "Payments", href: "/payments" },
       { label: "Contacto", href: "/contacto" },
     ],
   },
@@ -57,8 +60,8 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
             Tu aliado tecnológico para crear soluciones que ayuden a vender,
             comunicarse, operar y crecer con una base digital profesional.
           </p>
-          <a className="footer-contact" href="mailto:contacto@giovsoft.com">
-            contacto@giovsoft.com
+          <a className="footer-contact" href="mailto:hola@giovsoft.com">
+            hola@giovsoft.com
             <LockKeyhole size={15} />
           </a>
           <div className="footer-social" aria-label="Redes sociales">

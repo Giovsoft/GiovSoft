@@ -111,6 +111,10 @@ Servicios promocionados:
 - Correos corporativos.
 - Dominios.
 - Google Workspace.
+- Videos publicitarios.
+- Community Management.
+- Pautas publicitarias.
+- Infraestructura de red.
 
 ### Secciones Implementadas
 
@@ -184,6 +188,22 @@ Alcance comercial:
 - Integracion con pasarelas como Stripe y Mercado Pago.
 - Integracion con soluciones logisticas como Skydrop, Envia.com u operadores compatibles.
 - Base para administrar ventas, pagos y envios.
+
+#### Marketing digital
+
+Rutas:
+
+- `/servicios/videos-publicitarios`
+- `/servicios/community-management`
+- `/servicios/pautas-publicitarias`
+
+Servicios orientados a producir contenido audiovisual, administrar comunidades y ejecutar campañas pagadas con objetivos, audiencias, presupuestos y resultados medibles.
+
+#### Infraestructura de red
+
+Ruta: `/servicios/infraestructura-de-red`
+
+Servicio de levantamiento, diseno, instalacion, configuracion inicial y documentacion de redes para oficinas y espacios operativos.
 
 #### Correos corporativos
 

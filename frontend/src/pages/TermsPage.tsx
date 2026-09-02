@@ -9,6 +9,9 @@ const sections = [
   ["4", "Cotizaciones y contratación"],
   ["5", "Obligaciones del cliente"],
   ["6", "Pagos, impuestos y facturación"],
+  ["6.1", "GiovSoft Payments"],
+  ["6.2", "Tap to Pay"],
+  ["6.3", "Facturación conectada"],
   ["7", "Plazos, entregas y cambios"],
   ["8", "Servicios de terceros"],
   ["9", "Dominios y cuentas"],
@@ -35,7 +38,7 @@ export default function TermsPage() {
             <p className="site-kicker">Documento legal</p>
             <h1>Términos y Condiciones de Uso</h1>
             <p>
-              Última actualización: 6 de agosto de 2026. Estos Términos regulan el
+              Última actualización: 2 de septiembre de 2026. Estos Términos regulan el
               acceso al sitio y la contratación de servicios de GiovSoft Technologies,
               S.A.S.
             </p>
@@ -77,7 +80,7 @@ export default function TermsPage() {
             <p>
               Los servicios son ofrecidos por <strong>GiovSoft Technologies, S.A.S.</strong>,
               en adelante <strong>“GiovSoft”</strong>. Para asuntos relacionados con
-              estos Términos puede escribir a <a href="mailto:contacto@giovsoft.com">contacto@giovsoft.com</a>.
+              estos Términos puede escribir a <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a>.
             </p>
 
             <h2 id="termino-2">2. Objeto y aceptación</h2>
@@ -93,8 +96,10 @@ export default function TermsPage() {
               GiovSoft ofrece, entre otros, diseño y desarrollo de sitios web y tiendas
               en línea, registro y configuración de dominios, correos corporativos,
               implementación de Google Workspace, integraciones, mantenimiento,
-              soporte y acompañamiento tecnológico. La disponibilidad y características
-              de cada servicio dependen de la propuesta aceptada.
+              soporte, acompañamiento tecnológico y soluciones de integración de pagos
+              bajo la denominación GiovSoft Payments. La disponibilidad y características
+              de cada servicio dependen de la propuesta aceptada, del territorio y de los
+              proveedores tecnológicos o financieros involucrados.
             </p>
 
             <h2 id="termino-4">4. Cotizaciones y contratación</h2>
@@ -114,6 +119,8 @@ export default function TermsPage() {
               <li>Revisar los avances y comunicar observaciones dentro de los plazos acordados.</li>
               <li>Mantener seguras sus credenciales y designar contactos autorizados para el proyecto.</li>
               <li>Usar los entregables y servicios de manera lícita y conforme a estos Términos.</li>
+              <li>Cuando utilice Payments, ofrecer bienes y servicios lícitos e informar con claridad precios, impuestos, condiciones de venta, entrega, cancelación, devolución y reembolso.</li>
+              <li>Atender contracargos, aclaraciones, devoluciones y obligaciones frente a sus clientes y autoridades.</li>
             </ul>
 
             <h2 id="termino-6">6. Pagos, impuestos y facturación</h2>
@@ -123,6 +130,47 @@ export default function TermsPage() {
               por etapas cubren el trabajo ejecutado y los recursos reservados. La
               facturación se realizará con los datos fiscales correctos proporcionados
               por el Cliente y conforme a la normativa aplicable.
+            </p>
+
+            <h2 id="termino-6.1">6.1. GiovSoft Payments</h2>
+            <p>
+              GiovSoft Payments es una solución tecnológica para integrar y administrar
+              experiencias de cobro, links de pago, checkout, pagos recurrentes, Tap to Pay,
+              reportes y facturación conectada. Salvo que una propuesta indique expresamente
+              otra cosa, <strong>GiovSoft no es banco, institución de fondos de pago electrónico,
+              adquirente, agregador, emisor de tarjetas ni cámara de compensación</strong>; el
+              procesamiento, autorización, rechazo, liquidación y disponibilidad de fondos
+              corresponde a los proveedores financieros contratados o integrados.
+            </p>
+            <p>
+              El Cliente deberá aceptar los contratos, procesos de identificación, políticas,
+              comisiones, reservas, límites y plazos del proveedor correspondiente. Las
+              operaciones pueden ser rechazadas, retenidas, revisadas, canceladas o sujetas a
+              contracargo por reglas de dichos terceros, redes de pago, emisores o autoridades.
+              GiovSoft no garantiza la aprobación de una operación ni una fecha de liquidación.
+            </p>
+
+            <h2 id="termino-6.2">6.2. Tap to Pay</h2>
+            <p>
+              Tap to Pay permite habilitar cobros sin contacto mediante dispositivos y
+              proveedores compatibles. Su funcionamiento depende, entre otros elementos, del
+              modelo del dispositivo, sistema operativo, conectividad, tecnología NFC, país,
+              moneda, tarjetas admitidas y disponibilidad del procesador. El Cliente es
+              responsable de proteger el dispositivo, las cuentas asociadas, sus credenciales
+              y el acceso de su personal, así como de verificar el resultado de cada cobro
+              antes de entregar bienes o prestar servicios.
+            </p>
+
+            <h2 id="termino-6.3">6.3. Facturación conectada</h2>
+            <p>
+              Las funciones de facturación facilitan la captura, transmisión, consulta y
+              relación de información fiscal con una operación. La certificación de
+              comprobantes se realiza mediante el SAT o un proveedor autorizado integrado;
+              <strong> GiovSoft no actúa como proveedor autorizado de certificación ni presta
+              asesoría fiscal</strong>. El Cliente conserva la responsabilidad de proporcionar
+              datos fiscales correctos, resguardar sus certificados y credenciales, determinar
+              impuestos, revisar los comprobantes y cumplir sus obligaciones de emisión,
+              cancelación, conservación y contabilidad.
             </p>
 
             <h2 id="termino-7">7. Plazos, entregas y cambios</h2>
@@ -138,7 +186,8 @@ export default function TermsPage() {
             <p>
               Algunos proyectos utilizan servicios de terceros, como alojamiento,
               dominios, Google Workspace, Stripe, Mercado Pago, plataformas logísticas,
-              complementos o APIs. Dichos servicios se rigen por sus propios términos,
+              adquirentes, agregadores, redes de tarjetas, sistemas antifraude, proveedores
+              autorizados de certificación, complementos o APIs. Dichos servicios se rigen por sus propios términos,
               precios y políticas. GiovSoft no controla sus interrupciones, cambios,
               restricciones o decisiones, pero apoyará al Cliente dentro del alcance
               contratado.
@@ -227,10 +276,10 @@ export default function TermsPage() {
             <h2 id="termino-17">17. Contacto</h2>
             <p>
               Para preguntas, aclaraciones o notificaciones relacionadas con estos
-              Términos, escriba a <a href="mailto:contacto@giovsoft.com">contacto@giovsoft.com</a>.
+              Términos, escriba a <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a>.
             </p>
 
-            <p className="legal-closing">Documento vigente a partir del 6 de agosto de 2026.</p>
+            <p className="legal-closing">Documento vigente a partir del 2 de septiembre de 2026.</p>
           </article>
         </section>
       </main>

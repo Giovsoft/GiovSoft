@@ -37,7 +37,7 @@ const quoteLogoPath = path.join(assetsDir, "logo-black.svg");
 const legacyLogoPath = path.join(__dirname, "..", "frontend", "public", "img", "logo-white.svg");
 const legacyQuoteLogoPath = path.join(__dirname, "..", "frontend", "public", "img", "logo-black.svg");
 const giovsoftLegalName = "GiovSoft Technologies, S.A.S.";
-const adminEmail = process.env.ADMIN_EMAIL || "contacto@giovsoft.com";
+const adminEmail = process.env.ADMIN_EMAIL || "hola@giovsoft.com";
 const adminPassword = process.env.ADMIN_PASSWORD || "GiovSoft2026!";
 const adminName = process.env.ADMIN_NAME || "Giovanni Ramos";
 const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || "").toLowerCase();
@@ -945,7 +945,7 @@ function drawQuoteFooter(doc, quote) {
     .stroke()
     .fontSize(8)
     .fillColor("#94a3b8")
-    .text(`${giovsoftLegalName} · Innovación a tu alcance · contacto@giovsoft.com · Folio ${quote.folio}`, 46, 716, {
+    .text(`${giovsoftLegalName} · Innovación a tu alcance · hola@giovsoft.com · Folio ${quote.folio}`, 46, 716, {
       align: "center",
       width: 520,
     })

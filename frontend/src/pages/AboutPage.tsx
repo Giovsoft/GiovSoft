@@ -128,7 +128,7 @@ export default function AboutPage() {
 
         <section className="about-cta">
           <div><p className="site-kicker">Hablemos</p><h2>Conoce lo que podemos construir para tu negocio.</h2></div>
-          <div><a className="site-primary-button" href="/portafolio">Ver portafolio <ArrowRight size={17} /></a><a className="site-secondary-button" href="/contacto">Contactar</a></div>
+          <div><a className="site-primary-button" href="/portafolio">Ver soluciones <ArrowRight size={17} /></a><a className="site-secondary-button" href="/contacto">Contactar</a></div>
         </section>
       </main>
 

@@ -1,8 +1,12 @@
 import {
+  Activity,
+  AppWindow,
   ArrowRight,
   BarChart3,
+  Cable,
   CalendarDays,
   CheckCircle2,
+  CloudCog,
   Cloud,
   Code2,
   CreditCard,
@@ -10,9 +14,14 @@ import {
   FolderOpen,
   Gauge,
   Globe2,
+  HeartHandshake,
   Inbox,
+  KeyRound,
   LockKeyhole,
+  Map,
   MailCheck,
+  Megaphone,
+  MessageSquareText,
   MonitorSmartphone,
   Package,
   PanelsTopLeft,
@@ -23,10 +32,13 @@ import {
   ShoppingBag,
   Smartphone,
   Store,
+  Target,
+  TestTube2,
   Truck,
   UsersRound,
   Video,
   Wifi,
+  Workflow,
 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { Navigate, useParams } from "react-router-dom";
@@ -198,6 +210,80 @@ const giovsoft360Highlights = [
   },
 ];
 
+const marketingModules = {
+  "videos-publicitarios": {
+    kicker: "Producción audiovisual estratégica",
+    title: "Videos pensados para comunicar, captar atención y mover a la acción.",
+    intro: "Convertimos una idea comercial en una pieza lista para campañas y redes: definimos el mensaje, ordenamos la historia y adaptamos el resultado a cada formato digital.",
+    accent: "video",
+    metrics: [["9:16", "Reels, Stories y TikTok"], ["1:1", "Feeds y anuncios cuadrados"], ["16:9", "YouTube, web y presentaciones"]],
+    pillars: [
+      { title: "Concepto y guion", copy: "Objetivo, audiencia, argumento, llamada a la acción y estructura antes de editar.", icon: MessageSquareText },
+      { title: "Edición profesional", copy: "Ritmo, selección de tomas, color, audio, música, gráficos y textos de apoyo.", icon: Video },
+      { title: "Identidad de marca", copy: "Tipografía, colores, logotipo y tono visual aplicados con consistencia.", icon: PanelsTopLeft },
+      { title: "Versiones por canal", copy: "Entregables adaptados para publicación orgánica, pauta, web o presentación.", icon: Smartphone },
+    ],
+    process: ["Brief y objetivo", "Guion y propuesta", "Producción y edición", "Revisión y entregables"],
+    deliverables: ["Guion técnico", "Video maestro", "Versiones por formato", "Subtítulos", "Miniatura o portada", "Archivos listos para publicar"],
+    note: "El alcance de grabación, locación, talento, locución y material de archivo se define en cada propuesta.",
+  },
+  "community-management": {
+    kicker: "Gestión de comunidad y contenido",
+    title: "Una presencia constante, organizada y alineada con la voz de tu marca.",
+    intro: "Diseñamos una operación mensual para planear, producir, publicar y aprender. La comunidad recibe atención con criterios claros y el negocio obtiene visibilidad de lo que funciona.",
+    accent: "community",
+    metrics: [["Plan", "Calendario editorial mensual"], ["Voz", "Lineamientos de comunicación"], ["Datos", "Reporte y recomendaciones"]],
+    pillars: [
+      { title: "Estrategia editorial", copy: "Pilares, temas, formatos, frecuencia y objetivos por canal.", icon: CalendarDays },
+      { title: "Contenido de marca", copy: "Copies y piezas visuales adaptadas al lenguaje de cada plataforma.", icon: PanelsTopLeft },
+      { title: "Atención de comunidad", copy: "Comentarios y mensajes atendidos con protocolos, horarios y escalamiento acordados.", icon: HeartHandshake },
+      { title: "Aprendizaje continuo", copy: "Lectura de alcance, interacción, crecimiento y oportunidades para ajustar el plan.", icon: BarChart3 },
+    ],
+    process: ["Diagnóstico de marca", "Plan editorial", "Producción y publicación", "Monitoreo y reporte"],
+    deliverables: ["Calendario de contenido", "Copies", "Piezas gráficas", "Programación", "Protocolo de atención", "Reporte mensual"],
+    note: "La cantidad de publicaciones, redes atendidas, sesiones de contenido y horario de moderación se determina en el plan contratado.",
+  },
+  "pautas-publicitarias": {
+    kicker: "Publicidad digital medible",
+    title: "Campañas con objetivos, audiencias y presupuesto bajo control.",
+    intro: "Transformamos el presupuesto publicitario en un sistema de prueba y optimización: configuramos campañas, revisamos señales de desempeño y documentamos decisiones.",
+    accent: "ads",
+    metrics: [["Objetivo", "Alcance, prospectos o ventas"], ["Audiencia", "Segmentación y remarketing"], ["Control", "Seguimiento de inversión"]],
+    pillars: [
+      { title: "Planeación de campaña", copy: "Objetivo, oferta, embudo, presupuesto, duración y métricas de referencia.", icon: Target },
+      { title: "Configuración técnica", copy: "Estructura de campañas, grupos, audiencias, ubicaciones y eventos disponibles.", icon: Settings2 },
+      { title: "Creativos y mensajes", copy: "Variaciones de textos, formatos y llamadas a la acción para probar enfoques.", icon: Megaphone },
+      { title: "Optimización", copy: "Seguimiento de costo, respuesta y conversiones para ajustar inversión y segmentación.", icon: BarChart3 },
+    ],
+    process: ["Objetivo y presupuesto", "Configuración y creativos", "Lanzamiento y pruebas", "Optimización y reporte"],
+    deliverables: ["Plan de medios", "Configuración de campañas", "Audiencias", "Variaciones creativas", "Monitoreo", "Reporte de resultados"],
+    note: "La inversión pagada directamente a las plataformas no está incluida en los honorarios de gestión. Los resultados dependen de la oferta, el mercado, el presupuesto y el proceso comercial del cliente.",
+  },
+} as const;
+
+const networkPillars = [
+  { title: "Diagnóstico técnico", copy: "Revisamos espacios, usuarios, dispositivos, cobertura, enlaces y necesidades de crecimiento.", icon: SearchCheck },
+  { title: "Diseño de red", copy: "Proponemos topología, puntos de acceso, cableado, equipos, segmentación y capacidad.", icon: Map },
+  { title: "Implementación", copy: "Instalamos, organizamos, identificamos y configuramos los componentes incluidos en el proyecto.", icon: Cable },
+  { title: "Pruebas y documentación", copy: "Validamos conectividad y dejamos inventario, esquema y recomendaciones de continuidad.", icon: Activity },
+];
+
+const mobileAppCapabilities = [
+  { title: "Producto y experiencia", copy: "Definimos usuarios, recorridos, prioridades y una interfaz coherente antes de desarrollar.", icon: AppWindow },
+  { title: "Android y iOS", copy: "Creamos una experiencia consistente respetando patrones, permisos y comportamientos de cada plataforma.", icon: Smartphone },
+  { title: "Backend e integraciones", copy: "Conectamos APIs, bases de datos, pagos, mapas, notificaciones y servicios de tu operación.", icon: CloudCog },
+  { title: "Calidad y seguridad", copy: "Probamos flujos críticos, accesos, datos y funcionamiento en distintos tamaños de pantalla.", icon: ShieldCheck },
+];
+
+const mobileAppProcess = [
+  ["01", "Descubrimiento", "Objetivos, usuarios, funciones y alcance inicial."],
+  ["02", "UX/UI y prototipo", "Flujos, pantallas y validación de la experiencia."],
+  ["03", "Desarrollo", "Aplicación, backend, integraciones y revisiones."],
+  ["04", "Pruebas", "Dispositivos, rendimiento, seguridad y correcciones."],
+  ["05", "Publicación", "Preparación de fichas y acompañamiento en tiendas."],
+  ["06", "Evolución", "Métricas, mantenimiento y nuevas versiones."],
+];
+
 const codeLines = [
   "<head>",
   "  <title>Tu negocio</title>",
@@ -222,6 +308,9 @@ export default function ServicePage() {
   const isDomainService = service.slug === "dominios";
   const isWorkspaceService = service.slug === "google-workspace";
   const isGiovsoft360Service = service.slug === "giovsoft-360";
+  const marketingModule = marketingModules[service.slug as keyof typeof marketingModules];
+  const isNetworkService = service.slug === "infraestructura-de-red";
+  const isMobileAppService = service.slug === "desarrollo-aplicaciones-moviles";
 
   return (
     <div className={`service-page-shell ${isDark ? "is-dark" : ""}`}>
@@ -244,8 +333,8 @@ export default function ServicePage() {
                 Enviar mensaje
                 <ArrowRight size={17} />
               </a>
-              <a className="site-secondary-button" href="mailto:contacto@giovsoft.com">
-                contacto@giovsoft.com
+              <a className="site-secondary-button" href="mailto:hola@giovsoft.com">
+                hola@giovsoft.com
                 <LockKeyhole size={17} />
               </a>
             </div>
@@ -778,6 +867,143 @@ export default function ServicePage() {
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {isMobileAppService && (
+          <section className="mobile-app-showcase">
+            <div className="mobile-app-intro">
+              <div>
+                <p className="site-kicker">Producto móvil de principio a fin</p>
+                <h2>Una aplicación útil para tus usuarios y sostenible para tu negocio.</h2>
+              </div>
+              <p>No empezamos por las pantallas: comenzamos por el problema, los usuarios y la operación que existe detrás. Así construimos un producto con prioridades claras, una experiencia consistente y una arquitectura preparada para evolucionar.</p>
+            </div>
+
+            <div className="mobile-app-platform-stage" aria-hidden="true">
+              <div className="mobile-device mobile-device-android">
+                <div className="mobile-device-bar"><span /><span /></div>
+                <div className="mobile-device-welcome"><i>G</i><small>Bienvenido</small><strong>Tu operación,<br />en movimiento.</strong></div>
+                <div className="mobile-device-cards"><span /><span /><span /></div>
+                <div className="mobile-device-nav"><i /><i /><i /></div>
+              </div>
+              <div className="mobile-device mobile-device-ios">
+                <div className="mobile-device-island" />
+                <div className="mobile-device-welcome"><i>G</i><small>Resumen</small><strong>Todo lo importante<br />en un solo lugar.</strong></div>
+                <div className="mobile-device-chart"><span /><span /><span /><span /><span /></div>
+                <div className="mobile-device-action">Nueva actividad <ArrowRight size={14} /></div>
+              </div>
+              <div className="mobile-platform-label label-android"><Smartphone size={17} /><span><strong>Android</strong>Google Play</span></div>
+              <div className="mobile-platform-label label-ios"><AppWindow size={17} /><span><strong>iOS</strong>App Store</span></div>
+              <div className="mobile-platform-cloud"><CloudCog size={22} /><span><strong>Servicios conectados</strong>API · Datos · Integraciones</span></div>
+            </div>
+
+            <div className="mobile-app-facts">
+              <article><strong>2 plataformas</strong><span>Android y iOS</span></article>
+              <article><strong>1 producto</strong><span>Experiencia coherente</span></article>
+              <article><strong>Base escalable</strong><span>Preparada para nuevas versiones</span></article>
+            </div>
+
+            <div className="mobile-app-section-head"><span>01</span><div><p className="site-kicker">Capacidades</p><h2>Todo lo necesario para convertir una idea en producto.</h2></div></div>
+            <div className="mobile-app-capability-grid">
+              {mobileAppCapabilities.map((item) => { const CapabilityIcon = item.icon; return <article key={item.title}><CapabilityIcon size={24} /><h3>{item.title}</h3><p>{item.copy}</p></article>; })}
+            </div>
+
+            <div className="mobile-app-architecture">
+              <div><p className="site-kicker">La tecnología detrás de la aplicación</p><h2>Lo que conecta y hace funcionar tu app.</h2><p>Además de diseñar las pantallas, construimos la parte técnica que guarda información, identifica usuarios y comunica la aplicación con pagos, mapas, mensajes y otros sistemas.</p></div>
+              <div className="mobile-app-integration-list">
+                <span><KeyRound size={18} /><b>Usuarios y accesos</b><small>Inicio de sesión, perfiles y permisos.</small></span>
+                <span><DatabaseZap size={18} /><b>Información actualizada</b><small>Datos guardados y sincronizados.</small></span>
+                <span><CreditCard size={18} /><b>Cobros dentro de la app</b><small>Pagos, planes o suscripciones.</small></span>
+                <span><Map size={18} /><b>Ubicación y recorridos</b><small>Mapas, direcciones y geolocalización.</small></span>
+                <span><MessageSquareText size={18} /><b>Comunicación</b><small>Notificaciones, avisos y mensajes.</small></span>
+                <span><BarChart3 size={18} /><b>Medición de uso</b><small>Eventos, actividad y métricas.</small></span>
+              </div>
+            </div>
+
+            <div className="mobile-app-delivery">
+              <div><p className="site-kicker">Proceso especializado</p><h2>Seis etapas para diseñar, validar y lanzar.</h2></div>
+              <ol>{mobileAppProcess.map(([number, title, copy]) => <li key={number}><span>{number}</span><div><strong>{title}</strong><small>{copy}</small></div></li>)}</ol>
+            </div>
+
+            <div className="mobile-app-quality">
+              <TestTube2 size={25} />
+              <div><p className="site-kicker">Antes de publicar</p><h2>Probamos los recorridos que sostienen la experiencia.</h2></div>
+              <ul><li><CheckCircle2 />Flujos y estados de error</li><li><CheckCircle2 />Tamaños de pantalla</li><li><CheckCircle2 />Permisos y accesos</li><li><CheckCircle2 />Rendimiento y estabilidad</li></ul>
+            </div>
+            <p className="growth-scope-note"><ShieldCheck size={18} />Las cuentas de desarrollador, costos de las tiendas, servicios externos y tiempos de revisión de Apple o Google se consideran por separado según el alcance del proyecto.</p>
+          </section>
+        )}
+
+        {marketingModule && (
+          <section className={`growth-showcase growth-${marketingModule.accent}`}>
+            <div className="growth-intro">
+              <p className="site-kicker">{marketingModule.kicker}</p>
+              <h2>{marketingModule.title}</h2>
+              <p>{marketingModule.intro}</p>
+            </div>
+
+            <div className="growth-command" aria-hidden="true">
+              <div className="growth-command-head"><span>GiovSoft Growth Studio</span><strong>Proyecto activo</strong></div>
+              <div className="growth-command-main">
+                <div className="growth-signal"><i /><i /><i /><i /><i /><i /><i /></div>
+                <div><small>Estrategia</small><strong>{service.title}</strong><span>Planeación · Producción · Medición</span></div>
+                <BarChart3 size={35} />
+              </div>
+              <div className="growth-command-status"><span><i />Brief validado</span><span><i />Ejecución</span><span><i />Reporte</span></div>
+            </div>
+
+            <div className="growth-metrics">
+              {marketingModule.metrics.map(([value, label]) => <article key={value}><strong>{value}</strong><span>{label}</span></article>)}
+            </div>
+
+            <div className="growth-section-heading"><span>01</span><div><p className="site-kicker">Qué trabajamos</p><h2>Un servicio con estrategia y entregables claros.</h2></div></div>
+            <div className="growth-pillar-grid">
+              {marketingModule.pillars.map((item) => { const PillarIcon = item.icon; return <article key={item.title}><PillarIcon size={24} /><h3>{item.title}</h3><p>{item.copy}</p></article>; })}
+            </div>
+
+            <div className="growth-process-panel">
+              <div><p className="site-kicker">Proceso de trabajo</p><h2>De la intención a una ejecución medible.</h2></div>
+              <ol>{marketingModule.process.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><strong>{step}</strong></li>)}</ol>
+            </div>
+
+            <div className="growth-deliverables">
+              <div><p className="site-kicker">Entregables</p><h2>Qué recibe tu equipo.</h2></div>
+              <div>{marketingModule.deliverables.map((item) => <span key={item}><CheckCircle2 size={16} />{item}</span>)}</div>
+            </div>
+            <p className="growth-scope-note"><ShieldCheck size={18} />{marketingModule.note}</p>
+          </section>
+        )}
+
+        {isNetworkService && (
+          <section className="network-showcase">
+            <div className="network-intro">
+              <p className="site-kicker">Conectividad para la operación</p>
+              <h2>Una red no es sólo internet: es la base que conecta a tu equipo.</h2>
+              <p>Diseñamos la infraestructura considerando el espacio, la cantidad de usuarios, los dispositivos críticos, la cobertura inalámbrica, la seguridad y el crecimiento esperado.</p>
+            </div>
+
+            <div className="network-map" aria-hidden="true">
+              <div className="network-map-head"><Wifi size={20} /><strong>Red operativa</strong><span><i />En línea</span></div>
+              <div className="network-topology">
+                <div className="network-core"><Workflow size={28} /><strong>Núcleo</strong><small>Router / Firewall</small></div>
+                <i className="network-line line-a" /><i className="network-line line-b" /><i className="network-line line-c" />
+                <article className="network-node node-office"><MonitorSmartphone size={20} /><span>Oficina</span></article>
+                <article className="network-node node-wifi"><Wifi size={20} /><span>Wi-Fi</span></article>
+                <article className="network-node node-services"><Cloud size={20} /><span>Servicios</span></article>
+              </div>
+              <div className="network-health"><span><strong>Cobertura</strong><i><b style={{ width: "92%" }} /></i></span><span><strong>Organización</strong><i><b style={{ width: "86%" }} /></i></span><span><strong>Capacidad</strong><i><b style={{ width: "78%" }} /></i></span></div>
+            </div>
+
+            <div className="network-facts"><article><strong>LAN + Wi-Fi</strong><span>Conectividad cableada e inalámbrica</span></article><article><strong>VLAN</strong><span>Segmentación cuando el proyecto lo requiere</span></article><article><strong>Documentada</strong><span>Inventario y esquema de implementación</span></article></div>
+
+            <div className="network-pillar-grid">{networkPillars.map((item) => { const PillarIcon = item.icon; return <article key={item.title}><PillarIcon size={24} /><h3>{item.title}</h3><p>{item.copy}</p></article>; })}</div>
+
+            <div className="network-scope-grid">
+              <div><p className="site-kicker">Alcance posible</p><h2>Componentes que podemos integrar.</h2><p>El proyecto se dimensiona después del levantamiento técnico. Trabajamos con equipos y materiales compatibles con las necesidades y presupuesto definidos.</p></div>
+              <div>{["Cableado estructurado y organización", "Routers, switches y puntos de acceso", "Cobertura Wi-Fi y redes para invitados", "Segmentación de usuarios y dispositivos", "Etiquetado, pruebas e inventario", "Recomendaciones de respaldo y continuidad"].map((item) => <span key={item}><CheckCircle2 size={17} />{item}</span>)}</div>
+            </div>
+            <p className="growth-scope-note"><ShieldCheck size={18} />La obra civil, canalización, certificaciones especializadas y suministro de hardware se cotizan conforme al levantamiento y alcance autorizado.</p>
           </section>
         )}
       </main>

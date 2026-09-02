@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { serviceItems } from "../data/services";
+import { articles } from "../data/articles";
 
 const origin = "https://giovsoft.com";
 const defaultImage = `${origin}/img/og/giovsoft-social.png`;
@@ -8,14 +9,19 @@ const defaultImage = `${origin}/img/og/giovsoft-social.png`;
 type SeoData = { title: string; description: string; noindex?: boolean };
 
 const pages: Record<string, SeoData> = {
-  "/": { title: "GiovSoft | Soluciones digitales y software a la medida", description: "GiovSoft es tu aliado tecnológico en Guadalajara. Creamos software, aplicaciones, sitios web, ecommerce y soluciones digitales adaptadas a tu operación." },
+  "/": { title: "GiovSoft | Soluciones digitales y software a la medida", description: "GiovSoft es tu aliado tecnológico en Guadalajara. Integramos software, sitios web, marketing digital, ecommerce e infraestructura de red para impulsar tu operación." },
   "/nosotros": { title: "Nosotros | GiovSoft Technologies", description: "Conoce la historia, misión y valores de GiovSoft Technologies, aliado tecnológico nacido en Guadalajara en 2016." },
-  "/portafolio": { title: "Portafolio de soluciones digitales | GiovSoft", description: "Explora nuestro portafolio de software, aplicaciones móviles, sitios web y ecommerce desarrollados para resolver necesidades reales." },
+  "/servicios": { title: "Servicios tecnológicos para empresas | GiovSoft", description: "Conoce los servicios de estrategia, desarrollo digital, infraestructura, productividad y marketing que GiovSoft integra para tu negocio." },
+  "/proceso": { title: "Nuestro proceso de trabajo | GiovSoft", description: "Conoce cómo GiovSoft transforma una necesidad de negocio en una solución tecnológica implementada, validada y preparada para evolucionar." },
+  "/articulos": { title: "Artículos de tecnología y estrategia digital | GiovSoft", description: "Guías y conocimiento sobre tecnología, desarrollo, infraestructura, marketing y decisiones digitales para negocios." },
+  "/portafolio": { title: "Soluciones digitales | GiovSoft", description: "Explora nuestras soluciones de software, aplicaciones móviles, sitios web y ecommerce desarrolladas para resolver necesidades reales." },
   "/portafolio/software": { title: "Software empresarial y CRM | GiovSoft", description: "Conoce las soluciones de software empresarial de GiovSoft, incluyendo GiovSoft Clinic para la administración de consultorios y expedientes." },
   "/portafolio/aplicaciones": { title: "Aplicaciones móviles | GiovSoft", description: "Descubre GFin, GFit y GiovTrips: aplicaciones creadas para finanzas, entrenamiento, nutrición y agencias de viajes." },
   "/portafolio/sitios-web": { title: "Diseño y desarrollo de sitios web | GiovSoft", description: "Catálogo de sitios web profesionales, rápidos y responsivos desarrollados por GiovSoft para empresas y organizaciones." },
   "/portafolio/ecommerce": { title: "Desarrollo de ecommerce y tiendas en línea | GiovSoft", description: "Creamos tiendas en línea con catálogo, pagos, pedidos e integraciones para convertir tu presencia digital en un canal de ventas." },
   "/academy": { title: "GiovSoft Academy | Aprende tecnología practicando", description: "Conoce GiovSoft Academy, una plataforma educativa con cursos de programación, tecnología, diseño, datos e inteligencia artificial." },
+  "/studios": { title: "GiovSoft Studios | Nuestros videojuegos", description: "Descubre los videojuegos originales de GiovSoft Studios, conoce los próximos lanzamientos y encuentra dónde adquirirlos y jugarlos." },
+  "/payments": { title: "GiovSoft Payments | Pagos, Tap to Pay y facturación", description: "Recibe, organiza e integra pagos digitales y presenciales con Tap to Pay, facturación conectada y mayor control para tu negocio." },
   "/contacto": { title: "Contacto | GiovSoft", description: "Cuéntanos qué necesita tu negocio. Contacta a GiovSoft para desarrollar software, aplicaciones, sitios web y soluciones digitales." },
   "/terminos": { title: "Términos y condiciones | GiovSoft", description: "Consulta los términos y condiciones de uso de los sitios, servicios y plataformas digitales de GiovSoft." },
   "/privacidad": { title: "Aviso de privacidad | GiovSoft", description: "Conoce cómo GiovSoft recopila, utiliza, protege y trata tus datos personales." },
@@ -41,8 +47,12 @@ export default function SeoManager() {
     const normalizedPath = pathname !== "/" ? pathname.replace(/\/$/, "") : "/";
     const serviceSlug = normalizedPath.startsWith("/servicios/") ? normalizedPath.split("/").pop() : undefined;
     const service = serviceItems.find((item) => item.slug === serviceSlug);
+    const articleSlug = normalizedPath.startsWith("/articulos/") ? normalizedPath.split("/").pop() : undefined;
+    const article = articles.find((item) => item.slug === articleSlug);
     const isPrivate = normalizedPath.startsWith("/admin");
-    const data = service
+    const data = article
+      ? { title: `${article.title} | GiovSoft`, description: article.excerpt }
+      : service
       ? { title: `${service.title} | Servicios GiovSoft`, description: service.detail }
       : pages[normalizedPath] || { title: "Página no encontrada | GiovSoft", description: "La página solicitada no está disponible.", noindex: true };
     const canonicalPath = normalizedPath === "/" ? "/" : `${normalizedPath}/`;

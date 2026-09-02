@@ -31,7 +31,7 @@ export default function SoftwarePortfolioPage() {
       <main className="software-catalog-page">
         <section className="software-catalog-hero">
           <div className="software-catalog-breadcrumb">
-            <a href="/portafolio">Portafolio</a><span>/</span><strong>Software</strong>
+            <a href="/portafolio">Soluciones</a><span>/</span><strong>Software</strong>
           </div>
           <div className="software-catalog-hero-grid">
             <div>

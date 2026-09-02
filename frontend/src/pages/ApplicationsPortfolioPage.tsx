@@ -99,7 +99,7 @@ export default function ApplicationsPortfolioPage() {
       <main className="apps-catalog-page">
         <section className="apps-catalog-hero">
           <div className="apps-catalog-breadcrumb">
-            <a href="/portafolio">Portafolio</a><span>/</span><strong>Aplicaciones</strong>
+            <a href="/portafolio">Soluciones</a><span>/</span><strong>Aplicaciones</strong>
           </div>
           <div className="apps-catalog-hero-grid">
             <div>

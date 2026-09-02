@@ -21,13 +21,13 @@ const pageContent = {
     icon: MonitorSmartphone,
   },
   "sitios-web": {
-    kicker: "Portafolio de sitios web",
+    kicker: "Soluciones de sitios web",
     title: "Sitios creados para presentar, convencer y generar oportunidades.",
     copy: "Explora soluciones web diseñadas para comunicar con claridad, fortalecer marcas y conectar negocios con nuevos clientes.",
     icon: MonitorSmartphone,
   },
   ecommerce: {
-    kicker: "Portafolio de ecommerce",
+    kicker: "Soluciones de ecommerce",
     title: "Experiencias de compra preparadas para convertir y crecer.",
     copy: "Conoce tiendas digitales y soluciones comerciales que conectan productos, pagos, pedidos y operación en un mismo canal.",
     icon: Boxes,

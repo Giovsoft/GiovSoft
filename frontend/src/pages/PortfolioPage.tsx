@@ -73,10 +73,10 @@ export default function PortfolioPage() {
       <main className="portfolio-page">
         <section className="portfolio-hero">
           <div className="portfolio-hero-copy">
-            <p className="site-kicker">Portafolio de soluciones</p>
+            <p className="site-kicker">Soluciones GiovSoft</p>
             <h1>Ideas que se convierten en herramientas para avanzar.</h1>
             <p>
-              Nuestro portafolio reúne soluciones creadas para resolver necesidades
+              Nuestro catálogo reúne soluciones creadas para resolver necesidades
               reales: vender, organizar procesos, mejorar la atención y construir una
               presencia digital que genere confianza.
             </p>

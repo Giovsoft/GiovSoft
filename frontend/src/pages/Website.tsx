@@ -8,19 +8,15 @@ import {
   Cpu,
   Globe2,
   Layers3,
-  MessageCircle,
   Rocket,
-  SearchCheck,
   Server,
   ShieldCheck,
   Store,
-  TrendingUp,
-  Wrench,
 } from "lucide-react";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import heroImage from "../assets/hero.png";
-import { serviceItems } from "../data/services";
+import { serviceCategories, serviceItems } from "../data/services";
 import { useSiteTheme } from "../hooks/useSiteTheme";
 
 const metrics = [
@@ -44,7 +40,7 @@ const metrics = [
   },
 ];
 
-const heroTags = ["Sitios web", "Tiendas en línea", "Google Workspace", "Dominios"];
+const heroTags = ["Software", "Marketing digital", "Sitios web", "Infraestructura de red"];
 
 const infrastructureStack = [
   {
@@ -79,33 +75,6 @@ const infrastructureStack = [
   },
 ];
 
-const processSteps = [
-  {
-    number: "01",
-    title: "Primer contacto",
-    copy: "Escuchamos qué necesita tu negocio, en qué etapa está y qué objetivo quieres lograr.",
-    icon: MessageCircle,
-  },
-  {
-    number: "02",
-    title: "Diagnóstico",
-    copy: "Revisamos tu presencia actual, canales, dominio, correos y oportunidades digitales.",
-    icon: SearchCheck,
-  },
-  {
-    number: "03",
-    title: "Implementación",
-    copy: "Construimos y conectamos sitio, tienda, dominio, correos o Workspace según el plan.",
-    icon: Wrench,
-  },
-  {
-    number: "04",
-    title: "Lanzamiento y mejora",
-    copy: "Publicamos, acompañamos el arranque y dejamos una ruta para seguir creciendo.",
-    icon: TrendingUp,
-  },
-];
-
 export default function Website() {
   const { isDark, toggleTheme } = useSiteTheme();
 
@@ -117,11 +86,11 @@ export default function Website() {
         <section id="inicio" className="site-hero">
           <div className="site-hero-copy">
             <p className="site-kicker">Tu aliado tecnológico</p>
-            <h1>Impulsa tu negocio con presencia digital profesional.</h1>
+            <h1>Impulsa tu negocio con tecnología, presencia y estrategia digital.</h1>
             <p>
-              Creamos sitios web, tiendas en línea, dominios y correos corporativos
-              para que tu empresa se vea profesional, llegue a más clientes y crezca
-              con una base digital sólida.
+              Integramos software, sitios web, marketing e infraestructura para que
+              tu empresa opere mejor, conecte con más clientes y avance con una
+              estrategia digital coherente.
             </p>
 
             <div className="hero-tags" aria-label="Servicios principales">
@@ -135,7 +104,7 @@ export default function Website() {
                 Empezar proyecto
                 <Rocket size={17} />
               </a>
-              <a className="site-secondary-button" href="#servicios">
+              <a className="site-secondary-button" href="/servicios">
                 Ver servicios
               </a>
             </div>
@@ -182,73 +151,19 @@ export default function Website() {
           </div>
         </section>
 
-        <section id="servicios" className="site-section">
-          <div className="section-intro">
-            <p className="site-kicker">Servicios</p>
-            <h2>Todo lo básico para que tu negocio exista y venda en internet.</h2>
-          </div>
-
-          <div className="service-grid">
-            {serviceItems.map((service) => {
-              const Icon = service.icon;
-
-              return (
-                <article key={service.title} className="service-card">
-                  <div className="service-icon">
-                    <Icon size={22} />
-                  </div>
-                  <h3>{service.title}</h3>
-                  <p>{service.copy}</p>
-                  <a className="service-link" href={`/servicios/${service.slug}`}>
-                    Ver servicio
-                    <ArrowRight size={15} />
-                  </a>
-                </article>
-              );
+        <section id="servicios" className="site-section home-capabilities">
+          <div className="home-section-heading"><div><p className="site-kicker">Qué podemos conectar</p><h2>Cuatro capacidades, una misma estrategia.</h2></div><a href="/servicios">Ver todos los servicios <ArrowRight size={16} /></a></div>
+          <div className="home-capability-grid">
+            {serviceCategories.map((category, index) => {
+              const examples = serviceItems.filter((service) => service.category === category.id).map((service) => service.title);
+              return <a href={`/servicios#${category.id}`} key={category.id}><span>0{index + 1}</span><h3>{category.title}</h3><p>{category.copy}</p><small>{examples.slice(0, 3).join(" · ")}</small><ArrowRight size={18} /></a>;
             })}
           </div>
         </section>
 
-        <section id="proceso" className="site-band">
-          <div className="site-band-copy">
-            <p className="site-kicker">Proceso con un nuevo cliente</p>
-            <h2>Del primer mensaje a una base digital funcionando.</h2>
-            <p>
-              Acompañamos a cada nuevo cliente con un flujo claro:
-              entendemos el negocio, definimos prioridades, implementamos
-              y dejamos una base lista para operar.
-            </p>
-            <div className="process-proof">
-              <span>01</span>
-              <strong>Nos cuentas tu necesidad</strong>
-              <span>02</span>
-              <strong>Proponemos una ruta clara</strong>
-              <span>03</span>
-              <strong>Construimos y conectamos</strong>
-              <span>04</span>
-              <strong>Lanzamos y acompañamos</strong>
-            </div>
-          </div>
-
-          <div className="process-timeline">
-            {processSteps.map((step) => {
-              const Icon = step.icon;
-
-              return (
-                <article key={step.number} className="timeline-step">
-                  <div className="timeline-node">
-                    <span>{step.number}</span>
-                    <Icon size={20} />
-                  </div>
-                  <div className="timeline-card">
-                    <span>{step.number}</span>
-                    <h3>{step.title}</h3>
-                    <p>{step.copy}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+        <section id="proceso" className="home-process-summary">
+          <div><p className="site-kicker">Una forma clara de avanzar</p><h2>Primero entendemos. Después construimos.</h2><p>Convertimos necesidades de negocio en una ruta priorizada, una implementación verificable y una base preparada para seguir evolucionando.</p><a className="site-secondary-button" href="/proceso">Conocer nuestra metodología <ArrowRight size={16} /></a></div>
+          <ol><li><span>01</span><strong>Entender</strong><small>Contexto, objetivos y prioridades.</small></li><li><span>02</span><strong>Definir</strong><small>Alcance, ruta y resultados.</small></li><li><span>03</span><strong>Implementar</strong><small>Construcción, validación y lanzamiento.</small></li></ol>
         </section>
 
         <section className="site-section infrastructure-section">

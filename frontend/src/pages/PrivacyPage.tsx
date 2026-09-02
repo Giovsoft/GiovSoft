@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             <p className="site-kicker">Privacidad y datos personales</p>
             <h1>Aviso de Privacidad Integral</h1>
             <p>
-              Última actualización: 6 de agosto de 2026. Aquí explicamos qué datos
+              Última actualización: 2 de septiembre de 2026. Aquí explicamos qué datos
               personales recabamos, para qué los utilizamos y cómo puede ejercer sus
               derechos sobre ellos.
             </p>
@@ -67,7 +67,8 @@ export default function PrivacyPage() {
               <strong>Resumen</strong>
               <p>
                 Utilizamos los datos necesarios para responder solicitudes, preparar
-                propuestas, ejecutar proyectos, administrar pagos y brindar soporte.
+                propuestas, ejecutar proyectos, habilitar Payments, administrar pagos,
+                conectar la facturación y brindar soporte.
                 No vendemos datos personales ni los usamos para publicidad de terceros.
               </p>
             </div>
@@ -81,7 +82,7 @@ export default function PrivacyPage() {
             </p>
             <p>
               Para asuntos de privacidad puede contactar al Departamento de Datos
-              Personales mediante <a href="mailto:privacidad@giovsoft.com">privacidad@giovsoft.com</a>.
+              Personales mediante <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a>.
             </p>
 
             <h2 id="privacidad-2">2. Datos personales que recabamos</h2>
@@ -89,7 +90,9 @@ export default function PrivacyPage() {
             <ul>
               <li><strong>Identificación y contacto:</strong> nombre, empresa, puesto, correo electrónico, teléfono y firma.</li>
               <li><strong>Información comercial:</strong> servicio de interés, necesidades, presupuesto, mensajes, cotizaciones, contratos e historial de atención.</li>
-              <li><strong>Información fiscal y de pago:</strong> razón social, RFC, régimen fiscal, domicilio fiscal, uso de CFDI y referencias de pago.</li>
+              <li><strong>Información fiscal:</strong> nombre o razón social, RFC, régimen fiscal, código postal, uso del comprobante, correo de entrega y datos necesarios para solicitar, emitir, consultar o cancelar facturas.</li>
+              <li><strong>Información de operaciones de pago:</strong> importe, moneda, concepto, referencia, fecha, estado, identificadores del comercio y del proveedor, tokens o terminaciones parciales, devoluciones, aclaraciones y contracargos.</li>
+              <li><strong>Información de Tap to Pay:</strong> identificadores técnicos del dispositivo compatible, sistema operativo, sesión, comercio y eventos necesarios para autenticar y proteger el cobro presencial.</li>
               <li><strong>Información del proyecto:</strong> contenidos, archivos, marca, dominio, cuentas, configuraciones, usuarios y accesos necesarios.</li>
               <li><strong>Datos técnicos:</strong> dirección IP, navegador, dispositivo, registros de acceso, fecha, hora y eventos de seguridad.</li>
             </ul>
@@ -97,6 +100,14 @@ export default function PrivacyPage() {
               Cuando recibimos datos de colaboradores o contactos del Cliente, este se
               compromete a contar con una base legítima para compartirlos y a informarles
               sobre este Aviso cuando corresponda.
+            </p>
+            <p>
+              GiovSoft no necesita conocer ni solicita mediante sus formularios públicos
+              el número completo de una tarjeta, su código de seguridad, NIP o claves
+              bancarias. Estos datos deben introducirse únicamente en las interfaces seguras
+              del proveedor de pagos correspondiente. Según la integración, GiovSoft podrá
+              recibir identificadores tokenizados o terminaciones parciales para mostrar y
+              conciliar la operación sin acceder a los datos completos del medio de pago.
             </p>
 
             <h2 id="privacidad-3">3. Datos sensibles</h2>
@@ -117,6 +128,8 @@ export default function PrivacyPage() {
               <li>Diseñar, desarrollar, configurar, entregar y mantener los servicios contratados.</li>
               <li>Gestionar dominios, cuentas, licencias e integraciones solicitadas.</li>
               <li>Procesar pagos, emitir comprobantes y cumplir obligaciones fiscales y contables.</li>
+              <li>Configurar links de pago, checkout, pagos recurrentes y Tap to Pay; confirmar estados, conciliar operaciones y gestionar devoluciones o aclaraciones.</li>
+              <li>Capturar datos fiscales y conectarlos con el SAT o con proveedores autorizados de certificación seleccionados para generar y administrar comprobantes.</li>
               <li>Brindar soporte, seguimiento, seguridad y atención de incidentes.</li>
               <li>Prevenir fraude, uso indebido y accesos no autorizados.</li>
               <li>Cumplir obligaciones legales y atender requerimientos de autoridad competente.</li>
@@ -128,7 +141,7 @@ export default function PrivacyPage() {
               encuestas, invitaciones y promociones de servicios de GiovSoft. Estas
               finalidades no son necesarias para la relación principal. Puede oponerse
               o retirar su consentimiento en cualquier momento escribiendo a
-              <a href="mailto:privacidad@giovsoft.com"> privacidad@giovsoft.com</a>, sin
+              <a href="mailto:legal@giovsoft.com"> legal@giovsoft.com</a>, sin
               afectar los servicios ya contratados.
             </p>
 
@@ -145,7 +158,10 @@ export default function PrivacyPage() {
             <p>
               Podemos compartir datos con proveedores que actúan por cuenta de GiovSoft
               para prestar alojamiento, correo, almacenamiento, soporte, facturación,
-              comunicaciones, seguridad o procesamiento de pagos. Estos proveedores
+              comunicaciones, seguridad, prevención de fraude o procesamiento de pagos.
+              Esto puede incluir adquirentes, agregadores, emisores, redes de tarjetas,
+              proveedores de nube, servicios antifraude, el SAT y proveedores autorizados
+              de certificación. Estos proveedores
               reciben únicamente la información necesaria y están sujetos a obligaciones
               contractuales, políticas propias y medidas de protección aplicables.
             </p>
@@ -160,7 +176,8 @@ export default function PrivacyPage() {
             <h2 id="privacidad-8">8. Servicios y plataformas de terceros</h2>
             <p>
               A petición del Cliente podemos configurar servicios como Google Workspace,
-              registradores de dominio, proveedores de hosting, Stripe, Mercado Pago,
+              registradores de dominio, proveedores de hosting, adquirentes, agregadores,
+              pasarelas de pago, proveedores de Tap to Pay, servicios de facturación,
               plataformas logísticas u otras integraciones. En esos casos, el proveedor
               correspondiente puede actuar como responsable independiente y tratar datos
               conforme a su propio aviso de privacidad. Recomendamos revisar esos avisos
@@ -171,7 +188,7 @@ export default function PrivacyPage() {
             <p>
               La persona titular puede ejercer sus derechos de <strong>Acceso, Rectificación,
               Cancelación y Oposición</strong> (ARCO). Para presentar una solicitud debe
-              escribir a <a href="mailto:privacidad@giovsoft.com">privacidad@giovsoft.com</a> e incluir:
+              escribir a <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a> e incluir:
             </p>
             <ul>
               <li>Nombre y medio para comunicar la respuesta.</li>
@@ -202,6 +219,12 @@ export default function PrivacyPage() {
               contractuales o de prescripción aplicables. Al concluir esos periodos, los
               datos serán eliminados, anonimizados o bloqueados conforme corresponda.
             </p>
+            <p>
+              Los registros de pago, conciliación, aclaraciones, contracargos y facturación
+              podrán conservarse durante los plazos necesarios para atender obligaciones
+              fiscales, contables, contractuales, de prevención de fraude y requerimientos
+              de autoridad, aun después de que termine el uso de Payments.
+            </p>
 
             <h2 id="privacidad-12">12. Medidas de seguridad</h2>
             <p>
@@ -210,6 +233,12 @@ export default function PrivacyPage() {
               acceso o tratamiento no autorizado. Ningún sistema es completamente
               infalible; si detectamos una vulneración que afecte significativamente sus
               derechos, la comunicaremos conforme a la normativa aplicable.
+            </p>
+            <p>
+              En Payments aplicamos controles de acceso, cifrado en tránsito, registro de
+              eventos y separación de funciones conforme al alcance técnico contratado. Los
+              datos completos del medio de pago son tratados por los proveedores especializados
+              cuando así lo establece la arquitectura de la integración.
             </p>
 
             <h2 id="privacidad-13">13. Cambios al Aviso</h2>
@@ -223,13 +252,13 @@ export default function PrivacyPage() {
             <h2 id="privacidad-14">14. Contacto y consentimiento</h2>
             <p>
               Para consultas sobre este Aviso o sobre el tratamiento de sus datos escriba
-              a <a href="mailto:privacidad@giovsoft.com">privacidad@giovsoft.com</a>. Al
+              a <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a>. Al
               proporcionar voluntariamente sus datos después de tener disponible este
               Aviso, consiente su tratamiento para las finalidades primarias, salvo los
               casos en que la ley exija una manifestación expresa distinta.
             </p>
 
-            <p className="legal-closing">Aviso vigente a partir del 6 de agosto de 2026.</p>
+            <p className="legal-closing">Aviso vigente a partir del 2 de septiembre de 2026.</p>
           </article>
         </section>
       </main>

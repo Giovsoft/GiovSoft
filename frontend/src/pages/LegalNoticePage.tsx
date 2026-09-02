@@ -30,7 +30,7 @@ export default function LegalNoticePage() {
             <p className="site-kicker">Información del sitio</p>
             <h1>Aviso Legal</h1>
             <p>
-              Última actualización: 6 de agosto de 2026. Este documento identifica al
+              Última actualización: 2 de septiembre de 2026. Este documento identifica al
               titular de giovsoft.com y establece las condiciones generales para navegar
               y utilizar sus contenidos.
             </p>
@@ -65,7 +65,7 @@ export default function LegalNoticePage() {
             <div className="legal-highlight">
               <strong>Alcance de este documento</strong>
               <p>
-                El contenido del sitio presenta de forma general los servicios de GiovSoft.
+                El contenido del sitio presenta de forma general los servicios y soluciones de GiovSoft.
                 No constituye por sí mismo una oferta contractual ni sustituye una
                 cotización personalizada.
               </p>
@@ -79,16 +79,23 @@ export default function LegalNoticePage() {
             </p>
             <ul>
               <li><strong>Sitio web:</strong> giovsoft.com</li>
-              <li><strong>Correo general:</strong> <a href="mailto:contacto@giovsoft.com">contacto@giovsoft.com</a></li>
-              <li><strong>Privacidad:</strong> <a href="mailto:privacidad@giovsoft.com">privacidad@giovsoft.com</a></li>
+              <li><strong>Correo legal y privacidad:</strong> <a href="mailto:legal@giovsoft.com">legal@giovsoft.com</a></li>
             </ul>
 
             <h2 id="aviso-2">2. Objeto del sitio</h2>
             <p>
               El sitio tiene como finalidad informar sobre GiovSoft y sus servicios de
               desarrollo web, ecommerce, dominios, correos corporativos, Google Workspace,
-              integraciones, soporte y acompañamiento tecnológico, así como facilitar
+              integraciones, soporte, acompañamiento tecnológico y GiovSoft Payments,
+              incluyendo links de pago, checkout, pagos recurrentes, Tap to Pay y
+              facturación conectada, así como facilitar
               canales para solicitar información o iniciar una relación comercial.
+            </p>
+            <p>
+              La información sobre Payments describe una solución tecnológica y sus
+              posibles integraciones. No significa que todas las funciones estén disponibles
+              en todos los dispositivos, territorios o proveedores, ni constituye por sí
+              misma una oferta de servicios financieros.
             </p>
 
             <h2 id="aviso-3">3. Condiciones de acceso y uso</h2>
@@ -118,6 +125,12 @@ export default function LegalNoticePage() {
               fiscal, financiera o de otra profesión regulada. El usuario debe consultar
               a un especialista para decisiones que requieran asesoramiento profesional.
             </p>
+            <p>
+              GiovSoft no se presenta como banco, emisor, adquirente, agregador, cámara de
+              compensación o proveedor autorizado de certificación fiscal. La autorización,
+              procesamiento y liquidación de pagos, así como la certificación de comprobantes,
+              corresponden a los terceros habilitados que se integren y a sus propias reglas.
+            </p>
 
             <h2 id="aviso-5">5. Propiedad intelectual</h2>
             <p>
@@ -138,7 +151,9 @@ export default function LegalNoticePage() {
             <p>
               El sitio puede contener enlaces a páginas y servicios de terceros, como
               redes sociales, WhatsApp, Google, proveedores de pago, registradores de
-              dominio o plataformas tecnológicas. Estos enlaces se ofrecen para facilitar
+              dominio, adquirentes, agregadores, redes de tarjetas, proveedores de Tap to Pay,
+              servicios antifraude, el SAT, proveedores autorizados de certificación o
+              plataformas tecnológicas. Estos enlaces se ofrecen para facilitar
               el acceso y no implican que GiovSoft controle o respalde todo su contenido.
             </p>
             <p>
@@ -202,7 +217,7 @@ export default function LegalNoticePage() {
               mecanismos de protección al consumidor.
             </p>
 
-            <p className="legal-closing">Aviso vigente a partir del 6 de agosto de 2026.</p>
+            <p className="legal-closing">Aviso vigente a partir del 2 de septiembre de 2026.</p>
           </article>
         </section>
       </main>

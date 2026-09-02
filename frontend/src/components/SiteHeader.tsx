@@ -3,7 +3,9 @@ import {
   Boxes,
   ChevronDown,
   Code2,
+  CreditCard,
   Globe2,
+  Gamepad2,
   Menu,
   MonitorSmartphone,
   Moon,
@@ -12,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { serviceItems } from "../data/services";
+import { serviceCategories, serviceItems } from "../data/services";
 
 const whatsappMessage = encodeURIComponent(
   "Hola GiovSoft, quiero información sobre sus servicios digitales."
@@ -112,28 +114,29 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
       <nav className={`site-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navegación principal">
         <a className="site-desktop-nav-link" href="/" onClick={closeMenu}>Inicio</a>
         <div className="nav-dropdown site-desktop-nav-link">
-          <a href="/#servicios" className="nav-dropdown-trigger" onClick={closeMenu}>
+          <a href="/servicios" className="nav-dropdown-trigger" onClick={closeMenu}>
             Servicios
           </a>
-          <div className="services-menu">
-            {serviceItems.map((service) => {
-              const Icon = service.icon;
-
-              return (
-                <a key={service.slug} href={`/servicios/${service.slug}`} onClick={closeMenu}>
-                  <Icon size={18} />
-                  <span>
-                    <strong>{service.title}</strong>
-                    <small>{service.copy}</small>
-                  </span>
-                </a>
-              );
-            })}
+          <div className="services-menu services-catalog-menu">
+            {serviceCategories.map((category) => (
+              <section className="services-menu-group" key={category.id}>
+                <p>{category.title}</p>
+                {serviceItems.filter((service) => service.category === category.id).map((service) => {
+                  const Icon = service.icon;
+                  return (
+                    <a key={service.slug} href={`/servicios/${service.slug}`} onClick={closeMenu}>
+                      <Icon size={18} />
+                      <span><strong>{service.title}</strong><small>{service.copy}</small></span>
+                    </a>
+                  );
+                })}
+              </section>
+            ))}
           </div>
         </div>
         <div className="nav-dropdown site-desktop-nav-link">
           <a href="/portafolio" className="nav-dropdown-trigger" onClick={closeMenu}>
-            Portafolio
+            Soluciones
           </a>
           <div className="services-menu portfolio-menu">
             {portfolioItems.map((item) => {
@@ -152,7 +155,10 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
           </div>
         </div>
         <a className="site-desktop-nav-link" href="/nosotros" onClick={closeMenu}>Nosotros</a>
-        <a className="site-desktop-nav-link" href="/#proceso" onClick={closeMenu}>Proceso</a>
+        <a className="site-desktop-nav-link" href="/proceso" onClick={closeMenu}>Proceso</a>
+        <a className="site-desktop-nav-link" href="/articulos" onClick={closeMenu}>Artículos</a>
+        <a className="site-studios-link site-desktop-nav-link" href="/studios" onClick={closeMenu}><Gamepad2 size={15} />Studios</a>
+        <a className="site-payments-link site-desktop-nav-link" href="/payments" onClick={closeMenu}><CreditCard size={15} />Payments</a>
         <a className="site-desktop-nav-link" href="/contacto" onClick={closeMenu}>Contacto</a>
         <a className="site-academy-link site-desktop-nav-link" href="/academy" onClick={closeMenu}>Academy</a>
 
@@ -166,7 +172,10 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
               <div className="site-mobile-section-content">
                 <a href="/" onClick={closeMenu}>Inicio</a>
                 <a href="/nosotros" onClick={closeMenu}>Nosotros</a>
-                <a href="/#proceso" onClick={closeMenu}>Proceso</a>
+                <a href="/proceso" onClick={closeMenu}>Proceso</a>
+                <a href="/articulos" onClick={closeMenu}>Artículos</a>
+                <a className="site-studios-link" href="/studios" onClick={closeMenu}><Gamepad2 size={16} />Studios</a>
+                <a className="site-payments-link" href="/payments" onClick={closeMenu}><CreditCard size={16} />Payments</a>
                 <a href="/contacto" onClick={closeMenu}>Contacto</a>
                 <a className="site-academy-link" href="/academy" onClick={closeMenu}>Academy</a>
               </div>
@@ -175,7 +184,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
 
           <section className="site-mobile-menu-section">
             <button className="site-mobile-section-button" onClick={() => toggleMobileSection("portfolio")} type="button" aria-expanded={mobileSections.portfolio}>
-              Portafolio
+              Soluciones
               <ChevronDown size={18} />
             </button>
             {mobileSections.portfolio && (
@@ -183,7 +192,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
                 <a href="/portafolio" onClick={closeMenu}>
                   <Boxes size={18} />
                   <span>
-                    <strong>Ver portafolio</strong>
+                    <strong>Ver soluciones</strong>
                     <small>Conoce nuestro enfoque y todas las categorías.</small>
                   </span>
                 </a>
@@ -211,19 +220,20 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
             </button>
             {mobileSections.services && (
               <div className="site-mobile-section-content is-services">
-                {serviceItems.map((service) => {
-                  const Icon = service.icon;
-
-                  return (
-                    <a key={service.slug} href={`/servicios/${service.slug}`} onClick={closeMenu}>
-                      <Icon size={18} />
-                      <span>
-                        <strong>{service.title}</strong>
-                        <small>{service.copy}</small>
-                      </span>
-                    </a>
-                  );
-                })}
+                {serviceCategories.map((category) => (
+                  <section className="mobile-service-group" key={category.id}>
+                    <p>{category.title}</p>
+                    {serviceItems.filter((service) => service.category === category.id).map((service) => {
+                      const Icon = service.icon;
+                      return (
+                        <a key={service.slug} href={`/servicios/${service.slug}`} onClick={closeMenu}>
+                          <Icon size={18} />
+                          <span><strong>{service.title}</strong><small>{service.copy}</small></span>
+                        </a>
+                      );
+                    })}
+                  </section>
+                ))}
               </div>
             )}
           </section>
@@ -257,7 +267,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
           target="_blank"
           rel="noreferrer"
         >
-          Enviar mensaje
+          Hablemos
           <ArrowRight size={16} />
         </a>
       </div>
