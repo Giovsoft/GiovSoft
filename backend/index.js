@@ -4718,6 +4718,53 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       return res.status(201).json({ order: publicOrder(order), checkoutUrl: null, simulated: true });
     }
 
+    // Servicios propios de GiovSoft (p. ej. Gesove): cargo directo a la cuenta
+    // principal de la plataforma, sin cuenta conectada ni application fee. Se
+    // activa marcando la aplicación con config.settlement = "platform".
+    if (application.config?.settlement === "platform") {
+      const amountTotalCents = Math.round(order.amount * 100);
+      const session = await stripe.checkout.sessions.create(
+        {
+          mode: "payment",
+          customer_email: sanitizeText(order.customer.email) || undefined,
+          line_items: [
+            {
+              quantity: 1,
+              price_data: {
+                currency: order.currency.toLowerCase(),
+                unit_amount: amountTotalCents,
+                product_data: { name: order.concept },
+              },
+            },
+          ],
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          metadata: {
+            orderId: order.id,
+            applicationId: application.id,
+            businessLineId: order.businessLineId,
+            externalRef: order.externalRef,
+            plan: order.plan,
+            sku: order.sku,
+            subtotal: String(order.subtotal),
+            tax: String(order.tax),
+          },
+          payment_intent_data: { metadata: { orderId: order.id } },
+        },
+        { idempotencyKey: `checkout-${order.id}` }
+      );
+
+      order.stripeSessionId = session.id;
+      order.metadata = { ...order.metadata, checkoutUrl: session.url, settlement: "platform" };
+      await saveOrder(order);
+
+      return res.status(201).json({
+        order: publicOrder(order),
+        checkoutUrl: session.url,
+        expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
+      });
+    }
+
     const clientId = sanitizeText(order.customer.id || order.metadata.clientId);
     const clients = await readClients();
     const client = clients.find((item) => item.id === clientId);
