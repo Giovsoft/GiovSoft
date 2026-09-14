@@ -4788,6 +4788,20 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
     const applicationFeePercent = getStripeApplicationFeePercent();
     const amountTotalCents = Math.round(order.amount * 100);
     const applicationFeeAmount = Math.round(amountTotalCents * (applicationFeePercent / 100));
+    const requestedPaymentMethods = Array.isArray(req.body.paymentMethods)
+      ? req.body.paymentMethods.map((method) => sanitizeText(method).toLowerCase())
+      : [];
+    const cardEnabled = requestedPaymentMethods.includes("card");
+    const linkEnabled = cardEnabled && requestedPaymentMethods.includes("link");
+    const bankTransferEnabled = requestedPaymentMethods.length === 0
+      || requestedPaymentMethods.includes("mx_bank_transfer");
+
+    if (!cardEnabled && !bankTransferEnabled) {
+      return res.status(400).json({
+        message: "No se solicitó un método de pago compatible.",
+        code: "UNSUPPORTED_PAYMENT_METHOD",
+      });
+    }
 
     if (applicationFeeAmount <= 0 || applicationFeeAmount >= amountTotalCents) {
       return res.status(400).json({
@@ -4796,14 +4810,14 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       });
     }
 
-    if (order.currency !== "MXN") {
+    if (bankTransferEnabled && order.currency !== "MXN") {
       return res.status(400).json({
         message: "La transferencia bancaria mexicana requiere que el pago esté expresado en MXN.",
         code: "MX_BANK_TRANSFER_REQUIRES_MXN",
       });
     }
 
-    if (!sanitizeText(order.customer.email)) {
+    if (bankTransferEnabled && !sanitizeText(order.customer.email)) {
       return res.status(400).json({
         message: "El correo del comprador es requerido para crear su cuenta bancaria virtual en Stripe.",
         code: "STRIPE_CUSTOMER_EMAIL_REQUIRED",
@@ -4816,15 +4830,19 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       {
         mode: "payment",
         customer: stripeCustomer.id,
-        payment_method_types: ["customer_balance"],
-        payment_method_options: {
+        payment_method_types: [
+          ...(cardEnabled ? ["card"] : []),
+          ...(linkEnabled ? ["link"] : []),
+          ...(bankTransferEnabled ? ["customer_balance"] : []),
+        ],
+        payment_method_options: bankTransferEnabled ? {
           customer_balance: {
             funding_type: "bank_transfer",
             bank_transfer: {
               type: "mx_bank_transfer",
             },
           },
-        },
+        } : undefined,
         line_items: [
           {
             quantity: 1,
@@ -4870,6 +4888,11 @@ app.post("/api/v1/checkout/sessions", requireApplicationAuth, async (req, res, n
       stripeCustomerId: stripeCustomer.id,
       applicationFeePercent,
       applicationFeeAmount,
+      paymentMethods: [
+        ...(cardEnabled ? ["card"] : []),
+        ...(linkEnabled ? ["link"] : []),
+        ...(bankTransferEnabled ? ["mx_bank_transfer"] : []),
+      ],
     };
     await saveOrder(order);
 
