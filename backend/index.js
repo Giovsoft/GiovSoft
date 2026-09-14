@@ -4921,15 +4921,24 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
     // Conciliación: si el webhook de Stripe se perdió, el polling del
     // producto verifica la sesión directamente y rescata el pago.
     const stripe = getStripe();
-    if (order.status === "pending" && order.stripeSessionId && stripe) {
+    if (["pending", "paid"].includes(order.status) && order.stripeSessionId && stripe) {
       try {
         const connectedAccountId = sanitizeText(order.metadata?.connectedAccountId);
         const requestOptions = connectedAccountId.startsWith("acct_") ? { stripeAccount: connectedAccountId } : undefined;
-        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, { expand: ["payment_intent"] }, requestOptions);
+        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, { expand: ["payment_intent.latest_charge"] }, requestOptions);
         const paymentIntent = typeof session.payment_intent === "object" ? session.payment_intent : null;
+        const latestCharge = typeof paymentIntent?.latest_charge === "object" ? paymentIntent.latest_charge : null;
         const paymentSucceeded = session.payment_status === "paid" || paymentIntent?.status === "succeeded";
+        const fullyRefunded = Boolean(latestCharge?.refunded)
+          || (Number(latestCharge?.amount || 0) > 0 && Number(latestCharge?.amount_refunded || 0) >= Number(latestCharge.amount));
 
-        if (paymentSucceeded) {
+        if (order.status === "paid" && fullyRefunded) {
+          console.log(`[conciliación] orden ${order.id} reembolsada totalmente en Stripe; actualizando.`);
+          order = await updateOrderPaymentStatus(order, req.application, "refunded", "order.refunded", {
+            paymentIntentId: paymentIntent?.id || session.payment_intent || "",
+            reason: "Stripe confirmó el reembolso total del pago.",
+          });
+        } else if (order.status === "pending" && paymentSucceeded) {
           console.log(`[conciliación] orden ${order.id} pagada en Stripe sin webhook; actualizando.`);
           order = await handleOrderPaid(order, req.application, { paymentIntentId: paymentIntent?.id || session.payment_intent || "" });
         } else if (session.status === "expired" && order.status === "pending") {
@@ -5194,7 +5203,9 @@ app.post("/api/webhooks/stripe", async (req, res) => {
         (charge.payment_intent && (await findOrder({ stripePaymentIntentId: charge.payment_intent }))) ||
         null;
 
-      if (order && order.status === "paid") {
+      const fullyRefunded = Boolean(charge.refunded)
+        || (Number(charge.amount || 0) > 0 && Number(charge.amount_refunded || 0) >= Number(charge.amount));
+      if (order && order.status === "paid" && fullyRefunded) {
         const applications = await readApplications();
         const application = applications.find((item) => item.id === order.applicationId) || null;
         const refund = charge.refunds?.data?.[0];
