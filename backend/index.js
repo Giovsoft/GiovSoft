@@ -4921,13 +4921,27 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
     // Conciliación: si el webhook de Stripe se perdió, el polling del
     // producto verifica la sesión directamente y rescata el pago.
     const stripe = getStripe();
+    let stripePaymentDetails = null;
     if (["pending", "paid"].includes(order.status) && order.stripeSessionId && stripe) {
       try {
         const connectedAccountId = sanitizeText(order.metadata?.connectedAccountId);
         const requestOptions = connectedAccountId.startsWith("acct_") ? { stripeAccount: connectedAccountId } : undefined;
-        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, { expand: ["payment_intent.latest_charge"] }, requestOptions);
+        const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId, { expand: ["payment_intent.latest_charge", "payment_intent.payment_method"] }, requestOptions);
         const paymentIntent = typeof session.payment_intent === "object" ? session.payment_intent : null;
         const latestCharge = typeof paymentIntent?.latest_charge === "object" ? paymentIntent.latest_charge : null;
+        const selectedMethod = typeof paymentIntent?.payment_method === "object" ? paymentIntent.payment_method.type : latestCharge?.payment_method_details?.type;
+        const bankInstructions = paymentIntent?.next_action?.display_bank_transfer_instructions || null;
+        stripePaymentDetails = {
+          checkoutCompleted: session.status === "complete",
+          paymentMethod: bankInstructions ? "mx_bank_transfer" : selectedMethod || null,
+          bankTransferInstructions: bankInstructions ? {
+            reference: bankInstructions.reference || null,
+            amountRemaining: bankInstructions.amount_remaining ?? null,
+            currency: bankInstructions.currency || order.currency,
+            hostedInstructionsUrl: bankInstructions.hosted_instructions_url || null,
+            financialAddresses: bankInstructions.financial_addresses || [],
+          } : null,
+        };
         const paymentSucceeded = session.payment_status === "paid" || paymentIntent?.status === "succeeded";
         const fullyRefunded = Boolean(latestCharge?.refunded)
           || (Number(latestCharge?.amount || 0) > 0 && Number(latestCharge?.amount_refunded || 0) >= Number(latestCharge.amount));
@@ -4950,7 +4964,7 @@ app.get("/api/v1/orders/:orderId", requireApplicationAuth, async (req, res, next
       }
     }
 
-    return res.json({ order: publicOrder(order) });
+    return res.json({ order: { ...publicOrder(order), ...(stripePaymentDetails || {}) } });
   } catch (error) {
     return next(error);
   }
