@@ -4556,6 +4556,7 @@ async function updateOrderPaymentStatus(order, application, status, eventType, d
     metadata: {
       ...(order.metadata || {}),
       paymentReason: reason,
+      bankTransferInstructions: details.bankTransferInstructions || order.metadata?.bankTransferInstructions || null,
       failureCode: sanitizeText(details.failureCode),
       failureMessage: sanitizeText(details.failureMessage),
       cancellationReason: sanitizeText(details.cancellationReason),
@@ -5164,9 +5165,28 @@ app.post("/api/webhooks/stripe", async (req, res) => {
       } else if (event.type === "checkout.session.async_payment_succeeded" || session.payment_status === "paid") {
         await handleOrderPaid(order, application, { paymentIntentId: session.payment_intent || "" });
       } else {
+        let bankTransferInstructions = null;
+        if (session.payment_intent) {
+          try {
+            const connectedAccountId = sanitizeText(order.metadata?.connectedAccountId);
+            const requestOptions = connectedAccountId.startsWith("acct_") ? { stripeAccount: connectedAccountId } : undefined;
+            const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent, requestOptions);
+            const instructions = paymentIntent.next_action?.display_bank_transfer_instructions;
+            if (instructions) bankTransferInstructions = {
+              reference: instructions.reference || null,
+              amountRemaining: instructions.amount_remaining ?? null,
+              currency: instructions.currency || order.currency,
+              hostedInstructionsUrl: instructions.hosted_instructions_url || null,
+              financialAddresses: instructions.financial_addresses || [],
+            };
+          } catch (error) {
+            console.warn(`[orden ${order.id}] no se pudieron obtener las instrucciones de Stripe:`, error.message);
+          }
+        }
         await updateOrderPaymentStatus(order, application, "pending", "order.payment_pending", {
           paymentIntentId: session.payment_intent || "",
           reason: "Stripe creó el pago y está esperando recibir la transferencia bancaria.",
+          bankTransferInstructions,
         });
       }
     } else if (event.type === "checkout.session.expired") {
