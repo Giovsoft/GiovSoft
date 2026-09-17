@@ -46,6 +46,7 @@ import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import { serviceItems } from "../data/services";
 import { useSiteTheme } from "../hooks/useSiteTheme";
+import WebsiteServicePage from "./WebsiteServicePage";
 
 const whatsappMessage = encodeURIComponent(
   "Hola GiovSoft, quiero información sobre sus servicios digitales."
@@ -298,6 +299,10 @@ export default function ServicePage() {
 
   if (!service) {
     return <Navigate to="/" replace />;
+  }
+
+  if (service.slug === "sitios-web") {
+    return <WebsiteServicePage />;
   }
 
   const Icon = service.icon;
