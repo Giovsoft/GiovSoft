@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { serviceCategories, serviceItems } from "../data/services";
 
 const whatsappMessage = encodeURIComponent(
-  "Hola GiovSoft, quiero información sobre sus servicios digitales."
+  "Hola GiovSoft, quiero explorar una solución de IA, automatización o software para mi negocio."
 );
 const whatsappUrl = `https://wa.me/525566042994?text=${whatsappMessage}`;
 
@@ -132,7 +132,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
         </div>
         <a className="site-desktop-nav-link" href="/nosotros" onClick={closeMenu}>Nosotros</a>
         <a className="site-desktop-nav-link" href="/proceso" onClick={closeMenu}>Proceso</a>
-        <a className="site-desktop-nav-link" href="/articulos" onClick={closeMenu}>Artículos</a>
+        <a className="site-desktop-nav-link" href="/akira" onClick={closeMenu}>Akira <Sparkles size={12} /></a>
         <a className="site-desktop-nav-link" href="/contacto" onClick={closeMenu}>Contacto</a>
         <a className="site-academy-link site-desktop-nav-link" href="/academy" onClick={closeMenu}>Academy</a>
 

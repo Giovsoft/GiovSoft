@@ -1,4 +1,6 @@
 import {
+  BrainCircuit,
+  Workflow,
   Clapperboard,
   Globe2,
   Mail,
@@ -13,6 +15,7 @@ import {
 } from "lucide-react";
 
 export const serviceCategories = [
+  { id: "inteligencia", title: "IA y automatización", copy: "Inteligencia aplicada para conectar conocimiento, herramientas y procesos de negocio." },
   {
     id: "estrategia",
     title: "Estrategia integral",
@@ -36,6 +39,20 @@ export const serviceCategories = [
 ] as const;
 
 export const serviceItems = [
+  {
+    slug: "inteligencia-artificial", category: "inteligencia", title: "Soluciones con inteligencia artificial",
+    copy: "Asistentes y funciones inteligentes diseñados alrededor de tu información, tus usuarios y tus objetivos.",
+    detail: "Diseñamos e integramos soluciones de inteligencia artificial para consultar documentos, organizar información y acompañar a tu equipo. Definimos contigo las fuentes, los permisos, la experiencia y los criterios de validación antes de implementar.",
+    outcome: "Inteligencia integrada en tu operación, con contexto y un alcance verificable.",
+    features: ["Diagnóstico del caso de uso y viabilidad de los datos.", "Consulta de documentos y conocimiento con fuentes identificables.", "Asistentes integrados en aplicaciones y herramientas de trabajo.", "Evaluación de respuestas, permisos y revisión humana.", "Implementación por etapas y acompañamiento para la adopción."], icon: BrainCircuit,
+  },
+  {
+    slug: "automatizacion-ia", category: "inteligencia", title: "Automatización de procesos con IA",
+    copy: "Flujos que conectan herramientas, organizan solicitudes y preparan acciones para que tu equipo avance.",
+    detail: "Transformamos tareas repetitivas en flujos conectados: clasificación de solicitudes, preparación de borradores, extracción de información e integración con tus sistemas. Incorporamos aprobaciones y trazabilidad según el impacto de cada acción.",
+    outcome: "Procesos conectados, con puntos de control y personas al mando.",
+    features: ["Mapeo del proceso y sus oportunidades de automatización.", "Integración con APIs y herramientas compatibles.", "Clasificación, extracción y preparación de información.", "Aprobaciones antes de acciones relevantes.", "Seguimiento de errores y documentación del flujo."], icon: Workflow,
+  },
   {
     slug: "giovsoft-360",
     category: "estrategia",

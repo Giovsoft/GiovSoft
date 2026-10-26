@@ -9,9 +9,9 @@ const defaultImage = `${origin}/img/og/giovsoft-social.png`;
 type SeoData = { title: string; description: string; noindex?: boolean };
 
 const pages: Record<string, SeoData> = {
-  "/": { title: "GiovSoft | Soluciones digitales y software a la medida", description: "GiovSoft es tu aliado tecnológico en Guadalajara. Integramos software, sitios web, marketing digital, ecommerce e infraestructura de red para impulsar tu operación." },
+  "/": { title: "GiovSoft | Inteligencia artificial, diseño y software", description: "Soluciones con inteligencia artificial, automatización, diseño y software a la medida. Conectamos información, herramientas y procesos para impulsar tu negocio." },
   "/nosotros": { title: "Nosotros | GiovSoft Technologies", description: "Conoce la historia, misión y valores de GiovSoft Technologies, aliado tecnológico nacido en Guadalajara en 2016." },
-  "/servicios": { title: "Servicios tecnológicos para empresas | GiovSoft", description: "Conoce los servicios de estrategia, desarrollo digital, infraestructura, productividad y marketing que GiovSoft integra para tu negocio." },
+  "/servicios": { title: "Soluciones de IA, automatización y software | GiovSoft", description: "Explora soluciones de inteligencia artificial, automatización, software, diseño y cloud para conectar tu operación con nuevas posibilidades." },
   "/proceso": { title: "Nuestro proceso de trabajo | GiovSoft", description: "Conoce cómo GiovSoft transforma una necesidad de negocio en una solución tecnológica implementada, validada y preparada para evolucionar." },
   "/articulos": { title: "Artículos de tecnología y estrategia digital | GiovSoft", description: "Guías y conocimiento sobre tecnología, desarrollo, infraestructura, marketing y decisiones digitales para negocios." },
   "/portafolio": { title: "Soluciones digitales | GiovSoft", description: "Explora nuestras soluciones de software, aplicaciones móviles, sitios web y ecommerce desarrolladas para resolver necesidades reales." },

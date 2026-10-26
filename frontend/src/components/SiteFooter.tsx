@@ -21,7 +21,7 @@ const footerSections = [
   },
   {
     title: "Servicios",
-    links: serviceItems.map((service) => ({
+    links: serviceItems.filter((service) => ["inteligencia-artificial", "automatizacion-ia", "sitios-web", "desarrollo-aplicaciones-moviles", "hosting-administrado"].includes(service.slug)).map((service) => ({
       label: service.title,
       href: `/servicios/${service.slug}`,
     })),
@@ -58,8 +58,8 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
             alt="GiovSoft"
           />
           <p>
-            Tu aliado tecnológico para crear soluciones que ayuden a vender,
-            comunicarse, operar y crecer con una base digital profesional.
+            Inteligencia artificial, diseño y software para conectar ideas
+            con posibilidades reales. Desde Guadalajara, México.
           </p>
           <a className="footer-contact" href="mailto:hola@giovsoft.com">
             hola@giovsoft.com
@@ -98,6 +98,7 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
         </div>
       </div>
 
+      <div className="gs-footer-wordmark" aria-hidden="true">giovsoft<span>↗</span></div>
       <div className="footer-bottom">
         <span>© 2026 GiovSoft. Todos los derechos reservados.</span>
         <button onClick={() => window.dispatchEvent(new Event(openCookieSettingsEvent))} type="button">Preferencias de cookies</button>

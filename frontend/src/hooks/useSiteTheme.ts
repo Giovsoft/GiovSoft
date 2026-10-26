@@ -13,7 +13,7 @@ export function useSiteTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const storedTheme = window.localStorage.getItem("site-theme");
 
-    return storedTheme === "dark" ? "dark" : "light";
+    return storedTheme === "light" ? "light" : "dark";
   });
 
   useEffect(() => {

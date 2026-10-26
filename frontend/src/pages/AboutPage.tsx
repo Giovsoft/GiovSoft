@@ -31,7 +31,7 @@ const history = [
   { year: "Primeros proyectos", title: "Sitios web preparados para crecer", copy: "Comenzamos construyendo presencia digital escalable, pensada para conectarse en el futuro con nuevas soluciones." },
   { year: "Evolución", title: "Escuchar abrió nuevas posibilidades", copy: "Con cada cliente entendimos nuevas necesidades y ampliamos nuestros productos, servicios e integraciones." },
   { year: "2026", title: "Nos constituimos como empresa", copy: "El proyecto alcanza una nueva etapa y se constituye formalmente como GiovSoft Technologies, S.A.S." },
-  { year: "Hoy", title: "Un ecosistema de soluciones", copy: "Desarrollamos sitios, aplicaciones y software que ayudan a administrar, vender, comunicar y operar mejor." },
+  { year: "Hoy", title: "Un ecosistema de soluciones", copy: "Conectamos inteligencia artificial, automatización, diseño y desarrollo para construir soluciones alrededor de cada negocio." },
 ];
 
 export default function AboutPage() {
@@ -45,11 +45,11 @@ export default function AboutPage() {
         <section className="about-hero">
           <div className="about-hero-copy">
             <p className="site-kicker">Nosotros</p>
-            <h1>Tecnología cercana para negocios que quieren avanzar.</h1>
+            <h1>Construimos el siguiente paso. Con inteligencia.</h1>
             <p>
-              Desde 2016 construimos soluciones digitales accesibles y adaptadas a la
-              realidad de cada negocio. Creemos que la tecnología debe ayudar a crecer,
-              no convertirse en una barrera.
+              Desde 2016 acercamos tecnología a los negocios. Hoy conectamos inteligencia
+              artificial, diseño y software para transformar información en posibilidades
+              y ayudar a los equipos a trabajar mejor.
             </p>
             <div className="about-origin"><MapPin size={17} /><span>Guadalajara, Jalisco · México</span></div>
           </div>
@@ -123,7 +123,7 @@ export default function AboutPage() {
         <section className="about-belief">
           <Sparkles size={34} />
           <blockquote>“La tecnología funciona mejor cuando entiende primero al negocio y a las personas.”</blockquote>
-          <p>Esta idea guía cada sitio, aplicación, sistema e integración que construimos.</p>
+          <p>Esta idea guía cada asistente, automatización, aplicación e integración que construimos.</p>
         </section>
 
         <section className="about-cta">

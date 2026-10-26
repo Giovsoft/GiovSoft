@@ -351,6 +351,15 @@ export default function ServicePage() {
           </div>
         </section>
 
+        {service.category === "inteligencia" && (
+          <section className="gs-ai-detail">
+            <header><p className="site-kicker">Una implementación con propósito</p><h2>Del caso de uso a una capacidad de tu equipo.</h2><p>Definimos el alcance, validamos la información y construimos una primera versión que puedas probar con tu operación.</p></header>
+            <div className="gs-ai-detail-features">{service.features.map((feature, index) => <article key={feature}><span>0{index + 1}</span><CheckCircle2 size={21} /><h3>{feature}</h3></article>)}</div>
+            <div className="gs-ai-detail-note"><ShieldCheck size={24} /><div><h3>Personas, contexto y control.</h3><p>El acceso a datos, los permisos y las aprobaciones se acuerdan contigo. Las respuestas de IA se evalúan para el uso previsto y las acciones relevantes requieren puntos de revisión.</p></div></div>
+            <a className="site-primary-button" href="/contacto">Conversemos sobre tu caso de uso <ArrowRight size={17} /></a>
+          </section>
+        )}
+
         {isWebsiteService && (
           <section className="website-showcase">
             <div className="website-showcase-copy">

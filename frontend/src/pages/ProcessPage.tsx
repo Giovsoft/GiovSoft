@@ -5,7 +5,7 @@ import { useSiteTheme } from "../hooks/useSiteTheme";
 
 const stages = [
   { number: "01", title: "Descubrimiento", copy: "Conversamos sobre la operación, el contexto y el resultado que necesitas alcanzar.", deliverable: "Resumen de necesidades y objetivos", icon: MessageCircle },
-  { number: "02", title: "Diagnóstico", copy: "Revisamos procesos, canales, tecnología actual, dependencias y oportunidades de mejora.", deliverable: "Hallazgos, prioridades y alcance inicial", icon: SearchCheck },
+  { number: "02", title: "Diagnóstico", copy: "Revisamos procesos, fuentes de datos, permisos, tecnología actual y oportunidades de aplicar IA con un objetivo concreto.", deliverable: "Hallazgos, prioridades y alcance inicial", icon: SearchCheck },
   { number: "03", title: "Ruta de solución", copy: "Definimos qué construir, cómo conectarlo, qué requiere cada etapa y cómo mediremos el avance.", deliverable: "Propuesta, etapas y calendario", icon: Compass },
   { number: "04", title: "Implementación", copy: "Diseñamos, desarrollamos, configuramos y validamos la solución con revisiones periódicas.", deliverable: "Solución probada y documentada", icon: Settings2 },
   { number: "05", title: "Lanzamiento y evolución", copy: "Ponemos la solución en operación, acompañamos la adopción y trazamos las siguientes mejoras.", deliverable: "Salida a producción y plan de continuidad", icon: Rocket },
@@ -18,7 +18,7 @@ export default function ProcessPage() {
       <SiteHeader isDark={isDark} toggleTheme={toggleTheme} />
       <main className="process-page">
         <section className="process-page-hero">
-          <div><p className="site-kicker">Cómo trabajamos</p><h1>Un proceso visible, ordenado y adaptable.</h1><p>Cada proyecto tiene necesidades distintas, pero todos requieren claridad. Nuestra metodología reduce incertidumbre, alinea decisiones y convierte objetivos en una solución operativa.</p><a className="site-primary-button" href="/contacto">Iniciar una conversación <ArrowRight size={17} /></a></div>
+          <div><p className="site-kicker">Cómo trabajamos</p><h1>De una buena pregunta a una solución inteligente.</h1><p>Entendemos tu operación antes de elegir la tecnología. Diseñamos la experiencia, validamos los datos y construimos por etapas, con revisiones humanas y resultados que puedas comprobar.</p><a className="site-primary-button" href="/contacto">Iniciar una conversación <ArrowRight size={17} /></a></div>
           <div className="process-principles">
             <article><strong>Claridad</strong><span>Alcance y prioridades comprensibles.</span></article>
             <article><strong>Colaboración</strong><span>Revisiones y decisiones compartidas.</span></article>

@@ -83,11 +83,6 @@ export default function AkiraPage() {
           { icon: Layers3, title: "Una experiencia propia", copy: "Personalización y separación de información previstas para cada usuario y organización." },
         ].map(({ icon: Icon, title, copy }) => <article key={title}><Icon size={24} /><h3>{title}</h3><p>{copy}</p></article>)}</div></section>
 
-        <section className="ak-technology" aria-labelledby="ak-technology-title">
-          <div><p className="ak-eyebrow">NUESTRA RUTA TECNOLÓGICA</p><h2 id="ak-technology-title">Entrenamiento previsto<br /><span>con tecnología NVIDIA.</span></h2></div>
-          <div><p>El plan de desarrollo de Akira contempla utilizar tecnología NVIDIA para entrenar y personalizar modelos que acompañen el aprendizaje y la automatización.</p><p className="ak-technology-status">Integración por implementar. Esta es una dirección de desarrollo; no significa que la versión actual ya esté entrenada o acelerada con NVIDIA.</p><a href="https://docs.nvidia.com/nemo-framework/index.html" target="_blank" rel="noopener noreferrer">Conocer NVIDIA NeMo Framework <ArrowRight size={16} /></a><p className="ak-technology-legal">La mención identifica tecnología prevista y no implica patrocinio, certificación ni respaldo de NVIDIA. NVIDIA es una marca de NVIDIA Corporation.</p></div>
-        </section>
-
         <section className="ak-faq" aria-labelledby="ak-faq-title"><div><p className="ak-eyebrow">ANTES DE EMPEZAR</p><h2 id="ak-faq-title">Preguntas<br />con respuesta.</h2></div><div>{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
         <section className="ak-contact"><div><p className="ak-eyebrow">ESTAMOS CONSTRUYENDO LO QUE SIGUE</p><h2>El futuro empieza<br />con una conversación.</h2><p>Cuéntanos qué te gustaría aprender o qué proceso necesita avanzar. Ayúdanos a dar forma a Akira.</p></div><div className="ak-contact-actions"><a className="ak-button" href={contact()} target="_blank" rel="noopener noreferrer">Hablar con GiovSoft <ArrowRight size={18} /></a><a href="/contacto"><FileText size={16} /> Prefiero el formulario de contacto</a><span>Proyecto en desarrollo · Sin fecha de lanzamiento anunciada</span></div></section>

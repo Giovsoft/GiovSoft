@@ -120,7 +120,7 @@ export default function ContactPage() {
           <div className="contact-copy">
             <span className="contact-intro-label"><Sparkles size={15} /> Empecemos una conversación</span>
             <p className="site-kicker">Contacto</p>
-            <h1>Hablemos de lo que quieres lograr.</h1>
+            <h1>Tu siguiente idea empieza aquí.</h1>
             <p>
               Cuéntanos el reto, la oportunidad o la idea. Te ayudaremos a identificar
               una ruta clara entre software, Payments, presencia digital, marketing e
