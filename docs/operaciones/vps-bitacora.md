@@ -100,17 +100,26 @@ curl -I http://127.0.0.1:8080/akira
 
 No repetir `git clone` si `/opt/giovsoft` ya existe; comprobar primero su contenido. No regenerar secretos para una base de datos ya inicializada.
 
-**Resultado esperado:** los tres servicios saludables y HTTP 200 en `/akira`. **Resultado recibido del VPS:** todavía ninguno.
+**Resultado esperado:** los tres servicios saludables y HTTP 200 en `/akira`. **Resultado recibido del VPS:** ver entrada de las 13:49; los tres contenedores aparecen saludables. La comprobación HTTP sigue pendiente.
 
 ## Pendientes
 
-- Recibir la salida de `docker compose ... ps` y `curl -I` desde el VPS.
+- Recibir la comprobación HTTP con `curl -I` desde el VPS. El estado saludable de los tres contenedores ya está confirmado por captura.
 - Configurar SMTP en el archivo privado y verificar correos y doble factor del administrador.
 - Revisar puertos disponibles, firewall y acceso público a 80/443 antes de iniciar Caddy.
 - Confirmar quién administra el DNS autoritativo y preparar los registros web.
 - Activar Caddy, cambiar DNS y comprobar HTTPS, redirección de www, navegación y API desde fuera del VPS.
 - Definir y probar copias de seguridad de los nuevos datos y un procedimiento de restauración.
 - Documentar el procedimiento de actualización y reversión con la versión que finalmente quede instalada.
+
+## 2026-10-26 13:49 — Primera construcción e inicio en el VPS
+
+- **Estado:** ejecutada y confirmada mediante captura de la consola enviada por Giovanni.
+- **Responsable y entorno:** Giovanni, consola del VPS; prompt `root@srv2026851:/opt/giovsoft`.
+- **Evidencia:** imágenes `giovsoft-vps-frontend` y `giovsoft-vps-backend` construidas; imagen `postgres:16-alpine` descargada. Redes `giovsoft-vps_app` y `giovsoft-vps_storage` y volúmenes `giovsoft-vps_backend-data` y `giovsoft-vps_postgres-data` creados.
+- **Verificación:** `giovsoft-vps-frontend-1`, `giovsoft-vps-database-1` y `giovsoft-vps-backend-1` aparecen como `Healthy`; el comando terminó y devolvió el prompt sin error visible.
+- **Límite de la evidencia:** no se recibió todavía la respuesta de `curl`, la versión Git instalada ni una prueba de HTTPS público, correo o funciones de la aplicación. No se observan cambios de DNS ni inicio de Caddy en esta captura.
+- **Siguiente paso:** comprobar HTTP local en `/akira` y el endpoint de salud de la API. Mantener los datos persistentes; no ejecutar `down -v` en el VPS.
 
 ## Plantilla para próximas entradas
 
