@@ -322,6 +322,16 @@ No ejecutar `down -v`, no editar `.env.production` y no ejecutar estos comandos 
 
 **Reversión preparada:** conservar el hash mostrado antes de actualizar. Si es necesario, crear una rama temporal en ese commit con el árbol limpio y reconstruir únicamente frontend/backend con el mismo Compose; no revertir secretos ni volúmenes. No ejecutar esta reversión sin revisar primero el estado del checkout.
 
+## 2026-10-26 16:09 — Verificación de publicación y conservación del servicio del colegio
+
+- **Despliegue informado por Giovanni:** confirmó ejecutar los comandos de actualización y reconstrucción de frontend/backend en el VPS. No se recibió el log completo ni el hash remoto.
+- **Frontend de producción verificado por HTTPS:** el HTML actual sirve chunks nuevos: `AdminBilling-BqVSQO9C.js`, `AdminSales-CgnNPeBC.js`, `AdminApplications-DWchY1Jy.js`. La entrada principal no incluye `AdminPayments`; los chunks revisados no contienen `/api/admin/payments/engine`, `stripeProvider`, `mark-paid`, las acciones `/retry` ni el campo «Webhook saliente (pagos)». Confirma que el código nuevo está publicado, sin equivaler a inspección visual con sesión.
+- **API del VPS:** `https://giovsoft.com/api/health` responde 200 desde `5.183.11.142`, TLS válido. `/api/admin/payments/engine` sin credenciales responde 401, que es lo esperado por la autenticación previa al bloqueo de pagos. **No se interpreta 401 como prueba del 403 para un administrador autenticado.**
+- **Sesión administrativa:** al abrir `/admin/payments` en Chrome se presenta el inicio de sesión. Se pidió a Giovanni iniciar sesión personalmente, sin compartir contraseña ni 2FA. Pendiente comprobación visual del menú, redirección y bloqueo autenticado.
+- **Colegio:** sitio público `https://colegioiberoamericano.com` responde 200 con TLS válido; página `/otros-servicios` muestra la tienda y 17 servicios. No se agregaron productos, iniciaron checkouts ni efectuaron cargos.
+- **Integración conservada en GCP:** consola de `giovsoft-backend` confirma servicio en buen estado, escalamiento automático, mínimo 0 y máximo 5. `https://api.giovsoft.com/api/health` responde 200 con TLS válido. No se modificaron el servicio, claves, webhooks ni configuración Stripe del colegio.
+- **Límite:** estas comprobaciones confirman disponibilidad y publicación del cambio. No certifican un pago completo ni la entrega reciente de un webhook Stripe del colegio; eso requiere evidencia de una operación legítima o una prueba específica autorizada en modo de prueba.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
