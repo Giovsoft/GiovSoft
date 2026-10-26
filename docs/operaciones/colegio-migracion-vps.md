@@ -444,3 +444,24 @@ Siguiente diagnóstico: confirmar si `soporte@giovsoft.com` es una cuenta propia
 **Respuesta posterior:** Giovanni confirma que soporte tiene cuenta propia de Google. Conservar `SUPPORT_SMTP_USER=soporte@giovsoft.com`. Para probar con una credencial separada y válida, Giovanni debe entrar personalmente en [Contraseñas de aplicación](https://myaccount.google.com/apppasswords) con esa cuenta y crear `Colegio VPS recuperación`. La función requiere verificación en dos pasos de Google y puede estar limitada por la organización; si no aparece, revisar el bloqueo en lugar de desactivar protecciones o cambiar credenciales de otros servicios.
 
 No revocar claves anteriores ni cambiar la contraseña principal. Copiar la nueva contraseña de aplicación privadamente a `SUPPORT_SMTP_PASS` del VPS mediante nano, sin compartirla. Recrear school y repetir helper como en los bloques anteriores. No editar el secreto GCP: esta nueva clave será exclusiva del VPS y su diferencia con latest de GCP será intencional. Autenticación de recuperación seguirá pendiente hasta recibir OK; no afirmar que una contraseña nueva garantiza resolución de políticas de Google. No se enviarán mensajes durante el helper.
+
+**Confirmación de las 17:47:** captura de Giovanni con school healthy y los cuatro checks OK: panel 200, storefront autenticado 200, SMTP institucional y recuperación conexión/autenticación OK. El helper confirma ausencia de correos enviados, órdenes o pagos creados. Se cierra la incidencia de autenticación del correo de recuperación del VPS; entrega final y remitentes no probados por SMTP verify.
+
+Siguiente bloque en el **VPS**, sin modificar datos:
+
+```bash
+(
+  set -eu
+  cd /opt/colegio/produccion-preparacion
+  sha256sum -c SHA256SUMS > /dev/null
+  printf 'Datos de preparación sin cambios: OK\n'
+  curl --silent --output /dev/null --write-out 'Checkout bloqueado HTTP %{http_code}\n' \
+    -X POST http://127.0.0.1:8083/api/store/checkout
+  curl --silent --output /dev/null --write-out 'Recuperación bloqueada HTTP %{http_code}\n' \
+    -X POST http://127.0.0.1:8083/api/store/auth/forgot-password
+)
+```
+
+Esperado: integridad OK y ambas rutas HTTP 405. Revisar por túnel 8083 el catálogo y login de una cuenta existente conocida, y abrir `/admin` sin guardar cambios. No introducir tarjetas, crear cuentas, cambiar perfiles/contraseñas ni enviar formularios. Solo informar si el acceso funcionó; no compartir correo personal, contraseña, datos de alumnos o token. Ejecutar la comprobación de integridad nuevamente después del login si se detecta algún comportamiento inesperado.
+
+Estas comprobaciones no autorizan por sí solas el corte: quedan preparación Caddy/TLS y alias, persistencia escribible, respaldo, comparación de código desplegado y copia final con origen sin escrituras. La copia inicial de las 16:57 no sustituye la copia final de cuentas/contenido actualizados.

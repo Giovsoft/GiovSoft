@@ -579,6 +579,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Destino exclusivo:** introducir la nueva credencial únicamente en `SUPPORT_SMTP_PASS` de `/opt/colegio/production.env`, recrear school y repetir helper. No cambiar `ibero-support-smtp-pass` en GCP ni otras variables. Es una credencial nueva separada: ya no se espera igualdad con latest de GCP.
 - **Estado:** propuesta/guía entregada; creación, actualización privada y autenticación SMTP pendientes de confirmación. No se generó ni leyó una clave por el asistente. DNS y servicios GCP sin cambios.
 
+## 2026-10-26 17:47 — Las cuatro comprobaciones privadas del colegio pasan
+
+- **Evidencia recibida:** captura de Giovanni con school saludable tras recreación; panel privado HTTP 200, storefront autenticado HTTP 200, SMTP institucional OK y SMTP recuperación OK, ambos por conexión y autenticación sin envío.
+- **Recuperación:** queda resuelto el rechazo de autenticación observado en el VPS después del procedimiento de credencial dedicada. El asistente no leyó la nueva clave. No se afirma que el secreto GCP haya sido actualizado; el procedimiento lo conserva separado.
+- **Límites:** el helper no envió correos ni creó órdenes o pagos. SMTP verify no certifica recepción de correos ni autorización del remitente. La comprobación automática del panel no verifica login de una cuenta de tienda existente ni edición de contenido.
+- **Siguiente verificación preparada:** comprobar manifiesto de `/opt/colegio/produccion-preparacion`, verificar bloqueo checkout/recuperación y revisar personalmente por túnel 8083 catálogo y login de una cuenta conocida sin escrituras ni compras. No compartir datos personales ni tokens.
+- **Pendientes antes del corte:** revisión funcional restante, relación entre imagen GCP y candidato local, persistencia escribible y respaldo, publicación Caddy/TLS, mantenimiento del origen y copia final consistente. DNS todavía sin cambios; no retirar GCP, Commerce o API.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
