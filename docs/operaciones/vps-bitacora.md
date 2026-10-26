@@ -390,6 +390,19 @@ Verificación sin revelar secretos:
 docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml exec -T backend node -e 'console.log("ADMIN_2FA_ENABLED=" + process.env.ADMIN_2FA_ENABLED)'
 ```
 
+## 2026-10-26 16:23 — Revisión autenticada del panel y disponibilidad del colegio
+
+- **Acceso confirmado:** Giovanni informó que pudo entrar. Se observó en Chrome una sesión administrativa activa de `hola@giovsoft.com`, rol Administrador. Se resuelve el pendiente de disponer de una sesión para revisar la interfaz; no se leyó contraseña, token ni código 2FA.
+- **Payments desactivado en la interfaz:** no existe enlace Payments en el menú. Al navegar con sesión a `https://giovsoft.com/admin/payments`, la aplicación redirige a `https://giovsoft.com/admin` y muestra el Dashboard.
+- **Facturación conservada:** carga correctamente; solo ofrece las pestañas «Emisión CFDI» y «Validación fiscal», sin controles ni configuración de Stripe o motor Payments. El proveedor fiscal muestra «Configuración pendiente»; no se emitieron CFDI ni se cambiaron ajustes.
+- **Aplicaciones:** se abrió el formulario de nueva aplicación para inspeccionarlo; no ofrece webhook saliente de pagos ni checkbox de sincronización de pagos. Se canceló sin guardar. El panel lista cero aplicaciones conectadas, consistente con la base nueva y separado de la integración que permanece en GCP.
+- **Ventas:** reportes y listado cargan sin error. La base del VPS no contiene órdenes; por ello no se pudo abrir una orden existente para comprobar visualmente su drawer. Las acciones de cobro ya están ausentes del código publicado, comprobado en la entrada anterior.
+- **API administrativa:** no se extrajo el token ni se fabricó una sesión para invocar endpoints. La prueba directa del 403 con autenticación continúa sin realizarse; el bloqueo del middleware fue probado localmente y la interfaz desplegada se verificó con sesión. No confundir redirección de React con una comprobación HTTP 403 de backend.
+- **Disponibilidad externa nueva:** `/api/health` del VPS responde 200 desde `5.183.11.142`, TLS válido. `https://api.giovsoft.com/api/health` responde 200 en Google y `https://colegioiberoamericano.com/otros-servicios` responde 200, ambos con TLS válido.
+- **Conexión del colegio preservada:** no se alteraron GCP, endpoints, claves Stripe, webhooks ni datos. La tienda y la API siguen disponibles. No se creó checkout, cargo, devolución, conciliación ni modificación de orden; no se certifica un pago de extremo a extremo ni entrega reciente de webhook basándose únicamente en estas respuestas 200.
+- **Evidencia visual:** [Facturación sin módulo Payments ni configuración Stripe](evidencias/admin-sin-pagos-stripe-2026-10-26.png).
+- **Estado:** interfaz administrativa de pagos retirada y revisión autenticada completada para los controles visibles; integración del colegio conservada y disponible, con validación transaccional pendiente si se requiere.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
