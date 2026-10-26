@@ -346,6 +346,25 @@ No ejecutar `down -v`, no editar `.env.production` y no ejecutar estos comandos 
 - Se preparó una consulta de solo lectura: `SELECT count(*) AS administradores FROM admin_users`. Giovanni la ejecutará dentro del contenedor database. Si devuelve cero, crear explícitamente la cuenta inicial; si hay usuarios, revisar email/estado antes de restablecer la contraseña. No regenerar secretos, no crear master ni desactivar 2FA para diagnosticar.
 - La afirmación anterior de que ADMIN_PASSWORD permitiría entrar se limita al caso en que el usuario inicial realmente se haya creado. La existencia de esa variable no prueba que haya un usuario PostgreSQL asociado.
 
+## 2026-10-26 — Alta inicial del administrador PostgreSQL preparada
+
+- **Confirmación de Giovanni:** la consulta a `admin_users` devolvió 0 administradores. Autorizó crear la cuenta inicial.
+- **Herramienta añadida:** `deploy/vps/create-initial-admin.cjs`, ejecutada por stdin dentro del contenedor backend con sus variables existentes. Toma ADMIN_EMAIL, ADMIN_NAME y ADMIN_PASSWORD sin imprimir contraseña ni hash.
+- **Protección:** transacción y bloqueo de la tabla antes de comprobar que está vacía; se niega a cambiar usuarios si existe cualquiera. Inserta un único usuario ordinario Administrador activo (no master), con PBKDF2-SHA256 de 120000 iteraciones compatible con el login. No modifica 2FA, sesiones, SMTP, otros secretos, datos del colegio ni GCP.
+- **Pruebas locales:** tres pruebas pasan: alta con hash verificable, rechazo de tabla no vacía con rollback y rechazo de credenciales ausentes antes de abrir conexión. Se comprobó también la ejecución por stdin y su rechazo seguro sin credenciales. No se ejecutó contra PostgreSQL del VPS desde el equipo local.
+- **Estado:** preparado; alta remota pendiente de ejecución y confirmación de Giovanni. No se considera creada hasta recibir el resultado.
+
+Comandos entregados para el VPS:
+
+```bash
+cd /opt/giovsoft
+git pull --ff-only origin codex/akira-presentacion
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml exec -T backend node < deploy/vps/create-initial-admin.cjs
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml exec -T database psql -U giovsoft_app -d giovsoft -c "SELECT email, role, status FROM admin_users;"
+```
+
+No requiere reconstruir imágenes porque el script se transmite por stdin. Iniciar sesión con ADMIN_EMAIL/ADMIN_PASSWORD del entorno existente; el doble factor seguirá requiriendo SMTP operativo. Si falla el envío 2FA, configurar SMTP en lugar de desactivar la protección. No volver a ejecutar `init-env.py` ni borrar volúmenes para este procedimiento.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
