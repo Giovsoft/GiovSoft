@@ -194,6 +194,12 @@ curl -I https://www.giovsoft.com
 - **HTTP directo:** Caddy sigue respondiendo 308 hacia `https://giovsoft.com/akira`.
 - **Estado:** HTTPS aún no funciona en la prueba directa. Pendiente salida de logs de `edge` para determinar la causa del fallo de certificados; no se realizaron cambios en el VPS.
 
+## 2026-10-26 14:02 — Evidencia del CNAME guardado
+
+- **Confirmado por captura del panel:** registro CNAME, host `www`, destino `giovsoft.com`, TTL `30 mins`. La configuración mostrada es la prevista; no se solicita volver a editarla.
+- **Comprobación posterior:** `1.1.1.1` todavía devuelve el destino anterior `ghs.googlehosted.com` (TTL observado 1800). La visibilidad pública del nuevo CNAME sigue pendiente; el TTL no garantiza una hora exacta de propagación.
+- **HTTPS directo al VPS:** continúa el error TLS curl 35. Se mantiene pendiente recibir los logs de Caddy para identificar la causa, sin atribuirla únicamente al CNAME.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
