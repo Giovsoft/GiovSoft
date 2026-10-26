@@ -60,7 +60,7 @@ export default function SeoManager() {
     const canonical = `${origin}${canonicalPath}`;
     const robots = data.noindex || isPrivate ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
 
-    const socialImage = normalizedPath === "/akira" ? `${origin}/img/akira/logo.jpeg` : defaultImage;
+    const socialImage = article?.coverImage ? `${origin}${article.coverImage}` : normalizedPath === "/akira" ? `${origin}/img/akira/logo.jpeg` : defaultImage;
 
     document.documentElement.lang = "es-MX";
     document.title = data.title;

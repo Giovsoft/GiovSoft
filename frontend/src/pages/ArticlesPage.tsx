@@ -39,7 +39,7 @@ export default function ArticlesPage() {
       </section>
 
       <section className="article-featured" style={{ "--article-accent": featured.accent } as CSSProperties}>
-        <div className="article-featured-visual" aria-hidden="true"><span>Lectura destacada</span><BookOpen size={54} /><strong>01</strong></div>
+        <div className="article-featured-visual" aria-hidden="true"><span>Lectura destacada</span>{featured.coverImage ? <img src={featured.coverImage} alt=""/> : <BookOpen size={54} />}<strong>01</strong></div>
         <div className="article-featured-copy">
           <span>{featured.category}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p>
           <div className="article-meta"><small>{featured.publishedAt}</small><small><Clock3 size={14} />{featured.readTime} de lectura</small><small>{featured.author}</small></div>
@@ -55,7 +55,7 @@ export default function ArticlesPage() {
         <nav className="article-category-tabs" aria-label="Categorías de artículos">{categories.map((item) => <button aria-pressed={category === item} className={category === item ? "is-active" : ""} key={item} onClick={() => setCategory(item)} type="button">{item}<span>{item === "Todos" ? articles.length : articles.filter((article) => article.category === item).length}</span></button>)}</nav>
         <div className="articles-result-count" aria-live="polite"><span>{filtered.length.toString().padStart(2, "0")}</span><p>{filtered.length === 1 ? "lectura encontrada" : "lecturas encontradas"}</p></div>
         <div className="article-grid">{filtered.map((article, index) => <article key={article.slug} style={{ "--article-accent": article.accent } as CSSProperties}>
-          <div className="article-card-cover"><span>{article.category}</span><strong>{(index + 1).toString().padStart(2, "0")}</strong><BookOpen size={28} /></div>
+          <div className="article-card-cover"><span>{article.category}</span><strong>{(index + 1).toString().padStart(2, "0")}</strong>{article.coverImage ? <img src={article.coverImage} alt=""/> : <BookOpen size={28} />}</div>
           <div className="article-card-body"><div className="article-card-meta"><small>{article.publishedAt}</small><small><Clock3 size={13} />{article.readTime}</small></div><h3>{article.title}</h3><p>{article.excerpt}</p><a href={`/articulos/${article.slug}`}>Continuar leyendo <ArrowRight size={15} /></a></div>
         </article>)}</div>
         {!filtered.length && <div className="articles-empty"><Search size={28} /><strong>No encontramos coincidencias</strong><p>Prueba con otra palabra o selecciona una categoría diferente.</p></div>}

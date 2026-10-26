@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, AudioLines, BrainCircuit, Check, ChevronRight, Code2, Database, GitBranch, Globe2, Layers3, ShieldCheck, Sparkles, Workflow, Zap } from "lucide-react";
+import EditorialCarousel from "../components/EditorialCarousel";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import { useSiteTheme } from "../hooks/useSiteTheme";
@@ -44,6 +45,7 @@ export default function Website() {
         <div className="gs-hero-bottom"><span>TECNOLOGÍA CON INTENCIÓN. IMPACTO EN TU DÍA A DÍA.</span><a href="#posibilidades">Desliza para descubrir <ArrowDown size={13} /></a></div>
       </section>
       <div className="gs-capability-strip" aria-label="Nuestras capacidades"><span><BrainCircuit /> Inteligencia artificial</span><span><Workflow /> Automatización</span><span><Code2 /> Software a la medida</span><span><Layers3 /> Diseño de experiencias</span><span><Globe2 /> Web & cloud</span></div>
+      <EditorialCarousel />
       <section className="gs-section gs-possibilities" id="posibilidades">
         <header className="gs-section-heading"><div><p className="gs-eyebrow">01 / LO QUE PODEMOS HACER</p><h2>La IA cobra sentido<br />cuando <em>resuelve algo.</em></h2></div><p>Partimos de tu negocio, no de una herramienta. Diseñamos la solución alrededor de lo que tu equipo necesita lograr.</p></header>
         <div className="gs-scenario-tabs" role="tablist" aria-label="Explorar aplicaciones de IA">{scenarios.map((item, i) => { const Icon = item.icon; return <button key={item.label} id={`scenario-tab-${i}`} role="tab" aria-selected={active === i} aria-controls="scenario-panel" tabIndex={active === i ? 0 : -1} onClick={() => setActive(i)} onKeyDown={event => { let next = i; if (event.key === "ArrowRight") next = (i + 1) % scenarios.length; else if (event.key === "ArrowLeft") next = (i + scenarios.length - 1) % scenarios.length; else if (event.key === "Home") next = 0; else if (event.key === "End") next = scenarios.length - 1; else return; event.preventDefault(); setActive(next); document.getElementById(`scenario-tab-${next}`)?.focus(); }}><Icon size={18} />{item.label}<ArrowUpRight size={15} /></button>; })}</div>
