@@ -258,6 +258,20 @@ curl -I https://www.giovsoft.com
 - **Configuración actual de giovsoft:** URL `https://giovsoft-598441636410.us-central1.run.app`, escalamiento automático, mínimo de servicio 0, máximo 5, facturación basada en solicitudes, timeout 300 s y concurrencia 80.
 - **Dependencia detectada:** apagar `giovsoft` retiraría también el administrador antiguo. Se solicitó a Giovanni aclarar si ese administrador puede retirarse. La decisión queda pendiente; no se borró ni desactivó ningún servicio ni mapeo.
 
+## 2026-10-26 — Servicio GCP del sitio y administrador antiguo desactivado
+
+- **Autorización expresa:** Giovanni confirmó «Retirar también el administrador antiguo» después de identificar que comparte el servicio `giovsoft` con raíz y www.
+- **Ejecutado por el asistente desde la consola web de GCP:** proyecto `healthy-genre-497401-j7`, Cloud Run, servicio `giovsoft`, región `us-central1`. Se cambió de escalamiento automático (mínimo 0, máximo 5) a **escalamiento manual con 0 instancias** y se implementó el cambio. No se borró el servicio ni se descargaron datos de GCP.
+- **Diferencia revisada:** el diálogo mostró el paso a manual/0 y retiró el máximo 5 de escalamiento de revisión de la nueva configuración. Facturación por solicitudes, timeout 300 s y concurrencia 80 permanecieron visibles sin cambios.
+- **Verificación en consola:** actualización del servicio, creación de revisión y enrutamiento de tráfico completados. Indicador: «El servicio está pausado porque la instancia se fijó en 0 para el escalado manual». Campo de instancias guardado en 0.
+- **Verificación externa posterior, sin forzar IP:** `https://giovsoft-598441636410.us-central1.run.app` devuelve 503; `https://giovsoft.com/akira` y `/api/health` devuelven 200 desde `5.183.11.142` con TLS válido. `https://www.giovsoft.com/akira` ahora conecta a `5.183.11.142`, valida TLS y devuelve 301 a `https://giovsoft.com/akira`.
+- **Administrador antiguo:** comparte el servicio desactivado. La petición externa a `admin.giovsoft.com` no pudo resolver DNS desde este equipo; no se presenta como una respuesta HTTP 503 verificada de ese hostname. No se modificó su DNS.
+- **Conservado:** revisiones, mapeos y recursos existentes para reversión. No se tocaron los servicios `giovsoft-backend`, `giovcommerce`, `giovsoft-web`, `giovsoft-api`, `cruje` ni `colegio-iberoamericano`; no se eliminaron bases de datos, imágenes, secretos, proyecto ni facturación.
+- **Límite:** la desactivación de este servicio no significa que toda la facturación GCP quede en cero. Cloud Run documenta que las revisiones activas únicamente por etiquetas de tráfico no quedan desactivadas por manual/0; no se auditó aquí el acceso de todas las URLs de revisiones etiquetadas.
+- **Reversión preparada, no ejecutada:** en la misma pestaña Escalamiento, seleccionar automático, mínimo de servicio 0 y máximo de servicio 5; restaurar máximo de revisión 5 si se requiere replicar la configuración anterior; revisar diferencia e implementar. También existe el comando `gcloud run services update giovsoft --project=healthy-genre-497401-j7 --region=us-central1 --scaling=auto` para reactivar el modo automático, seguido de revisión explícita de los límites. El DNS público del sitio permanece en el VPS salvo un cambio posterior autorizado.
+- **Evidencia:** [Captura de la configuración aplicada](evidencias/gcp-giovsoft-pausado-2026-10-26.png).
+- **Referencia:** [Desactivar un servicio con escalamiento manual](https://docs.cloud.google.com/run/docs/configuring/services/manual-scaling#disable-service).
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
