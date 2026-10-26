@@ -272,6 +272,29 @@ curl -I https://www.giovsoft.com
 - **Evidencia:** [Captura de la configuración aplicada](evidencias/gcp-giovsoft-pausado-2026-10-26.png).
 - **Referencia:** [Desactivar un servicio con escalamiento manual](https://docs.cloud.google.com/run/docs/configuring/services/manual-scaling#disable-service).
 
+## 2026-10-26 — Auditoría de uso de la API antigua: conservar por integraciones de pagos
+
+- **Solicitud:** retirar también la API antigua únicamente después de revisar que ya no se use.
+- **Servicio identificado:** `giovsoft-backend`, proyecto `healthy-genre-497401-j7`, región `us-central1`, dominio `api.giovsoft.com`, URL `https://giovsoft-backend-598441636410.us-central1.run.app`.
+- **Auditoría desde navegador:** se revisaron registros de Cloud Run y el Explorador de registros durante el último día. Consulta de solicitudes funcionales utilizada:
+
+```text
+resource.type="cloud_run_revision"
+resource.labels.service_name="giovsoft-backend"
+resource.labels.location="us-central1"
+httpRequest.requestUrl:*
+NOT httpRequest.requestUrl:"/api/health"
+```
+
+- **Hallazgos de uso:** el 26 de octubre se observó `POST /api/v1/checkout/sessions` con respuesta 201 a las 14:15:27 y múltiples `GET /api/v1/orders/[id]` con respuesta 200 alrededor de las 14:54:53–54 (hora local mostrada por la consola). Registros de aplicación también mostraron conciliación de órdenes pagadas en Stripe sin webhook. Se omiten identificadores y detalles de pagos en esta bitácora.
+- **Tráfico adicional:** comprobaciones `/api/health` periódicas con user-agent `node` hasta las 15:44; en la consulta sin salud también aparecen exploraciones automatizadas que devolvieron 404. No confundir esas exploraciones ni los health checks con el uso de checkout y órdenes verificado.
+- **Aclaración expresa del usuario:** ante estos hallazgos Giovanni respondió «Hay pagos o integraciones que debemos conservar». Por ello **la API antigua permanece activa**. No se modificaron escalamiento, DNS, credenciales, webhooks ni datos del servicio.
+- **Independencia del sitio nuevo comprobada:** Compose compila con `VITE_API_URL=/`; el módulo API JS servido actualmente por `https://giovsoft.com` contiene `baseURL: /` y no contiene `api.giovsoft.com`. El código fuente conserva un fallback antiguo y ejemplos de webhooks con ese hostname; no equivalen a llamadas activas de la compilación actual.
+- **Estado HTTP posterior:** Akira y `/api/health` en el dominio principal responden 200 desde `5.183.11.142` con TLS válido. `https://api.giovsoft.com/api/health` y la URL run.app de `giovsoft-backend` también responden 200 con TLS válido. Esas dos últimas peticiones son verificaciones del asistente y deben distinguirse del tráfico previo.
+- **Límite:** los logs observados identifican rutas y user-agent, pero no permiten atribuir con certeza el cliente a Commerce u otro sistema. No se consultaron cuerpos de órdenes ni se crearon pagos de prueba. No se migraron los datos antiguos: la base del VPS sigue siendo una instalación limpia.
+- **Condiciones previas para retirar la API:** identificar consumidores y endpoints de webhooks; decidir dónde conservar sus datos y credenciales sin exponerlos; migrar o separar pagos e integraciones preservando identificadores y firmas; validar callbacks y consultas de órdenes y observar el tráfico antes de apagar. Cambiar únicamente el CNAME de api al VPS no garantiza continuidad con una base nueva.
+- **Estado final de esta etapa:** sitio y administrador antiguo de GCP pausados; API de pagos antigua conservada por dependencia confirmada. La retirada de la API queda pendiente de resolver esa dependencia.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
