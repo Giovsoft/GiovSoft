@@ -3910,7 +3910,7 @@ function publicConnectedApplication(application) {
 
 function validateApplicationPayload(body, existingApplication) {
   const status = sanitizeText(body.status || existingApplication?.status || "pending");
-  const config = sanitizePlainObject(body.config || existingApplication?.config);
+  const config = { ...sanitizePlainObject(existingApplication?.config), ...sanitizePlainObject(body.config) };
   const payload = {
     name: sanitizeText(body.name || existingApplication?.name),
     domain: sanitizeText(body.domain || existingApplication?.domain),
@@ -3930,7 +3930,7 @@ function validateApplicationPayload(body, existingApplication) {
       syncUsers: config.syncUsers !== false,
       syncSales: config.syncSales !== false,
       syncInvoices: config.syncInvoices !== false,
-      syncPayments: config.syncPayments !== false,
+      syncPayments: existingApplication ? config.syncPayments !== false : false,
       webhookMode: "webhooks",
       authMode: "centralized_login",
     },
@@ -5255,6 +5255,7 @@ app.post("/api/webhooks/stripe", async (req, res) => {
 });
 
 app.use("/api/admin", requireAdminAuth);
+app.use("/api/admin", require("./admin-payment-access"));
 
 app.get("/api/admin/profile", (req, res) => {
   return res.json({ user: publicAdminUser(req.adminUser) });

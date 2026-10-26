@@ -40,7 +40,6 @@ const AdminPlaceholder = lazy(() => import("./pages/AdminPlaceholder"));
 const AdminBilling = lazy(() => import("./pages/AdminBilling"));
 const AdminIntegrations = lazy(() => import("./pages/AdminIntegrations"));
 const AdminLeadIntelligence = lazy(() => import("./pages/AdminLeadIntelligence"));
-const AdminPayments = lazy(() => import("./pages/AdminPayments"));
 const AdminProfile = lazy(() => import("./pages/AdminProfile"));
 const AdminProjects = lazy(() => import("./pages/AdminProjects"));
 const AdminQuotes = lazy(() => import("./pages/AdminQuotes"));
@@ -244,7 +243,7 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <Layout>
-                <AdminPayments />
+                <Navigate to="/admin" replace />
               </Layout>
             </ProtectedAdminRoute>
           }

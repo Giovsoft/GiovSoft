@@ -7,7 +7,6 @@ import {
   Building2,
   CircleHelp,
   Clock3,
-  CreditCard,
   FileBarChart,
   FileCheck2,
   FileSignature,
@@ -51,7 +50,6 @@ const menuSections = [
     title: "Operaciones",
     items: [
       { name: "Ventas", icon: TrendingUp, path: "/admin/ventas" },
-      { name: "Payments", icon: CreditCard, path: "/admin/payments" },
       { name: "Facturación", icon: ReceiptText, path: "/admin/facturacion" },
       { name: "Cotizaciones", icon: FileSignature, path: "/admin/cotizaciones" },
       { name: "Comprobantes", icon: FileCheck2, path: "/admin/comprobantes" },

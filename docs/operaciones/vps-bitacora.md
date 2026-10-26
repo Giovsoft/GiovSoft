@@ -295,6 +295,33 @@ NOT httpRequest.requestUrl:"/api/health"
 - **Condiciones previas para retirar la API:** identificar consumidores y endpoints de webhooks; decidir dónde conservar sus datos y credenciales sin exponerlos; migrar o separar pagos e integraciones preservando identificadores y firmas; validar callbacks y consultas de órdenes y observar el tráfico antes de apagar. Cambiar únicamente el CNAME de api al VPS no garantiza continuidad con una base nueva.
 - **Estado final de esta etapa:** sitio y administrador antiguo de GCP pausados; API de pagos antigua conservada por dependencia confirmada. La retirada de la API queda pendiente de resolver esa dependencia.
 
+## 2026-10-26 — Desactivar controles de pagos/Stripe del administrador del VPS
+
+- **Alcance confirmado por Giovanni:** desactivar únicamente las funciones de pagos y Stripe en `giovsoft.com/admin`; conservar el resto del panel y la conexión de Stripe con Colegio Iberoamericano.
+- **Preparado en el repositorio, aún NO aplicado al VPS:** se retira Payments del menú y su importación; acceso directo `/admin/payments` redirige al inicio del panel. Facturación deja de cargar el motor Payments y se eliminan sus vistas internas de Stripe, conservando CFDI y validación fiscal. Ventas conserva consultas y reportes, retirando marcar como pagada y reintentar notificaciones. Aplicaciones deja de permitir editar el webhook de pagos y la sincronización de pagos.
+- **Bloqueo en servidor del VPS:** nuevo middleware tras la autenticación administrativa devuelve 403 con código `ADMIN_PAYMENTS_DISABLED` para `/api/admin/payments`, escrituras de `/api/admin/orders` y cambios explícitos de webhook/sincronización de pagos a través de `/api/admin/applications`. Se preservan consultas de órdenes, SAT y los restantes endpoints del panel. Ediciones de configuración de aplicaciones conservan campos previos omitidos; las nuevas aplicaciones administrativas no habilitan sincronización de pagos por defecto.
+- **Integración preservada:** no se modificaron el servicio `giovsoft-backend` de GCP, Stripe, claves, webhooks externos, DNS de api ni datos del colegio. Las rutas públicas de checkout, consultas de órdenes y callbacks no se alteraron. No se realiza un cambio de destino del colegio hacia la base nueva del VPS.
+- **Pruebas locales:** dos pruebas Node pasan, cubriendo controles denegados y el paso de rutas administrativas de consulta y rutas públicas de integración. Compilación TypeScript, build Vite y revisión de sintaxis de backend correctos; Vite conserva aviso de chunks mayores a 500 kB. Las pruebas con handlers simulados comprueban el límite de acceso, no una transacción Stripe real.
+- **Disponibilidad externa observada:** `https://colegioiberoamericano.com` responde 200 y `https://api.giovsoft.com/api/health` devuelve ok. No se crearon cargos, sesiones de checkout ni cambios de estado de órdenes para verificar este trabajo.
+- **Pendiente:** Giovanni ejecuta el despliegue en el VPS, según el acuerdo de operación. No afirmar que los controles de producción están desactivados hasta recibir el resultado y verificarlos. GCP permanece activo para las integraciones conservadas.
+
+Comandos preparados (VPS, root):
+
+```bash
+cd /opt/giovsoft
+git status --short
+git rev-parse HEAD
+# Si hay cambios locales en archivos versionados, revisar antes de actualizar.
+git pull --ff-only origin codex/akira-presentacion
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml up -d --build --wait frontend backend
+curl -I https://giovsoft.com/akira
+curl https://giovsoft.com/api/health
+```
+
+No ejecutar `down -v`, no editar `.env.production` y no ejecutar estos comandos contra GCP. Después comprobar con sesión administrativa que Payments no aparece, su URL redirige, Ventas no ofrece acciones de pago y Facturación sigue disponible; una petición autenticada al motor Payments debe devolver 403. Una petición sin sesión sigue devolviendo 401 por la autenticación previa.
+
+**Reversión preparada:** conservar el hash mostrado antes de actualizar. Si es necesario, crear una rama temporal en ese commit con el árbol limpio y reconstruir únicamente frontend/backend con el mismo Compose; no revertir secretos ni volúmenes. No ejecutar esta reversión sin revisar primero el estado del checkout.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
