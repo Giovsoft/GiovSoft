@@ -164,6 +164,16 @@ curl -I https://www.giovsoft.com
 - **Decisión:** mantener UFW inactivo durante este paso; no es necesario ejecutar reglas `ufw allow` para continuar con un firewall inactivo. La política del firewall externo de Hostinger sigue sin verificarse.
 - **Siguiente paso preparado:** iniciar el servicio `edge`, comprobar su estado y después realizar los cambios DNS web propuestos. El inicio de Caddy y la emisión de certificados todavía no están confirmados.
 
+## 2026-10-26 13:57 — Caddy iniciado
+
+- **Estado:** ejecutado y confirmado por captura de Giovanni.
+- **Comando:** `docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml up -d edge`, seguido de `ps`.
+- **Evidencia:** imagen `caddy:2-alpine` descargada, volúmenes `giovsoft-vps_caddy-config` y `giovsoft-vps_caddy-data` creados, contenedor `giovsoft-vps-edge-1` iniciado y en estado `Up`.
+- **Puertos publicados:** TCP 80 y 443 y UDP 443 en las interfaces del host. Frontend limitado a `127.0.0.1:8080`; API y PostgreSQL sin puertos publicados al host.
+- **Servicios existentes:** frontend, backend y database continúan `healthy`.
+- **Límite:** el estado `Up` no confirma accesibilidad externa ni certificado emitido. No hay todavía evidencia de cambios DNS.
+- **Siguiente paso:** ajustar únicamente los registros web en el DNS autoritativo y verificar certificado, redirecciones y respuestas públicas.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
