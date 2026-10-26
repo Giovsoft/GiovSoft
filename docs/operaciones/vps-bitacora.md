@@ -461,6 +461,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Estado:** respaldo inicial local en Cloud Shell, todavía sin transferencia ni restauración en el VPS confirmadas. No es una copia final consistente porque el sitio continúa aceptando escrituras.
 - **Siguiente paso preparado:** crear carpeta privada nueva en `/root/colegio-migracion-inicial` del VPS; transferir únicamente archivo comprimido y checksum mediante SCP desde Cloud Shell; ejecutar `sha256sum -c` en el VPS antes de extraer. No borrar origen, publicar datos ni introducir credenciales en el chat. No se ha cambiado DNS.
 
+## 2026-10-26 — Transferencia del respaldo confirmada; restauración preparada
+
+- **Confirmación del usuario:** respaldo transferido al VPS y comprobación `colegio-inicial.tar.gz: OK`. Coincidencia del archivo con el checksum de Cloud Shell confirmada por Giovanni; no implica restauración o aplicación funcional todavía.
+- **Preparado localmente:** helper `deploy/vps/restore-colegio.py` y comandos en [la guía](colegio-migracion-vps.md). Verifica checksum y estructura del tar, rechaza enlaces/rutas inseguras, valida ambos JSON, exige destino nuevo y restaura datos sin cambios de contenido a `/opt/colegio/restauracion-inicial`, con manifiesto de integridad local. No sobrescribe el sitio ni imprime datos de cuentas.
+- **Verificación ejecutada por el asistente:** cuatro pruebas con datos ficticios pasan: restauración válida, rechazo de ruta que escapa, rechazo de destino existente y rechazo de checksum incorrecto. `git diff --check` sin errores. No se accedió al respaldo real.
+- **Pendiente de Giovanni en VPS:** actualizar el checkout, ejecutar helper y verificar manifiesto. Extracción real, persistencia en contenedor, navegación, login, correo y conexión Commerce aún pendientes. No cambiar DNS ni detener GCP en este paso. La copia final sin escrituras sigue pendiente.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

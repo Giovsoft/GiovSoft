@@ -135,3 +135,36 @@ sha256sum -c colegio-inicial.tar.gz.sha256
 ```
 
 Resultado esperado: `colegio-inicial.tar.gz: OK`. Transferencia y comprobación pendientes de evidencia; ningún comando anterior publica el respaldo ni altera el servicio activo.
+
+### Transferencia confirmada; restauración inicial preparada
+
+Giovanni confirmó que SCP terminó y que `sha256sum -c` en el VPS devuelve `colegio-inicial.tar.gz: OK`. Esto comprueba que el archivo transferido coincide con el checksum generado en Cloud Shell; no demuestra todavía funcionamiento de la aplicación ni consistencia de la copia frente a escrituras concurrentes.
+
+Se preparó `deploy/vps/restore-colegio.py`. Solo opera sobre archivos locales: vuelve a verificar el checksum, exige destino inexistente, rechaza rutas fuera de `datos/`, enlaces y archivos especiales; valida los tipos de ambos JSON antes de escribir. Copia sin modificar el contenido de los archivos a una carpeta de preparación y genera un manifiesto SHA-256 de archivos restaurados. No usa credenciales, red, GCS ni Docker. Si se interrumpe por falta de disco, no reutilizar ni borrar automáticamente el destino parcial.
+
+Ejecutar en el **VPS**:
+
+```bash
+cd /opt/giovsoft
+git pull --ff-only origin codex/akira-presentacion
+install -d -m 700 /opt/colegio
+python3 deploy/vps/restore-colegio.py \
+  /root/colegio-migracion-inicial/colegio-inicial.tar.gz \
+  /root/colegio-migracion-inicial/colegio-inicial.tar.gz.sha256 \
+  /opt/colegio/restauracion-inicial
+```
+
+Si termina correctamente, comprobar el manifiesto en otra orden:
+
+```bash
+(
+  set -eu
+  cd /opt/colegio/restauracion-inicial
+  sha256sum -c SHA256SUMS > /dev/null
+  printf 'Integridad local de la restauración: OK\n'
+)
+```
+
+Resultado esperado: ambos JSON válidos, 44 archivos restaurados e integridad local OK. Un número distinto debe revisarse contra el respaldo, no corregirse borrando archivos. Ubicaciones resultantes: `data/content.json`, `data/store-accounts.json`, `uploads/` y `SHA256SUMS`. Carpetas privadas y archivos con permisos restringidos; aún no son los volúmenes de un servicio publicado. No montar la carpeta completa en un directorio web público, porque contiene cuentas.
+
+El helper fue probado localmente con un respaldo ficticio: restauración y conservación de bytes; rechazo de checksum erróneo, ruta con `..` y destino existente. Cuatro pruebas pasan. No se ha ejecutado el helper contra los datos reales ni en el VPS desde el asistente. Confirmación remota de extracción pendiente.
