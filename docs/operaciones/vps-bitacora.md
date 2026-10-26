@@ -232,6 +232,15 @@ curl -I https://www.giovsoft.com
 - **DNS:** `8.8.8.8` confirma A raíz `5.183.11.142`. La consulta a `1.1.1.1` aún devuelve www vía Google; queda pendiente confirmar convergencia de cachés públicas. El éxito del origen no se presenta como propagación global completada.
 - **Estado:** HTTPS y endpoint de salud del VPS funcionan. No se verificaron todavía SMTP, acceso administrativo con doble factor, envío de formularios ni restauración de copias. Mantener GCP hasta cerrar la verificación funcional y la propagación.
 
+## 2026-10-26 14:14 — Dominio operativo y www confirmado mediante DNS sobre HTTPS
+
+- **Pruebas por dominio sin `--resolve`:** `/`, `/akira`, `/articulos/conoce-akira-inteligencia-para-aprender-y-avanzar` y `/api/health` en `https://giovsoft.com` devolvieron 200 desde `5.183.11.142`, con verificación TLS 0 y curl exit 0. La API devolvió `{"ok":true,"service":"giovsoft-api"}`. HTTP `/akira` devolvió 308 al mismo path por HTTPS.
+- **Recursos iniciales:** los seis JS/CSS referenciados por el HTML y `/img/akira/logo-transparent.png` devolvieron 200 por dominio desde el VPS y con TLS válido. Esto comprueba entrega HTTP, no una prueba funcional completa del navegador ni de todos los módulos.
+- **DNS sobre HTTPS independiente:** `https://dns.google/resolve?name=www.giovsoft.com&type=A` y `https://cloudflare-dns.com/dns-query?name=www.giovsoft.com&type=A` (Accept application/dns-json) devolvieron CNAME `www.giovsoft.com → giovsoft.com` y A `5.183.11.142`, TTL observado 1800. Confirma el cambio en ambos proveedores por ese canal.
+- **Diferencia de resolución detectada:** las consultas DNS convencionales efectuadas desde este equipo todavía devuelven Google para www; el curl normal a www llegó a `192.178.52.147` (Google Frontend), respondió 301 a `https://giovsoft.com/akira` y validó TLS. No atribuir esa respuesta a Caddy. La causa exacta de la discrepancia del canal DNS convencional no está aislada (posible caché o intermediación local).
+- **www en el VPS:** certificado y redirección 301 ya verificados directamente contra el VPS en la entrada de las 14:12. Los proveedores DoH principales ahora publican el destino correcto, aunque no se garantiza convergencia de todas las cachés mundiales.
+- **Conclusión operativa:** sitio principal y endpoint de salud sirven correctamente desde el dominio en el VPS; www actualizado en Google y Cloudflare por DoH, con resolución residual anterior observada en este equipo. No modificar DNS de nuevo por esa caché. SMTP, formularios, administración y restauración de copias siguen pendientes de pruebas específicas.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
