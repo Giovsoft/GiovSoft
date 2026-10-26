@@ -403,6 +403,15 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Evidencia visual:** [Facturación sin módulo Payments ni configuración Stripe](evidencias/admin-sin-pagos-stripe-2026-10-26.png).
 - **Estado:** interfaz administrativa de pagos retirada y revisión autenticada completada para los controles visibles; integración del colegio conservada y disponible, con validación transaccional pendiente si se requiere.
 
+## 2026-10-26 — Preparación del flujo completo Stripe/colegio en modo de prueba
+
+- **Autorización:** Giovanni solicitó verificar el flujo completo únicamente en modo de prueba y sin cargos reales.
+- **Exploración realizada:** Dashboard Stripe autenticado abierto en modo de prueba; el aviso visible confirma que no se procesarán transacciones reales en ese Dashboard. La vista Connect no muestra cuentas de prueba. Se guardó [evidencia](evidencias/stripe-prueba-cuentas-2026-10-26.png).
+- **GCP inspeccionado solo en lectura:** referencias de secretos Stripe del servicio `giovsoft-backend`, sin revelar contenido ni cambiar claves o configuración. El modo de las claves usadas por ese backend no se ha confirmado. El modo del Dashboard no cambia el modo del backend.
+- **Dependencia pendiente:** no se identificó un entorno separado del colegio con hub, almacenamiento y callbacks de prueba. No se encontró su código dentro del workspace inspeccionado. Se pidió URL/repositorio de staging o autorización para prepararlo.
+- **Plan escrito:** [Casos de prueba Stripe/colegio](stripe-colegio-pruebas.md), con checkout, pago de prueba, firma y entrega de webhook, callback, confirmación en el colegio, idempotencia, rechazo y cancelación.
+- **Estado:** no se ejecutó ningún checkout ni pago. No se crearon cuentas conectadas, credenciales, cargos, destinos de eventos ni reembolsos. No se modificaron VPS, GCP, datos ni Stripe de producción. No presentar esta preparación como validación completa de la integración.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
