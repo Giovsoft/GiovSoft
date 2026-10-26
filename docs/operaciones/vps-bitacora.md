@@ -499,6 +499,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Comandos para Giovanni:** generación privada de `/opt/colegio/preview.env`, inicio con `up -d --wait`, pruebas curl y túnel SSH desde la Mac incluidos en [la guía](colegio-migracion-vps.md). Ejecución remota y revisión visual pendientes.
 - **Producción:** DNS, GCP, correo, Commerce y Stripe sin cambios. Copia final y corte siguen pendientes.
 
+## 2026-10-26 17:20 — Túnel de vista previa bloqueado por clave SSH distinta
+
+- **Captura de Giovanni:** Terminal de la Mac rechaza el túnel a `5.183.11.142` con «REMOTE HOST IDENTIFICATION HAS CHANGED» y «Host key verification failed». La entrada ECDSA guardada en `known_hosts` difiere; el servidor presenta ED25519 con huella `SHA256:py+ViD+5cbpcY88EczjzuvyqlGaAq9qzOSjtW+kPUGY`.
+- **Estado:** túnel no establecido. No se concluye que el contenedor haya fallado; su estado remoto todavía requiere confirmación. Tampoco se considera verificada la identidad por repetir la huella del aviso.
+- **Acción requerida:** Giovanni debe ejecutar `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` desde la consola web de Hostinger y comparar exactamente la huella. Solo si coincide, respaldar el archivo `known_hosts` de la Mac, retirar exclusivamente la entrada antigua de esa IP con `ssh-keygen -R 5.183.11.142` y reconectar comprobando de nuevo la huella antes de aceptar.
+- **Protección:** no desactivar StrictHostKeyChecking, no usar un archivo known_hosts vacío y no confiar en ssh-keyscan como verificación independiente. El asistente no modificó la confianza SSH local ni se conectó al VPS. Producción y DNS sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
