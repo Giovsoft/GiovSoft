@@ -215,6 +215,12 @@ curl -I https://www.giovsoft.com
 - **Decisión:** no borrar certificados ni volúmenes, no cambiar configuración TLS ni reiniciar repetidamente. Confirmar que raíz y www resuelvan al VPS antes de provocar un nuevo intento.
 - **Siguiente diagnóstico solicitado en el VPS:** `getent ahostsv4 giovsoft.com`, `getent ahostsv4 www.giovsoft.com`, `getent ahostsv6 giovsoft.com`, `getent ahostsv6 www.giovsoft.com`. Se espera IPv4 `5.183.11.142` para ambos y ninguna IPv6 antigua de Google. Salidas aún pendientes.
 
+## 2026-10-26 14:06 — Resolución correcta desde el VPS
+
+- **Confirmado por captura de Giovanni:** `getent ahostsv4` devuelve `5.183.11.142` para raíz y www. `getent ahostsv6` devuelve `::ffff:5.183.11.142`, una representación IPv4-mapped; no es una IPv6 antigua de Google ni una IPv6 nativa configurada para el VPS.
+- **Prueba externa posterior:** HTTPS directo contra `5.183.11.142` continúa fallando con curl 35 para ambos nombres. Una consulta a `1.1.1.1` todavía devuelve www vía Google; la resolución local del VPS no garantiza propagación global ni la caché que usará la autoridad certificadora.
+- **Siguiente acción preparada para Giovanni:** un único `docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml restart edge` para iniciar un nuevo ciclo tras la corrección DNS, seguido de `logs --since=2m --tail=100 edge`. Ejecución y certificado aún pendientes de confirmar. No borrar volúmenes ni repetir reinicios si la validación sigue fallando; revisar primero el nuevo error y el DNS.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
