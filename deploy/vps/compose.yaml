@@ -1,0 +1,115 @@
+name: giovsoft-vps
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  edge:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-giovsoft.com}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env.production}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks: [app]
+    logging: *logging
+
+  frontend:
+    build:
+      context: ../../frontend
+      args:
+        VITE_API_URL: /
+    restart: unless-stopped
+    # Private origin check through SSH; never exposes the preview to the internet.
+    ports:
+      - "127.0.0.1:${PREVIEW_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/akira"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks: [app]
+    logging: *logging
+
+  backend:
+    build:
+      context: ../../backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      FRONTEND_ORIGIN: https://${SITE_DOMAIN:-giovsoft.com},https://www.${SITE_DOMAIN:-giovsoft.com}
+      PGHOST: database
+      PGPORT: "5432"
+      PGDATABASE: giovsoft
+      PGUSER: giovsoft_app
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set a unique POSTGRES_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-hola@giovsoft.com}
+      ADMIN_NAME: ${ADMIN_NAME:-GiovSoft}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set a unique ADMIN_PASSWORD}
+      ADMIN_TOKEN_SECRET: ${ADMIN_TOKEN_SECRET:?Set a random ADMIN_TOKEN_SECRET}
+      ADMIN_2FA_ENABLED: "true"
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/health', {signal: AbortSignal.timeout(4000)}).then(r => {if (!r.ok) process.exit(1)}).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [app, storage]
+    logging: *logging
+
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: giovsoft
+      POSTGRES_USER: giovsoft_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [storage]
+    logging: *logging
+
+networks:
+  app:
+  storage:
+    internal: true
+
+volumes:
+  postgres-data:
+  backend-data:
+  caddy-data:
+  caddy-config:
