@@ -186,6 +186,14 @@ curl -I https://www.giovsoft.com
 - **Estado:** DNS raíz actualizado; migración HTTPS incompleta. Causa del fallo TLS pendiente de logs de Caddy. No se reinició Caddy ni se eliminaron certificados o volúmenes.
 - **Siguiente paso:** revisar CNAME www en el panel y recibir `docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml logs --tail=100 edge` para identificar errores ACME antes de decidir una corrección.
 
+## 2026-10-26 14:02 — Nueva comprobación tras corregir www
+
+- **Cambio informado:** Giovanni confirmó haber corregido CNAME `www → giovsoft.com` en el panel. Guardado informado por el usuario; propagación todavía no confirmada.
+- **DNS observado:** `1.1.1.1` mantiene A raíz `5.183.11.142`; consultas a `8.8.8.8` y `nsc1.squarespacedns.com` todavía devuelven `www CNAME ghs.googlehosted.com.` (TTL restante observado 1833 segundos). Puede haber caché/propagación; este resultado no demuestra que el cambio del panel sea incorrecto.
+- **HTTPS probado directamente contra `5.183.11.142`:** `/akira`, `/api/health` y `www` siguen fallando en la negociación TLS con curl 35, `tlsv1 alert internal error`. No se desactivó la validación del certificado.
+- **HTTP directo:** Caddy sigue respondiendo 308 hacia `https://giovsoft.com/akira`.
+- **Estado:** HTTPS aún no funciona en la prueba directa. Pendiente salida de logs de `edge` para determinar la causa del fallo de certificados; no se realizaron cambios en el VPS.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
