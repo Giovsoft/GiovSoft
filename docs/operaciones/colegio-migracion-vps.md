@@ -436,3 +436,7 @@ Comparación opcional siguiente, preparada para ejecutar personalmente en **Clou
 ```
 
 Si true, la clave cargada coincide con latest pero Google la sigue rechazando desde el VPS: revisar validez de contraseña de aplicación y política de la cuenta, sin afirmar que el servicio antiguo funciona ni revocar credenciales. Si false, revisar privadamente copia, versión y recreación del contenedor antes de modificar el secreto original. Prueba del comparador realizada solo con cadenas ficticias; ejecución real pendiente.
+
+**Resultado real a las 17:43:** `coincideExactamente:true`, recibido por captura. La comparación está completada: clave del VPS igual a latest de GCP. El rechazo SMTP persiste según la prueba anterior; la comparación no autentica ni envía mensajes.
+
+Siguiente diagnóstico: confirmar si `soporte@giovsoft.com` es una cuenta propia de Google o un alias. No cambiar usuario basándose en su nombre; confirmar cuenta propietaria y acceso antes de crear una contraseña de aplicación dedicada al VPS, si procede y la política de Workspace lo permite. No revocar la credencial existente ni editar GCP durante esta verificación. Dato solicitado al usuario; pendiente de respuesta.

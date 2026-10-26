@@ -565,6 +565,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Corrección:** sustituir la condición `if(!s)` por `if(s.length===0)`, sin exclamaciones susceptibles de expansión de historial en el comando externo. Guía actualizada. Se conserva el transporte directo por stdin y la salida únicamente booleana, sin archivos con el secreto.
 - **Estado:** repetir solo esta comparación corregida. No se cambió la contraseña, el contenedor, GCP o DNS por este intento. Recuperación SMTP sigue pendiente.
 
+## 2026-10-26 17:43 — Credencial de recuperación del VPS coincide con latest de GCP
+
+- **Captura de Giovanni:** comparación corregida devuelve `{"coincideExactamente":true}`. Se confirma igualdad exacta entre el valor latest del secreto `ibero-support-smtp-pass` y `SUPPORT_SMTP_PASS` cargado en school. No se mostró contenido ni hash.
+- **Conclusión limitada:** queda descartada diferencia de copia para esa versión; SMTP de recuperación sigue rechazando autenticación desde el VPS con EAUTH/535. Igualdad con el secreto no prueba que Google acepte esa clave, que no haya sido revocada o que el usuario sea una cuenta autenticable. Tampoco prueba funcionamiento del origen GCP.
+- **Dato solicitado:** confirmar si `soporte@giovsoft.com` es una cuenta propia de Google Workspace o un alias, para comprobar el usuario de autenticación antes de generar o sustituir credenciales. No se presume la causa exacta del rechazo.
+- **Estado:** no se generaron ni revocaron contraseñas, no se cambió el secreto de GCP ni el usuario SMTP del VPS. Recuperación pendiente; DNS permanece sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
