@@ -339,6 +339,13 @@ No ejecutar `down -v`, no editar `.env.production` y no ejecutar estos comandos 
 - Esa contraseña corresponde a la creación inicial del usuario; si posteriormente cambió desde el panel, la copia de entorno puede dejar de coincidir con el hash persistido. No regenerar `.env.production`, no cambiar secretos de base de datos y no borrar volúmenes para recuperar acceso.
 - La prueba autenticada del bloqueo de pagos queda pendiente del inicio de sesión de Giovanni. No se desactiva 2FA para completar la verificación.
 
+## 2026-10-26 — Credenciales iniciales rechazadas: diagnóstico PostgreSQL
+
+- Giovanni informó que las credenciales del archivo de entorno son rechazadas. No se recibió ni registró su contraseña.
+- **Hallazgo en el código:** `ensureAdminUsersFile()` crea un usuario inicial con ADMIN_EMAIL/ADMIN_PASSWORD para almacenamiento JSON. La rama PostgreSQL de `readAdminUsers()` consulta `admin_users` y solo contempla alta automática de un master si existen MASTER_ADMIN_EMAIL/MASTER_ADMIN_PASSWORD; el Compose del VPS no configura esas variables master. Por tanto, la instalación PostgreSQL limpia puede no haber creado el administrador inicial. Es una causa probable del rechazo, pendiente de confirmar el contenido de la tabla en el VPS.
+- Se preparó una consulta de solo lectura: `SELECT count(*) AS administradores FROM admin_users`. Giovanni la ejecutará dentro del contenedor database. Si devuelve cero, crear explícitamente la cuenta inicial; si hay usuarios, revisar email/estado antes de restablecer la contraseña. No regenerar secretos, no crear master ni desactivar 2FA para diagnosticar.
+- La afirmación anterior de que ADMIN_PASSWORD permitiría entrar se limita al caso en que el usuario inicial realmente se haya creado. La existencia de esa variable no prueba que haya un usuario PostgreSQL asociado.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
