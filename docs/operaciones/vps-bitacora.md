@@ -476,6 +476,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Siguiente paso preparado:** clonar `Giovsoft/Iberoamericano` en `/opt/colegio/source`, fijar candidato conocido `9c867b6a8a489bc6140425ee908fa5d8134d628c` y construir imagen local `colegio-vps:9c867b6`. La revisión corresponde al código inspeccionado y usado en sandbox; aún debe contrastarse con la revisión que recibe tráfico en GCP antes del corte.
 - **Estado:** construcción remota pendiente; contenedor del colegio, configuración privada, prueba de navegación y DNS sin cambios. Commerce y API de pagos de GCP continúan conservados.
 
+## 2026-10-26 — Clonación del colegio detenida por autenticación GitHub
+
+- **Reportado por Giovanni:** la autenticación para clonar el repositorio no pasa. No se dispone todavía del error exacto; no se afirma que una contraseña o permiso concreto sea la causa.
+- **Alternativa preparada:** instalar GitHub CLI si falta y ejecutar `gh auth login --hostname github.com --git-protocol https --web` personalmente en el VPS. Autorizar el código de dispositivo en `https://github.com/login/device`, con una cuenta que tenga acceso a `Giovsoft/Iberoamericano`; después `gh auth setup-git --hostname github.com` configura Git para usar esa sesión.
+- **Comprobación prevista:** `git ls-remote https://github.com/Giovsoft/Iberoamericano.git HEAD`, que prueba acceso de lectura sin clonar ni modificar el repositorio. Autorización y clonación todavía pendientes de confirmación. No compartir códigos, contraseñas ni tokens en el chat.
+- **Estado:** datos restaurados conservados; construcción de imagen y publicación pendientes. Sin cambios DNS o en integración de pagos.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
