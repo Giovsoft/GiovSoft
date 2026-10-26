@@ -104,7 +104,7 @@ No repetir `git clone` si `/opt/giovsoft` ya existe; comprobar primero su conten
 
 ## Pendientes
 
-- Recibir la comprobación HTTP con `curl -I` desde el VPS. El estado saludable de los tres contenedores ya está confirmado por captura.
+- Comprobación HTTP completada: Giovanni confirmó respuestas 200 del frontend y de la API. Pendiente HTTPS público.
 - Configurar SMTP en el archivo privado y verificar correos y doble factor del administrador.
 - Revisar puertos disponibles, firewall y acceso público a 80/443 antes de iniciar Caddy.
 - Confirmar quién administra el DNS autoritativo y preparar los registros web.
@@ -120,6 +120,41 @@ No repetir `git clone` si `/opt/giovsoft` ya existe; comprobar primero su conten
 - **Verificación:** `giovsoft-vps-frontend-1`, `giovsoft-vps-database-1` y `giovsoft-vps-backend-1` aparecen como `Healthy`; el comando terminó y devolvió el prompt sin error visible.
 - **Límite de la evidencia:** no se recibió todavía la respuesta de `curl`, la versión Git instalada ni una prueba de HTTPS público, correo o funciones de la aplicación. No se observan cambios de DNS ni inicio de Caddy en esta captura.
 - **Siguiente paso:** comprobar HTTP local en `/akira` y el endpoint de salud de la API. Mantener los datos persistentes; no ejecutar `down -v` en el VPS.
+
+## 2026-10-26 — HTTP confirmado y preparación de HTTPS/DNS
+
+- **Estado HTTP:** ejecutado y confirmado por Giovanni en el chat: frontend `/akira` y API `/api/health` responden 200. No se recibió salida textual adicional.
+- **DNS verificado de nuevo desde el equipo local:** continúa delegado a los cuatro servidores Squarespace; A y AAAA raíz y CNAME www conservan los valores de Google registrados arriba. No se modificaron registros.
+- **Plan entregado, pendiente de ejecución:** comprobar puertos 80/443 y UFW, permitir TCP 80/443 si el firewall está activo y abrir esos puertos también en el firewall de Hostinger; iniciar `edge`; sustituir únicamente los registros web en el DNS autoritativo; comprobar emisión del certificado y respuesta externa.
+- **Registros propuestos:** sustituir los cuatro A raíz de Google por un único A `@ → 5.183.11.142`; retirar los cuatro AAAA raíz de Google al no haber IPv6 del VPS configurada; sustituir CNAME `www → ghs.googlehosted.com` por `www → giovsoft.com`. Preservar MX, TXT, DKIM, verificaciones y otros subdominios. TTL 300 si el panel lo permite.
+- **Delegación:** no cambiar nameservers en este paso. La incorporación de Cloudflare requiere revisar primero la zona completa y sus nameservers asignados.
+- **HTTPS:** Caddy administra certificados y redirección HTTP a HTTPS; necesita DNS al VPS y puertos públicos 80/443. Los certificados no están confirmados todavía. No usar `curl -k` para dar por válida la verificación.
+- **Reversión DNS:** restaurar exactamente los A, AAAA y CNAME de Google registrados en el inventario inicial. No eliminar volúmenes ni apagar GCP durante esta verificación. La reversión depende de la propagación y cachés DNS.
+
+Comandos preparados para el VPS:
+
+```bash
+cd /opt/giovsoft
+ss -ltnp '( sport = :80 or sport = :443 )'
+ufw status
+# Si UFW está activo:
+ufw allow 80/tcp
+ufw allow 443/tcp
+# No activar UFW ni detener otros servicios sin revisar primero sus reglas y uso.
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml up -d edge
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml logs --tail=60 edge
+```
+
+Si hay otro servicio escuchando en 80/443, revisar antes de iniciar edge. Tras cambiar DNS y obtener certificados, verificar:
+
+```bash
+curl -I https://giovsoft.com/akira
+curl https://giovsoft.com/api/health
+curl -I http://giovsoft.com
+curl -I https://www.giovsoft.com
+```
+
+**Pendiente de evidencia:** puertos/firewall, cambios DNS efectivamente guardados, certificado emitido y comprobación HTTPS pública contra el VPS.
 
 ## Plantilla para próximas entradas
 
