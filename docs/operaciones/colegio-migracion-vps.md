@@ -101,3 +101,37 @@ PY
 No subir el respaldo al repositorio ni adjuntarlo al chat: contiene datos de cuentas. Compartir únicamente resultado agregado, ruta y errores si los hay, omitiendo datos personales. Conservar la carpeta hasta verificar la transferencia y restauración en el VPS. La copia final debe hacerse a una carpeta nueva después de detener escrituras.
 
 Referencia de sintaxis: [gcloud storage rsync](https://docs.cloud.google.com/sdk/gcloud/reference/storage/rsync). No se usa la opción de eliminar objetos ni se escribe en el bucket.
+
+### Respaldo confirmado a las 16:57 y transferencia pendiente
+
+La captura de Giovanni confirma 44/44 archivos descargados y creación del archivo inicial. Ejecutó la versión abreviada del chat: validación JSON y directorio uploads, tar de `datos/` y checksum del tar; no el manifiesto individual de la variante anterior. No se han comprobado aún restauración, contenido semántico ni contraseñas conservadas mediante login.
+
+Primero en la consola del **VPS**:
+
+```bash
+mkdir -m 700 /root/colegio-migracion-inicial
+```
+
+Si la carpeta ya existe, detenerse y revisar su contenido antes de reutilizarla. Después en **Cloud Shell**, donde se creó el respaldo:
+
+```bash
+(
+  set -eu
+  cd "$HOME"/colegio-respaldo-inicial.*/
+  sha256sum -c colegio-inicial.tar.gz.sha256
+  scp colegio-inicial.tar.gz colegio-inicial.tar.gz.sha256 \
+    root@5.183.11.142:/root/colegio-migracion-inicial/
+)
+```
+
+El glob presupone una sola carpeta de respaldo; si hay varias, `cd` falla y se debe seleccionar la correcta explícitamente. Autenticar SSH personalmente. Ante aviso de clave de host cambiada, no desactivar comprobaciones: comparar la huella con la consola de Hostinger antes de aceptar una clave nueva.
+
+Finalmente en el **VPS**, sin extraer todavía:
+
+```bash
+cd /root/colegio-migracion-inicial
+chmod 600 colegio-inicial.tar.gz colegio-inicial.tar.gz.sha256
+sha256sum -c colegio-inicial.tar.gz.sha256
+```
+
+Resultado esperado: `colegio-inicial.tar.gz: OK`. Transferencia y comprobación pendientes de evidencia; ningún comando anterior publica el respaldo ni altera el servicio activo.

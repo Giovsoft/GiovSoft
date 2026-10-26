@@ -454,6 +454,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Preparado:** bloque reproducible de respaldo inicial privado en Cloud Shell, validación de JSON, manifiesto SHA-256 y archivo de transporte, incluido en [la guía](colegio-migracion-vps.md). No ejecutado por el asistente. El archivo contiene datos de cuentas y queda fuera de Git y del chat.
 - **Producción:** sin cambios en VPS, GCP, DNS, correo, Commerce o Stripe. Será necesaria una copia final con escrituras detenidas; este respaldo inicial no la sustituye.
 
+## 2026-10-26 16:57 — Respaldo inicial del colegio creado en Cloud Shell
+
+- **Confirmado por captura de Giovanni:** transferencia completada de 44/44 archivos, 80.6 MiB, y mensaje final «Respaldo creado en» una carpeta privada `colegio-respaldo-inicial.*` del HOME de Cloud Shell.
+- **Bloque ejecutado:** la versión entregada por chat validó sintaxis de ambos JSON, existencia de `uploads/`, creó `colegio-inicial.tar.gz` y su archivo SHA-256. Al llegar al mensaje final bajo `set -eu`, esas órdenes terminaron sin error. Esta versión no generó el manifiesto individual `SHA256SUMS` de la variante ampliada de la guía; no darlo por existente.
+- **Estado:** respaldo inicial local en Cloud Shell, todavía sin transferencia ni restauración en el VPS confirmadas. No es una copia final consistente porque el sitio continúa aceptando escrituras.
+- **Siguiente paso preparado:** crear carpeta privada nueva en `/root/colegio-migracion-inicial` del VPS; transferir únicamente archivo comprimido y checksum mediante SCP desde Cloud Shell; ejecutar `sha256sum -c` en el VPS antes de extraer. No borrar origen, publicar datos ni introducir credenciales en el chat. No se ha cambiado DNS.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
