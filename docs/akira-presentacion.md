@@ -18,3 +18,13 @@ Los contactos utilizan el WhatsApp existente de GiovSoft con texto alusivo a Aki
 - No modificar despliegue, DNS o permisos del backend para publicar esta página. Desplegar únicamente el frontend con el procedimiento existente.
 
 Esta rama no define un pipeline de producción: el repositorio no incluye un workflow de despliegue en GitHub Actions. No se presume que fusionar el PR publique el sitio.
+
+## Tecnología NVIDIA prevista
+
+Por indicación del propietario, la presentación incluye «Entrenamiento previsto con tecnología NVIDIA». Se identifica como integración por implementar, sin afirmar entrenamiento ya realizado, certificación, patrocinio ni respaldo. Se enlaza a la documentación oficial de NeMo Framework. No se incorpora el logo corporativo ni un badge de Inception: su uso requiere verificar la autorización y las condiciones correspondientes. Referencias revisadas el 26 de octubre de 2026:
+
+- https://www.nvidia.com/en-gb/about-nvidia/legal-info/logo-brand-usage/
+- https://www.nvidia.com/en-us/about-nvidia/legal-info.html
+- https://www.nvidia.com/en-us/startups/
+
+Registrar el producto en el portal no demuestra que un entrenamiento se haya efectuado ni autorización general de marca.
