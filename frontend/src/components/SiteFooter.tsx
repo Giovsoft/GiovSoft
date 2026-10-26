@@ -12,6 +12,7 @@ const footerSections = [
       { label: "Proceso", href: "/proceso" },
       { label: "Artículos", href: "/articulos" },
       { label: "Nosotros", href: "/nosotros" },
+      { label: "Akira", href: "/akira" },
       { label: "Academy", href: "/academy" },
       { label: "Studios", href: "/studios" },
       { label: "Payments", href: "/payments" },

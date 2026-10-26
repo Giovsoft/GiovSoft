@@ -27,6 +27,8 @@ import TermsPage from "./pages/TermsPage";
 import WebsitePortfolioPage from "./pages/WebsitePortfolioPage";
 import Website from "./pages/Website";
 
+const AkiraPage = lazy(() => import("./pages/AkiraPage"));
+
 const AdminApplications = lazy(() => import("./pages/AdminApplications"));
 const AdminBusinessLines = lazy(() => import("./pages/AdminBusinessLines"));
 const AdminSales = lazy(() => import("./pages/AdminSales"));
@@ -68,6 +70,7 @@ function App() {
         <Route path="/" element={isAdminHost ? <Navigate to="/admin" replace /> : <Website />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/akira" element={<AkiraPage />} />
         <Route path="/academy" element={<AcademyPage />} />
         <Route path="/studios" element={<StudiosPage />} />
         <Route path="/payments" element={<PaymentsPage />} />

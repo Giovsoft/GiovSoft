@@ -19,6 +19,7 @@ const pages: Record<string, SeoData> = {
   "/portafolio/aplicaciones": { title: "Aplicaciones móviles | GiovSoft", description: "Descubre GFin, GFit y GiovTrips: aplicaciones creadas para finanzas, entrenamiento, nutrición y agencias de viajes." },
   "/portafolio/sitios-web": { title: "Diseño y desarrollo de sitios web | GiovSoft", description: "Catálogo de sitios web profesionales, rápidos y responsivos desarrollados por GiovSoft para empresas y organizaciones." },
   "/portafolio/ecommerce": { title: "Desarrollo de ecommerce y tiendas en línea | GiovSoft", description: "Creamos tiendas en línea con catálogo, pagos, pedidos e integraciones para convertir tu presencia digital en un canal de ventas." },
+  "/akira": { title: "Akira | IA para aprender y automatizar · GiovSoft", description: "Conoce Akira Students y Business, el proyecto de inteligencia artificial de GiovSoft para transformar información en aprendizaje y acción. En desarrollo." },
   "/academy": { title: "GiovSoft Academy | Aprende tecnología practicando", description: "Conoce GiovSoft Academy, una plataforma educativa con cursos de programación, tecnología, diseño, datos e inteligencia artificial." },
   "/studios": { title: "GiovSoft Studios | Nuestros videojuegos", description: "Descubre los videojuegos originales de GiovSoft Studios, conoce los próximos lanzamientos y encuentra dónde adquirirlos y jugarlos." },
   "/payments": { title: "GiovSoft Payments | Pagos, Tap to Pay y facturación", description: "Recibe, organiza e integra pagos digitales y presenciales con Tap to Pay, facturación conectada y mayor control para tu negocio." },
@@ -59,6 +60,8 @@ export default function SeoManager() {
     const canonical = `${origin}${canonicalPath}`;
     const robots = data.noindex || isPrivate ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
 
+    const socialImage = normalizedPath === "/akira" ? `${origin}/img/akira/logo.jpeg` : defaultImage;
+
     document.documentElement.lang = "es-MX";
     document.title = data.title;
     setMeta('meta[name="description"]', "name", "description", data.description);
@@ -66,10 +69,10 @@ export default function SeoManager() {
     setMeta('meta[property="og:title"]', "property", "og:title", data.title);
     setMeta('meta[property="og:description"]', "property", "og:description", data.description);
     setMeta('meta[property="og:url"]', "property", "og:url", canonical);
-    setMeta('meta[property="og:image"]', "property", "og:image", defaultImage);
+    setMeta('meta[property="og:image"]', "property", "og:image", socialImage);
     setMeta('meta[name="twitter:title"]', "name", "twitter:title", data.title);
     setMeta('meta[name="twitter:description"]', "name", "twitter:description", data.description);
-    setMeta('meta[name="twitter:image"]', "name", "twitter:image", defaultImage);
+    setMeta('meta[name="twitter:image"]', "name", "twitter:image", socialImage);
 
     let canonicalElement = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalElement) {

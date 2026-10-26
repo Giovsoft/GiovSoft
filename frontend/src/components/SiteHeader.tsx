@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  Sparkles,
   ChevronDown,
   CreditCard,
   Gamepad2,
@@ -17,6 +18,7 @@ const whatsappMessage = encodeURIComponent(
 const whatsappUrl = `https://wa.me/525566042994?text=${whatsappMessage}`;
 
 const giovsoftProducts = [
+  { title: "Akira", copy: "IA para aprender y automatizar. Students & Business · En desarrollo.", href: "/akira", icon: Sparkles },
   {
     title: "Studios",
     copy: "Videojuegos originales desarrollados y publicados por GiovSoft.",
@@ -147,6 +149,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
                 <a href="/proceso" onClick={closeMenu}>Proceso</a>
                 <a href="/articulos" onClick={closeMenu}>Artículos</a>
                 <a href="/contacto" onClick={closeMenu}>Contacto</a>
+                <a href="/akira" onClick={closeMenu}>Akira</a>
                 <a className="site-academy-link" href="/academy" onClick={closeMenu}>Academy</a>
               </div>
             )}
