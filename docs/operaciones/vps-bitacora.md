@@ -200,6 +200,13 @@ curl -I https://www.giovsoft.com
 - **Comprobación posterior:** `1.1.1.1` todavía devuelve el destino anterior `ghs.googlehosted.com` (TTL observado 1800). La visibilidad pública del nuevo CNAME sigue pendiente; el TTL no garantiza una hora exacta de propagación.
 - **HTTPS directo al VPS:** continúa el error TLS curl 35. Se mantiene pendiente recibir los logs de Caddy para identificar la causa, sin atribuirla únicamente al CNAME.
 
+## 2026-10-26 14:02 — Captura de la zona DNS tras el cambio
+
+- **Confirmado visualmente en el panel:** A `@ → 5.183.11.142` y CNAME `www → giovsoft.com`, ambos con TTL de 30 minutos. En la captura no aparecen registros AAAA raíz.
+- **Otros servicios conservados:** A `academy` y `admin-academy` hacia `136.68.177.225`; CNAME `api` y `commerce` hacia `ghs.googlehosted.com`. No forman parte del cambio del sitio principal. El nuevo frontend utiliza `/api` en el mismo dominio.
+- **Correo y verificaciones conservados en la captura:** MX raíz prioridad 1 a `smtp.google.com`, SPF de Google, DMARC, DKIM, registros de correo de Stripe y verificaciones TXT. Algunos valores aparecen truncados; la captura no equivale a una exportación completa de la zona.
+- **Estado:** configuración web del panel coincide con lo previsto. Falta confirmar propagación del CNAME y resolver el error TLS observado mediante los logs de Caddy, aún no recibidos. No se indican nuevos cambios DNS.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
