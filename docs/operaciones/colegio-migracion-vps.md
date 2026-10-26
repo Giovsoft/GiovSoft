@@ -293,6 +293,7 @@ Después abrir personalmente `nano /opt/colegio/production.env` en el VPS. Compl
 
 - `ADMIN_PASSWORD`: conservar la contraseña actual del panel del colegio.
 - `GIOVCOMMERCE_STOREFRONT_SECRET`: secreto actual de conexión con Commerce; no cambiarlo solo en un extremo.
+- **Referencia verificada en Cloud Run el 2026-10-26:** `giovcommerce-storefront-secret-clean`, versión **1**. Introducir su contenido privadamente en el campo anterior; no escribir el nombre del secreto como valor. No se consultó su contenido durante la comprobación.
 - `SMTP_*`, `MAIL_FROM`, `MAIL_TO`: correo institucional actual, incluidos puerto y modo seguro reales.
 - `SUPPORT_SMTP_*`, `SUPPORT_MAIL_FROM`: recuperación de cuentas actual, separada del correo institucional.
 

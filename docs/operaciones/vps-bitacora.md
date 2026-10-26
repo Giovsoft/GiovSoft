@@ -514,6 +514,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Pruebas locales:** dos contenedores healthy y Compose válido con datos ficticios; lecturas básicas 200, escrituras/checkout/recuperación 405, pedidos 503, login inexistente 401; restricciones de montajes/puertos y configuración verificadas. No se usaron secretos reales ni se hicieron peticiones al catálogo real, SMTP o Stripe. Proyecto de prueba local retirado después.
 - **Pendiente del usuario:** preparar copia y archivo privado, introducir directamente los ajustes vigentes de GCP, validar e iniciar proyecto de comprobación. Guía reproducible actualizada. No se afirma que credenciales, correo o integración de pagos ya estén verificados.
 
+## 2026-10-26 — Referencia storefront vigente del colegio confirmada
+
+- **Consulta de solo lectura:** Cloud Run → `colegio-iberoamericano` → Contenedores, proyecto `healthy-genre-497401-j7`, región `us-central1`. La interfaz indica que no se realizaron cambios.
+- **Referencia confirmada:** `GIOVCOMMERCE_STOREFRONT_SECRET` usa el secreto `giovcommerce-storefront-secret-clean`, versión **1**. No usa `giovcommerce-storefront-secret` en la configuración observada.
+- **Indicación para el VPS:** Giovanni debe introducir privadamente el contenido de esa versión en `GIOVCOMMERCE_STOREFRONT_SECRET` de `/opt/colegio/production.env`; el campo recibe el valor, no el nombre del secreto. No se abrió, leyó ni mostró el contenido del secreto.
+- **Estado:** solo referencia verificada; copia privada al VPS y validación funcional aún pendientes. No se modificaron secretos, servicios, DNS ni pagos.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
