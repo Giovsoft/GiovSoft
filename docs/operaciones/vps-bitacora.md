@@ -545,6 +545,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Diagnóstico preparado:** helper ampliado con códigos SMTP en lista permitida, número de respuesta y etapa conocida; sin mensajes completos, usuarios, contraseñas, tokens ni trazas del proveedor. Cuatro pruebas locales pasan, incluida protección contra exposición del mensaje sensible. Repetición remota pendiente; no requiere recrear contenedores ni cambiar credenciales.
 - **Estado del corte:** DNS sin cambios. Recuperación pendiente de resolver antes de publicar; integridad, login de cuenta existente, revisión de código, mantenimiento/copia final, persistencia escribible, respaldo y TLS público siguen pendientes según la guía.
 
+## 2026-10-26 17:37 — Fallo de recuperación localizado en autenticación SMTP
+
+- **Nueva captura:** panel y storefront autenticados 200, SMTP institucional OK; SMTP recuperación devuelve `EAUTH`, respuesta `535`, etapa `AUTH PLAIN`.
+- **Conclusión limitada:** la conexión alcanzó la autenticación y el servidor la rechazó. No es evidencia de un timeout de red. El código no distingue por sí solo contraseña mal copiada, usuario equivocado, contraseña revocada o política de acceso del correo.
+- **Siguiente diagnóstico preparado:** comprobar dentro de school, solo con booleanos, host y usuario esperados, presencia de contraseña, si se pegó por error el nombre del secreto y si hay espacios externos/saltos de línea. No imprimir contenido, longitud o hashes de la contraseña. No modificar ni regenerar claves sin revisar estos resultados.
+- **Estado:** recuperación pendiente; sin envío de correo, órdenes, pagos, cambio DNS o alteración del secreto de GCP. Fuente de interpretación: documentación oficial de errores SMTP de Gmail.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

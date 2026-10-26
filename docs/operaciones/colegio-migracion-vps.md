@@ -395,3 +395,28 @@ Helper actualizado para imprimir solo código de error permitido, respuesta SMTP
 ```
 
 Compartir únicamente las líneas resumidas emitidas por el helper. `EAUTH` con 535 orientaría a autenticación; `ETIMEDOUT`/`CONN` orientaría a conectividad. Estos son criterios de interpretación, no resultados recibidos. No cambiar credenciales o configuración hasta revisar el nuevo código. Actualización local probada: cuatro pruebas pasan; diagnóstico real pendiente.
+
+**Resultado recibido a las 17:37:** recuperación `EAUTH / 535 / AUTH PLAIN`; autenticación rechazada, no timeout de conexión. Otros tres checks siguen OK. Causa concreta de rechazo pendiente.
+
+En el VPS, revisar solamente booleanos del entorno cargado:
+
+```bash
+cd /opt/giovsoft
+docker compose --env-file /opt/colegio/production.env \
+  -f deploy/vps/compose.colegio-production-check.yaml exec -T school node <<'JS'
+const e = process.env;
+const p = e.SUPPORT_SMTP_PASS || '';
+console.log(JSON.stringify({
+  hostCorrecto: e.SUPPORT_SMTP_HOST === 'smtp.gmail.com',
+  usuarioCorrecto: e.SUPPORT_SMTP_USER === 'soporte@giovsoft.com',
+  puertoCorrecto: e.SUPPORT_SMTP_PORT === '587',
+  modoCorrecto: e.SUPPORT_SMTP_SECURE === 'false',
+  clavePresente: Boolean(p),
+  claveEsNombreDelSecreto: p === 'ibero-support-smtp-pass',
+  claveConEspaciosExternos: p !== p.trim(),
+  claveConSaltos: /[\r\n]/.test(p)
+}, null, 2));
+JS
+```
+
+Primeros cinco campos deben ser true; últimos tres false. Esta revisión no imprime contraseña ni datos de cuentas. Un resultado correcto no prueba que Google acepte la credencial. Si todo coincide, comparar privadamente con la versión referenciada y revisar estado de la contraseña de aplicación/política del correo, sin alterar producción ni desactivar TLS. Referencias oficiales: [errores SMTP Gmail](https://knowledge.workspace.google.com/admin/support/troubleshooting/gmail-smtp-errors-and-codes), [contraseñas de aplicaciones](https://support.google.com/accounts/answer/185833).
