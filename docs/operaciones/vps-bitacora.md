@@ -156,6 +156,14 @@ curl -I https://www.giovsoft.com
 
 **Pendiente de evidencia:** puertos/firewall, cambios DNS efectivamente guardados, certificado emitido y comprobación HTTPS pública contra el VPS.
 
+## 2026-10-26 13:56 — Puertos libres y UFW inactivo
+
+- **Estado:** ejecutado y confirmado por captura de la consola enviada por Giovanni.
+- **Evidencia:** `ss -ltnp '( sport = :80 or sport = :443 )'` devolvió únicamente los encabezados, sin listeners TCP en esos puertos. `ufw status` devolvió `Status: inactive`.
+- **API:** la misma captura muestra `200 {"ok":true,"service":"giovsoft-api"}`.
+- **Decisión:** mantener UFW inactivo durante este paso; no es necesario ejecutar reglas `ufw allow` para continuar con un firewall inactivo. La política del firewall externo de Hostinger sigue sin verificarse.
+- **Siguiente paso preparado:** iniciar el servicio `edge`, comprobar su estado y después realizar los cambios DNS web propuestos. El inicio de Caddy y la emisión de certificados todavía no están confirmados.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
