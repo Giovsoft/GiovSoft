@@ -9,6 +9,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import ModuleNavigation from "./ModuleNavigation";
 import { useEffect, useRef, useState } from "react";
 import { serviceCategories, serviceItems } from "../data/services";
@@ -42,13 +43,16 @@ interface SiteHeaderProps {
 export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
   const headerRef = useRef<HTMLElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const { pathname } = useLocation();
+  const current = (href: string) => pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
   const [mobileSections, setMobileSections] = useState({
     main: true,
     services: false,
   });
 
   useEffect(() => {
-    if (!menuOpen) {
+    if (!menuOpen && !servicesOpen) {
       return;
     }
 
@@ -60,17 +64,27 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
       }
 
       setMenuOpen(false);
+      setServicesOpen(false);
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+      setServicesOpen(false);
+      headerRef.current?.querySelector<HTMLButtonElement>(menuOpen ? ".site-mobile-menu-button" : ".site-services-toggle")?.focus();
+    }
     document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [menuOpen]);
+  }, [menuOpen, servicesOpen]);
 
   function closeMenu() {
     setMenuOpen(false);
+    setServicesOpen(false);
   }
 
   function toggleMobileSection(section: keyof typeof mobileSections) {
@@ -97,13 +111,13 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
         />
       </a>
 
-      <nav className={`site-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navegación principal">
-        <a className="site-desktop-nav-link" href="/" onClick={closeMenu}>Inicio</a>
-        <div className="nav-dropdown site-desktop-nav-link">
-          <a href="/servicios" className="nav-dropdown-trigger" onClick={closeMenu}>
-            Servicios
-          </a>
-          <div className="services-menu services-catalog-menu">
+      <nav id="site-primary-navigation" className={`site-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navegación principal">
+        <div className={`nav-dropdown site-desktop-nav-link ${servicesOpen ? "is-expanded" : ""}`}>
+          <button type="button" className={`nav-dropdown-trigger site-services-toggle ${current("/servicios") ? "is-current" : ""}`} aria-expanded={servicesOpen} aria-controls="site-services-menu" onClick={() => setServicesOpen(open => !open)}>
+            Soluciones <ChevronDown size={13} />
+          </button>
+          <div id="site-services-menu" className="services-menu services-catalog-menu">
+            <a className="site-menu-overview" href="/servicios" onClick={closeMenu}><span><strong>Soluciones para tu siguiente paso</strong><small>IA, automatización, software y experiencias digitales.</small></span><ArrowRight size={19}/></a>
             {serviceCategories.map((category) => (
               <section className="services-menu-group" key={category.id}>
                 <p>{category.title}</p>
@@ -132,11 +146,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
             </section>
           </div>
         </div>
-        <a className="site-desktop-nav-link" href="/nosotros" onClick={closeMenu}>Nosotros</a>
-        <a className="site-desktop-nav-link" href="/proceso" onClick={closeMenu}>Proceso</a>
-        <a className="site-desktop-nav-link" href="/akira" onClick={closeMenu}>Akira <Sparkles size={12} /></a>
-        <a className="site-desktop-nav-link" href="/contacto" onClick={closeMenu}>Contacto</a>
-        <a className="site-academy-link site-desktop-nav-link" href="/academy" onClick={closeMenu}>Academy</a>
+        {[{label:"Proyectos",href:"/portafolio"},{label:"Nosotros",href:"/nosotros"},{label:"Recursos",href:"/articulos"},{label:"Akira",href:"/akira"},{label:"Academy",href:"/academy"}].map(link => <a className={`site-desktop-nav-link ${current(link.href) ? "is-current" : ""}`} href={link.href} key={link.href} aria-current={current(link.href) ? "page" : undefined} onClick={closeMenu}>{link.label}{link.href === "/akira" && <Sparkles size={12}/>}</a>)}
 
         <div className="site-mobile-menu-panel">
           <section className="site-mobile-menu-section">
@@ -147,6 +157,8 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
             {mobileSections.main && (
               <div className="site-mobile-section-content">
                 <a href="/" onClick={closeMenu}>Inicio</a>
+                <a href="/portafolio" onClick={closeMenu}>Proyectos</a>
+                <a href="/servicios" onClick={closeMenu}>Todas las soluciones</a>
                 <a href="/nosotros" onClick={closeMenu}>Nosotros</a>
                 <a href="/proceso" onClick={closeMenu}>Proceso</a>
                 <a href="/articulos" onClick={closeMenu}>Artículos</a>
@@ -213,6 +225,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
           onClick={() => setMenuOpen((current) => !current)}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
+          aria-controls="site-primary-navigation"
         >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
