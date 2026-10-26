@@ -332,6 +332,13 @@ No ejecutar `down -v`, no editar `.env.production` y no ejecutar estos comandos 
 - **Integración conservada en GCP:** consola de `giovsoft-backend` confirma servicio en buen estado, escalamiento automático, mínimo 0 y máximo 5. `https://api.giovsoft.com/api/health` responde 200 con TLS válido. No se modificaron el servicio, claves, webhooks ni configuración Stripe del colegio.
 - **Límite:** estas comprobaciones confirman disponibilidad y publicación del cambio. No certifican un pago completo ni la entrega reciente de un webhook Stripe del colegio; eso requiere evidencia de una operación legítima o una prueba específica autorizada en modo de prueba.
 
+## 2026-10-26 — Recuperación del acceso administrativo pendiente
+
+- Giovanni indicó que no recuerda la contraseña. No se restableció ninguna credencial ni se leyó el archivo privado del VPS.
+- La instalación generó una contraseña inicial aleatoria en `deploy/vps/.env.production`, variable `ADMIN_PASSWORD`. Se indica consultarla personalmente con `nano /opt/giovsoft/deploy/vps/.env.production`, sin compartir el contenido ni capturas del archivo.
+- Esa contraseña corresponde a la creación inicial del usuario; si posteriormente cambió desde el panel, la copia de entorno puede dejar de coincidir con el hash persistido. No regenerar `.env.production`, no cambiar secretos de base de datos y no borrar volúmenes para recuperar acceso.
+- La prueba autenticada del bloqueo de pagos queda pendiente del inicio de sesión de Giovanni. No se desactiva 2FA para completar la verificación.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
