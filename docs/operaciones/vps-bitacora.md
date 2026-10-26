@@ -530,6 +530,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Comprobaciones públicas ejecutadas:** raíces `.com` y `.com.mx` 200/TLS válido aún en Google; raíz con A y AAAA Google. www `.com` sin resolución en consulta local; www `.com.mx` CNAME a raíz y fallo de handshake TLS desde este equipo. Incidencias del origen registradas para preparar alias del corte. Sin cambios DNS.
 - **Siguiente paso del usuario:** corregir valor storefront privadamente, ejecutar helper e integridad, revisar login real por túnel sin escrituras ni compras. No se considera listo el cambio de DNS; mantenimiento/copia final, publicación TLS y respaldo siguen pendientes.
 
+## 2026-10-26 17:33 — Comprobación detenida por campos de correo incompletos
+
+- **Captura de Giovanni:** checkout actualizado a `c1e8858`. Compose falla durante interpolación por campos sin valor: `MAIL_FROM`, `MAIL_TO`, `SMTP_HOST`, `SMTP_USER`, `SUPPORT_MAIL_FROM`, `SUPPORT_SMTP_HOST`, `SUPPORT_SMTP_PASS` y `SUPPORT_SMTP_USER`.
+- **Límite:** el bloque con `set -eu` se detuvo antes de recrear school y ejecutar el helper. No hay nuevos resultados de panel, storefront o SMTP; no se atribuye este error a una contraseña incorrecta.
+- **Corrección preparada:** proporcionar los siete ajustes no secretos ya observados en la revisión activa de GCP. Se actualizaron también los valores por defecto de la plantilla, sin reemplazar el archivo privado existente del VPS. `SUPPORT_SMTP_PASS` debe completarse personalmente con el contenido de `ibero-support-smtp-pass`, referencia `latest`; no se consultó ni mostró el valor.
+- **Siguiente paso:** editar únicamente campos faltantes en `/opt/colegio/production.env`, conservar el resto, validar Compose con `config --quiet` y repetir recreación/comprobaciones. No copiar de nuevo la plantilla sobre el archivo privado ni compartir su contenido. DNS y producción en GCP intactos.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

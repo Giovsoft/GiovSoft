@@ -364,3 +364,17 @@ Revisión personal por túnel 8083: abrir inicio y páginas, imágenes, `/admin`
 **Estado público observado desde el equipo local:** dominios raíz `.com` y `.com.mx` responden HTTPS 200 con validación TLS correcta y direcciones Google. Ambos conservan cuatro A (`216.239.32.21`, `.34.21`, `.36.21`, `.38.21`) y cuatro AAAA (`2001:4860:4802:32::15`, `:34::15`, `:36::15`, `:38::15`). `www.colegioiberoamericano.com` no devuelve A/AAAA/CNAME en esta consulta; `www.colegioiberoamericano.com.mx` es CNAME a la raíz `.com.mx`, pero curl falla en conexión TLS desde este equipo (exit 35). Son observaciones del origen actual, no fallos certificados del VPS. Delegación `.com`: `nsb1` a `nsb4.squarespacedns.com`; consulta NS de `.com.mx` sin respuesta, pendiente confirmar autoridad en su panel antes de editar registros. No se cambió ninguno.
 
 **Revisión Cloud Run activa confirmada en lectura:** `colegio-iberoamericano-wh-09151933` recibe 100 %; imagen `iberoamericano@sha256:3366348b3bfce011cfb4d3e2f82028b384e9edd18a0bec8dc7d97ddaf2a1f96b`. La consola no muestra información de fuente/compilación para vincularla al commit local; igualdad exacta del código aún no demostrada. No cambiar tráfico hasta resolver comprobaciones, configuración pública TLS/Caddy, persistencia escribible, respaldo y copia final durante mantenimiento.
+
+**Intento de las 17:33:** Compose se detuvo por ocho campos de correo sin valor antes de recrear school; helper no ejecutado. Completar los siete ajustes públicos en el archivo privado existente, sin duplicar claves:
+
+```dotenv
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=no-reply@colegioiberoamericano.com.mx
+MAIL_FROM='Colegio Iberoamericano <no-reply@colegioiberoamericano.com.mx>'
+MAIL_TO=admin@colegioiberoamericano.com.mx
+SUPPORT_SMTP_HOST=smtp.gmail.com
+SUPPORT_SMTP_USER=soporte@giovsoft.com
+SUPPORT_MAIL_FROM='GiovSoft Soporte <no-reply@giovsoft.com>'
+```
+
+Completar también `SUPPORT_SMTP_PASS` con el valor privado de `ibero-support-smtp-pass:latest`. Mantener las contraseñas/admin/storefront ya introducidas. La plantilla del repositorio ahora incluye estos valores públicos, pero no se debe reinstalar sobre el archivo existente. Repetir validación, recreación y helper después de guardar. No se considera verificada ninguna credencial por superar solamente la interpolación de Compose.
