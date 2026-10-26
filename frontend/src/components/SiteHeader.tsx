@@ -9,6 +9,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { usePublicMotion } from "../hooks/usePublicMotion";
 import { useLocation } from "react-router-dom";
 import ModuleNavigation from "./ModuleNavigation";
 import { useEffect, useRef, useState } from "react";
@@ -45,6 +46,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const { pathname } = useLocation();
+  usePublicMotion(pathname);
   const current = (href: string) => pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
   const [mobileSections, setMobileSections] = useState({
     main: true,
