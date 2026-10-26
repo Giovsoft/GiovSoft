@@ -9,6 +9,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import ModuleNavigation from "./ModuleNavigation";
 import { useEffect, useRef, useState } from "react";
 import { serviceCategories, serviceItems } from "../data/services";
 
@@ -80,6 +81,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
   }
 
   return (
+    <>
     <header ref={headerRef} className={`site-header ${menuOpen ? "is-menu-open" : ""}`}>
       <a className="site-brand" href="/" aria-label="GiovSoft inicio" onClick={closeMenu}>
         <img
@@ -226,5 +228,7 @@ export default function SiteHeader({ isDark, toggleTheme }: SiteHeaderProps) {
         </a>
       </div>
     </header>
+    <ModuleNavigation />
+    </>
   );
 }

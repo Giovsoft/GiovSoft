@@ -1,6 +1,6 @@
+import ModuleSignal from "../components/ModuleSignal";
 import {
   ArrowRight,
-  Blocks,
   HandCoins,
   HeartHandshake,
   Lightbulb,
@@ -11,7 +11,6 @@ import {
   Sparkles,
   Target,
   TrendingUp,
-  UsersRound,
 } from "lucide-react";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
@@ -53,12 +52,7 @@ export default function AboutPage() {
             </p>
             <div className="about-origin"><MapPin size={17} /><span>Guadalajara, Jalisco · México</span></div>
           </div>
-          <div className="about-hero-visual" aria-hidden="true">
-            <div className="about-year"><small>Desde</small><strong>2016</strong></div>
-            <div className="about-visual-card"><Blocks size={25} /><span>Soluciones que crecen contigo</span></div>
-            <div className="about-visual-card"><UsersRound size={25} /><span>Negocios en el centro</span></div>
-            <div className="about-visual-line" />
-          </div>
+          <ModuleSignal label="GIOVSOFT / DESDE 2016" core="Personas" nodes={["Criterio", "Tecnología", "Posibilidades"]} />
         </section>
 
         <section className="about-purpose">

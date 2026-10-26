@@ -1,3 +1,4 @@
+import ModuleSignal from "../components/ModuleSignal";
 import {
   Activity,
   AppWindow,
@@ -305,7 +306,6 @@ export default function ServicePage() {
     return <WebsiteServicePage />;
   }
 
-  const Icon = service.icon;
   const isWebsiteService = service.slug === "sitios-web";
   const isEcommerceService = service.slug === "ecommerce";
   const isMailService = service.slug === "correos-corporativos";
@@ -345,10 +345,7 @@ export default function ServicePage() {
             </div>
           </div>
 
-          <div className="service-detail-card" aria-hidden="true">
-            <Icon size={42} />
-            <strong>{service.outcome}</strong>
-          </div>
+          <ModuleSignal label="CAPACIDAD GIOVSOFT" core={service.category === "inteligencia" ? "Inteligencia" : "Tu solución"} nodes={["Contexto", "Implementación", "Evolución"]} />
         </section>
 
         {service.category === "inteligencia" && (

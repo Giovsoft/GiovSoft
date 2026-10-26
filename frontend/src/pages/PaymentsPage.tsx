@@ -74,7 +74,7 @@ export default function PaymentsPage() {
           </div>
 
           <div className="payments-console" aria-label="Vista conceptual del panel de pagos">
-            <header><span><i /> Payments</span><small>OPERACIÓN EN LÍNEA</small></header>
+            <header><span><i /> Payments</span><small>VISTA ILUSTRATIVA</small></header>
             <div className="payments-balance"><small>Pagos recibidos</small><strong>$24,850.00</strong><span>MXN</span><b><BarChart3 size={14} /> +18.4% este mes</b></div>
             <div className="payments-chart" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
             <div className="payments-activity">
