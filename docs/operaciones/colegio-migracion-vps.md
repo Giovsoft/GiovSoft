@@ -262,3 +262,63 @@ docker compose --env-file /opt/colegio/preview.env \
 ```
 
 Antes de cambiar DNS quedan pendientes: comparar revisión GCP, comprobar visualmente datos reales y cuentas mediante acceso privado, preparar configuración de producción y persistencia escribible separada, correo y conexión Commerce, mantenimiento y copia final sin escrituras. La instancia de lectura no debe conectarse directamente a Caddy público.
+
+### Vista previa verificada; preparación de ajustes de producción
+
+Giovanni confirmó que la huella SSH coincide con la consola de Hostinger, que abrió la vista previa por túnel y que páginas e imágenes se ven bien. No equivale a prueba de login, correo, catálogo o pagos.
+
+Se prepararon `colegio.production.env.example`, `compose.colegio-production-check.yaml` y `colegio-production-check.conf`. La nueva instancia de comprobación conserva Commerce y URL canónica, recibe ajustes privados reales, y usa otra copia local de los datos. Continúa en lectura y solo publica `127.0.0.1:8083`; permite consultar catálogo, pero bloquea escrituras, envío de formularios, recuperación y checkout, además de consultas de pedidos que podrían causar conciliación aguas arriba. No se registran consultas en access logs. No necesita claves Stripe, servicio GCS ni credenciales Google.
+
+Preparar en el **VPS**, sin sobrescribir carpetas o configuración existentes:
+
+```bash
+(
+  set -eu
+  cd /opt/giovsoft
+  git pull --ff-only origin codex/akira-presentacion
+  test ! -e /opt/colegio/production.env
+  test ! -e /opt/colegio/produccion-preparacion
+  install -m 600 deploy/vps/colegio.production.env.example /opt/colegio/production.env
+  mkdir -m 700 /opt/colegio/produccion-preparacion
+  cp -a /opt/colegio/restauracion-inicial/data /opt/colegio/produccion-preparacion/
+  cp -a /opt/colegio/restauracion-inicial/uploads /opt/colegio/produccion-preparacion/
+  cp -p /opt/colegio/restauracion-inicial/SHA256SUMS /opt/colegio/produccion-preparacion/
+  cd /opt/colegio/produccion-preparacion
+  sha256sum -c SHA256SUMS > /dev/null
+  printf 'Copia de preparación íntegra; configuración privada creada.\n'
+)
+```
+
+Después abrir personalmente `nano /opt/colegio/production.env` en el VPS. Completar todos los campos vacíos con los valores vigentes del servicio **colegio-iberoamericano** en GCP, no con valores del backend GiovSoft ni del sandbox:
+
+- `ADMIN_PASSWORD`: conservar la contraseña actual del panel del colegio.
+- `GIOVCOMMERCE_STOREFRONT_SECRET`: secreto actual de conexión con Commerce; no cambiarlo solo en un extremo.
+- `SMTP_*`, `MAIL_FROM`, `MAIL_TO`: correo institucional actual, incluidos puerto y modo seguro reales.
+- `SUPPORT_SMTP_*`, `SUPPORT_MAIL_FROM`: recuperación de cuentas actual, separada del correo institucional.
+
+Consultar variables y referencias a secretos en la configuración de Cloud Run; si son referencias, el valor se obtiene de la versión referenciada en Secret Manager mediante la sesión autorizada de Giovanni. No pegar valores en el chat, capturas o comandos que queden en historial. Encerrar valores sensibles con comillas simples en el archivo para preservar `$` literales; si un valor contiene comillas simples, resolver su escape antes de arrancar. Archivo 0600 fuera de Git. Nunca ejecutar ni compartir `cat production.env`, `gh auth token`, la salida completa de `docker compose config` o `docker inspect`.
+
+Cuando estén completos, validar sin imprimir valores y arrancar la instancia privada:
+
+```bash
+(
+  set -eu
+  cd /opt/giovsoft
+  docker compose --env-file /opt/colegio/production.env \
+    -f deploy/vps/compose.colegio-production-check.yaml config --quiet
+  docker compose --env-file /opt/colegio/production.env \
+    -f deploy/vps/compose.colegio-production-check.yaml up -d --wait
+  curl --fail --silent --show-error http://127.0.0.1:8083/api/health
+  printf '\n'
+  curl --silent --output /dev/null --write-out 'Catálogo HTTP %{http_code}\n' \
+    http://127.0.0.1:8083/api/store/catalog
+  curl --silent --output /dev/null --write-out 'Checkout bloqueado HTTP %{http_code}\n' \
+    -X POST http://127.0.0.1:8083/api/store/checkout
+)
+```
+
+Esperado: servicios healthy, health correcto, catálogo 200 y checkout 405. Catálogo 200 no certifica storefront secret, pedidos, SMTP o pagos. No enviar correos ni crear órdenes desde la copia privada. Configuración Compose exige los campos privados, pero esa validación solo comprueba presencia, no validez de las credenciales.
+
+Para revisar en navegador, túnel independiente desde la Mac: `ssh -N -L 8083:127.0.0.1:8083 root@5.183.11.142`, abrir `http://127.0.0.1:8083/`. No conectar este proyecto al Caddy público. Persistencia escribible, certificados/dominos, respaldo periódico, ventana de mantenimiento y copia final deben completarse antes del corte. La carpeta `produccion-preparacion` es una copia inicial para comprobaciones, no el estado final de producción.
+
+Verificación del asistente: Compose válido, dos servicios healthy con datos/ajustes ficticios; inicio/health/content/imagen 200; checkout, recuperación y edición 405; pedidos 503; login inexistente 401. Se comprobaron montajes de solo lectura, puerto de aplicación sin publicación directa, URL canónica y destino Commerce correctos, ausencia de variables Stripe y GCS desactivado. No se invocó el catálogo real ni SMTP ni Stripe durante las pruebas locales. Proyecto local temporal retirado. Configuración remota real pendiente de Giovanni.

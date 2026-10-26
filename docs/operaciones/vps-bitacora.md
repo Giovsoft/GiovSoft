@@ -506,6 +506,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Acción requerida:** Giovanni debe ejecutar `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` desde la consola web de Hostinger y comparar exactamente la huella. Solo si coincide, respaldar el archivo `known_hosts` de la Mac, retirar exclusivamente la entrada antigua de esa IP con `ssh-keygen -R 5.183.11.142` y reconectar comprobando de nuevo la huella antes de aceptar.
 - **Protección:** no desactivar StrictHostKeyChecking, no usar un archivo known_hosts vacío y no confiar en ssh-keyscan como verificación independiente. El asistente no modificó la confianza SSH local ni se conectó al VPS. Producción y DNS sin cambios.
 
+## 2026-10-26 — Vista previa del colegio revisada; preparación privada de producción
+
+- **Confirmado por Giovanni:** huella SSH comparada y coincidente; túnel abierto, páginas e imágenes del VPS revisadas visualmente y correctas. Se cierra el bloqueo del túnel; login/catálogo/correo/pagos aún sin validar.
+- **Preparación nueva:** plantilla privada y proyecto `colegio-vps-production-check`, independiente de la vista previa y del sitio GiovSoft. Conserva URL pública y Commerce actuales, añade correo institucional/soporte y secreto storefront desde archivo privado fuera de Git. No usa claves Stripe ni credenciales GCS.
+- **Protecciones previas al corte:** copia independiente en `/opt/colegio/produccion-preparacion`, montajes solo lectura, acceso únicamente por loopback 8083 y túnel; bloqueo de mutaciones, checkout y consultas de pedidos susceptibles de conciliación. Catálogo permitido en lectura. Caddy y DNS sin cambios.
+- **Pruebas locales:** dos contenedores healthy y Compose válido con datos ficticios; lecturas básicas 200, escrituras/checkout/recuperación 405, pedidos 503, login inexistente 401; restricciones de montajes/puertos y configuración verificadas. No se usaron secretos reales ni se hicieron peticiones al catálogo real, SMTP o Stripe. Proyecto de prueba local retirado después.
+- **Pendiente del usuario:** preparar copia y archivo privado, introducir directamente los ajustes vigentes de GCP, validar e iniciar proyecto de comprobación. Guía reproducible actualizada. No se afirma que credenciales, correo o integración de pagos ya estén verificados.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
