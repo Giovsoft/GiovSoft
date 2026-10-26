@@ -174,6 +174,18 @@ curl -I https://www.giovsoft.com
 - **Límite:** el estado `Up` no confirma accesibilidad externa ni certificado emitido. No hay todavía evidencia de cambios DNS.
 - **Siguiente paso:** ajustar únicamente los registros web en el DNS autoritativo y verificar certificado, redirecciones y respuestas públicas.
 
+## 2026-10-26 14:00 — Verificación externa después de guardar DNS
+
+- **Responsable:** Giovanni confirmó haber guardado DNS; el asistente realizó consultas y peticiones externas de solo lectura desde el equipo local.
+- **A raíz confirmado:** el servidor consultado como autoritativo y los resolvers `1.1.1.1` y `8.8.8.8` respondieron `5.183.11.142` (TTL observado 1800).
+- **AAAA raíz:** sin respuestas en las consultas realizadas al autoritativo y a `1.1.1.1`.
+- **www pendiente:** las consultas a los cuatro nameservers Squarespace y a `8.8.8.8` todavía devolvieron `CNAME ghs.googlehosted.com.`. Volver a comprobar después de corregir o propagar el cambio; no se puede confirmar aún `www → giovsoft.com`.
+- **HTTP directo al VPS:** `curl --noproxy '*' --resolve giovsoft.com:80:5.183.11.142 -I http://giovsoft.com/akira` respondió `308 Permanent Redirect`, `Server: Caddy`, destino `https://giovsoft.com/akira`. Confirma acceso externo por TCP 80 al VPS.
+- **HTTPS directo al VPS:** peticiones con `--resolve` y validación TLS habilitada tanto para `giovsoft.com` como para `www.giovsoft.com` alcanzaron `5.183.11.142`, pero fallaron con `tlsv1 alert internal error` (curl 35). No se confirmó certificado válido ni HTTP 200 público sobre TLS.
+- **Caché/ruta anterior:** las peticiones sin resolución forzada desde este equipo todavía recibieron `Server: Google Frontend`, `/akira` en 404 y HTML del sitio anterior en `/api/health`; no cuentan como prueba del VPS. La causa de la selección de la ruta anterior no se ha aislado.
+- **Estado:** DNS raíz actualizado; migración HTTPS incompleta. Causa del fallo TLS pendiente de logs de Caddy. No se reinició Caddy ni se eliminaron certificados o volúmenes.
+- **Siguiente paso:** revisar CNAME www en el panel y recibir `docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml logs --tail=100 edge` para identificar errores ACME antes de decidir una corrección.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
