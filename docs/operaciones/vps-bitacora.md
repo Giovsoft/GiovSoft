@@ -552,6 +552,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Siguiente diagnóstico preparado:** comprobar dentro de school, solo con booleanos, host y usuario esperados, presencia de contraseña, si se pegó por error el nombre del secreto y si hay espacios externos/saltos de línea. No imprimir contenido, longitud o hashes de la contraseña. No modificar ni regenerar claves sin revisar estos resultados.
 - **Estado:** recuperación pendiente; sin envío de correo, órdenes, pagos, cambio DNS o alteración del secreto de GCP. Fuente de interpretación: documentación oficial de errores SMTP de Gmail.
 
+## 2026-10-26 17:38 — Entorno del correo de recuperación revisado sin mostrar secretos
+
+- **Captura de Giovanni:** `hostCorrecto`, `usuarioCorrecto` y `clavePresente` true; `claveEsNombreDelSecreto`, `claveConEspaciosExternos` y `claveConSaltos` false. Se descartan esos errores de configuración concretos; no demuestra que el valor sea el correcto ni que Google lo acepte.
+- **Siguiente prueba preparada:** comparar en memoria el valor `latest` de `ibero-support-smtp-pass` leído en Cloud Shell con `SUPPORT_SMTP_PASS` del contenedor VPS a través de SSH. Solo devolver un booleano, sin imprimir, guardar o modificar la credencial; no se publica hash. Entrada vacía se rechaza para no confundir fallo de lectura con valor diferente.
+- **Prueba local del comparador con cadenas ficticias:** igualdad true, desigualdad false y entrada vacía exit 2, sin exposición de los valores. Comparación real pendiente de Giovanni.
+- **Estado:** autenticación recuperación aún rechazada 535. No regenerar ni revocar claves por este resultado; no se enviaron correos y DNS/GCP permanecen sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

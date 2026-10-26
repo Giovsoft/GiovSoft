@@ -420,3 +420,19 @@ JS
 ```
 
 Primeros cinco campos deben ser true; últimos tres false. Esta revisión no imprime contraseña ni datos de cuentas. Un resultado correcto no prueba que Google acepte la credencial. Si todo coincide, comparar privadamente con la versión referenciada y revisar estado de la contraseña de aplicación/política del correo, sin alterar producción ni desactivar TLS. Referencias oficiales: [errores SMTP Gmail](https://knowledge.workspace.google.com/admin/support/troubleshooting/gmail-smtp-errors-and-codes), [contraseñas de aplicaciones](https://support.google.com/accounts/answer/185833).
+
+**Captura de las 17:38:** el bloque abreviado del chat confirma host/usuario/clave presente true y nombre de secreto/espacios externos/saltos false. Puerto y modo no estaban incluidos en ese bloque abreviado; no darlos por comprobados mediante esa captura.
+
+Comparación opcional siguiente, preparada para ejecutar personalmente en **Cloud Shell del proyecto GiovSoft**, no en el VPS. Lee el secreto y lo transporta directamente por SSH al contenedor ya autorizado; no pasa por el chat, argumentos del proceso, archivos intermedios ni logs. La salida pública es solo el resultado booleano. Mantener desactivado shell tracing (`set -x`). Usar la identidad SSH del VPS previamente verificada; no omitir validaciones si aparece una advertencia de cambio de clave.
+
+```bash
+(
+  set -o pipefail
+  gcloud secrets versions access latest \
+    --secret=ibero-support-smtp-pass \
+    --project=healthy-genre-497401-j7 |
+  ssh root@5.183.11.142 "cd /opt/giovsoft && docker compose --env-file /opt/colegio/production.env -f deploy/vps/compose.colegio-production-check.yaml exec -T school node -e 'const s=require(\"node:fs\").readFileSync(0,\"utf8\"); if(!s){console.log(\"Comparación no realizada: entrada vacía\");process.exit(2)} console.log(JSON.stringify({coincideExactamente:s===process.env.SUPPORT_SMTP_PASS}));'"
+)
+```
+
+Si true, la clave cargada coincide con latest pero Google la sigue rechazando desde el VPS: revisar validez de contraseña de aplicación y política de la cuenta, sin afirmar que el servicio antiguo funciona ni revocar credenciales. Si false, revisar privadamente copia, versión y recreación del contenedor antes de modificar el secreto original. Prueba del comparador realizada solo con cadenas ficticias; ejecución real pendiente.
