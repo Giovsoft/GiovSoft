@@ -221,6 +221,17 @@ curl -I https://www.giovsoft.com
 - **Prueba externa posterior:** HTTPS directo contra `5.183.11.142` continúa fallando con curl 35 para ambos nombres. Una consulta a `1.1.1.1` todavía devuelve www vía Google; la resolución local del VPS no garantiza propagación global ni la caché que usará la autoridad certificadora.
 - **Siguiente acción preparada para Giovanni:** un único `docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml restart edge` para iniciar un nuevo ciclo tras la corrección DNS, seguido de `logs --since=2m --tail=100 edge`. Ejecución y certificado aún pendientes de confirmar. No borrar volúmenes ni repetir reinicios si la validación sigue fallando; revisar primero el nuevo error y el DNS.
 
+## 2026-10-26 14:12 — Certificados emitidos y HTTPS del VPS verificado
+
+- **Confirmado por logs enviados por Giovanni:** después del reinicio único, Let's Encrypt validó ambos nombres mediante TLS-ALPN-01 y Caddy registró `certificate obtained successfully` para `giovsoft.com` y `www.giovsoft.com`.
+- **Verificación externa independiente:** peticiones curl con `--noproxy '*' --resolve` para conectar directamente a `5.183.11.142`, conservando hostname/SNI y la verificación normal del certificado (sin `-k`). Las tres peticiones HTTPS terminaron con exit 0 y `ssl_verify_result=0`.
+- **Akira:** `https://giovsoft.com/akira` devolvió HTTP/2 200, HTML, `via: 1.1 Caddy`.
+- **API:** `https://giovsoft.com/api/health` devolvió HTTP/2 200 y `{"ok":true,"service":"giovsoft-api"}`.
+- **www:** `https://www.giovsoft.com/akira` devolvió 301 a `https://giovsoft.com/akira`, con certificado válido.
+- **HTTP:** `http://giovsoft.com/akira` contra el VPS devolvió 308 al mismo path por HTTPS.
+- **DNS:** `8.8.8.8` confirma A raíz `5.183.11.142`. La consulta a `1.1.1.1` aún devuelve www vía Google; queda pendiente confirmar convergencia de cachés públicas. El éxito del origen no se presenta como propagación global completada.
+- **Estado:** HTTPS y endpoint de salud del VPS funcionan. No se verificaron todavía SMTP, acceso administrativo con doble factor, envío de formularios ni restauración de copias. Mantener GCP hasta cerrar la verificación funcional y la propagación.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
