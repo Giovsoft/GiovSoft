@@ -483,6 +483,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Comprobación prevista:** `git ls-remote https://github.com/Giovsoft/Iberoamericano.git HEAD`, que prueba acceso de lectura sin clonar ni modificar el repositorio. Autorización y clonación todavía pendientes de confirmación. No compartir códigos, contraseñas ni tokens en el chat.
 - **Estado:** datos restaurados conservados; construcción de imagen y publicación pendientes. Sin cambios DNS o en integración de pagos.
 
+## 2026-10-26 17:16 — Autorización GitHub CLI completada en VPS
+
+- **Evidencia de Giovanni:** captura con «Authentication complete», configuración del protocolo Git HTTPS y sesión GitHub iniciada. La apertura automática del navegador falló por falta de navegador en el VPS, pero la autorización web manual terminó correctamente.
+- **Privacidad:** no se transcriben ni almacenan el código temporal de autorización o credenciales mostradas por el flujo. La captura no se incorpora al repositorio.
+- **Pendiente:** comprobar acceso específico a `Giovsoft/Iberoamericano`, clonar y construir la imagen `colegio-vps:9c867b6`. Una sesión autenticada no confirma por sí sola permiso de lectura sobre ese repositorio privado.
+- **Estado:** restauración previa intacta; no se arrancó el contenedor del colegio ni se cambió DNS, GCP o Stripe.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
