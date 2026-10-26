@@ -490,6 +490,15 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Pendiente:** comprobar acceso específico a `Giovsoft/Iberoamericano`, clonar y construir la imagen `colegio-vps:9c867b6`. Una sesión autenticada no confirma por sí sola permiso de lectura sobre ese repositorio privado.
 - **Estado:** restauración previa intacta; no se arrancó el contenedor del colegio ni se cambió DNS, GCP o Stripe.
 
+## 2026-10-26 — Imagen del colegio construida; configuración privada de comprobación preparada
+
+- **Confirmación de Giovanni:** construcción de imagen terminada en VPS. Imagen esperada `colegio-vps:9c867b6`; arranque del contenedor todavía no confirmado.
+- **Preparado y probado por el asistente:** `compose.colegio-preview.yaml` y proxy `colegio-preview.conf`. Proyecto separado, acceso solo `127.0.0.1:8082`, datos restaurados de solo lectura, colegio en red interna sin salida y contraseña administrativa temporal generada en archivo privado fuera de Git. No requiere ni utiliza claves Stripe, credenciales GCP o SMTP.
+- **Comportamiento de comprobación:** navegación, contenido e imágenes y login de cuentas existentes; escrituras y checkout bloqueados. Commerce/catálogo/historial desconectados explícitamente, por lo que aún no se certifican. No conectar esta instancia a DNS/Caddy público.
+- **Verificación local con datos ficticios:** Compose válido, ambos servicios healthy, GET inicio/health/content/imagen 200; POST checkout/registro y PUT contenido 405; catálogo 503; login inexistente/admin sin contraseña 401. Montajes de solo lectura, red interna exclusiva y cuentas sin cambios comprobados. No se utilizaron datos reales ni se realizaron pagos.
+- **Comandos para Giovanni:** generación privada de `/opt/colegio/preview.env`, inicio con `up -d --wait`, pruebas curl y túnel SSH desde la Mac incluidos en [la guía](colegio-migracion-vps.md). Ejecución remota y revisión visual pendientes.
+- **Producción:** DNS, GCP, correo, Commerce y Stripe sin cambios. Copia final y corte siguen pendientes.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

@@ -191,3 +191,74 @@ Próximas órdenes en el **VPS** para construir el candidato desde el código ya
 No añadir tokens a la URL de Git ni al chat; utilizar el acceso GitHub del servidor. Si `source` ya existe, el bloque se detendrá para revisarlo sin sobrescribirlo. El contexto Docker es solo `source`, no `/opt/colegio`: los datos restaurados y respaldos no se incorporan a la imagen. El Dockerfile usa su contenido inicial del repositorio; la instancia futura montará los datos privados restaurados por separado. El candidato está fijado al commit conocido, pero la comparación con la revisión desplegada de GCP sigue pendiente antes de cambiar tráfico.
 
 Tras recibir resultado de construcción: preparar entorno privado (administración, correo y storefront), definir persistencia y servicio de comprobación restringido. No iniciar el colegio con la contraseña predeterminada del código ni con credenciales de Stripe test en producción. Durante las comprobaciones, evitar escrituras reales de compras, correo o GCS.
+
+### Imagen construida; instancia privada de lectura
+
+Giovanni informó que la imagen terminó de construirse. Imagen esperada en VPS: `colegio-vps:9c867b6`; arranque remoto aún pendiente. La primera instancia usa datos restaurados reales pero montados en solo lectura; no es el sandbox ficticio de Stripe ni una instancia de producción lista para cambiar DNS.
+
+Configuración preparada en `deploy/vps/compose.colegio-preview.yaml`:
+
+- Proyecto Docker separado `colegio-vps-preview`. No reemplaza el Compose de GiovSoft ni su proxy Caddy.
+- Colegio conectado únicamente a red interna, sin salida a GCP, SMTP, Commerce o Stripe. GCS y SMTP desactivados explícitamente; destino Commerce de loopback no operativo.
+- Proxy de acceso en `127.0.0.1:8082`. No publica la aplicación en la IP pública del VPS; acceso desde la computadora mediante túnel SSH.
+- Proxy bloquea métodos de escritura salvo POST de login de cuentas existentes, que el código no persiste. Contenido e imágenes disponibles; catálogo/historial/pedidos requieren Commerce y devuelven 503. Registro, recuperación, edición, formularios y checkout bloqueados. No interpretar esas limitaciones como un fallo de migración.
+- Contraseña administrativa temporal nueva en `/opt/colegio/preview.env`, permisos 0600, fuera del repositorio y distinta de producción. No copiar claves Stripe ni SMTP para esta prueba.
+
+En el **VPS**, actualizar archivos y generar configuración privada sin imprimir la contraseña. El bloque se niega a reemplazar un `preview.env` existente:
+
+```bash
+cd /opt/giovsoft
+git pull --ff-only origin codex/akira-presentacion
+python3 - <<'PY'
+import os, secrets
+path = '/opt/colegio/preview.env'
+fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+with os.fdopen(fd, 'w') as output:
+    output.write('COLEGIO_PREVIEW_ADMIN_PASSWORD=' + secrets.token_hex(32) + '\n')
+    output.write('COLEGIO_PREVIEW_PORT=8082\n')
+print('Configuración privada creada; contraseña no mostrada.')
+PY
+```
+
+Después de confirmar creación correcta, iniciar:
+
+```bash
+cd /opt/giovsoft
+docker image inspect colegio-vps:9c867b6 --format '{{.Id}}'
+docker compose --env-file /opt/colegio/preview.env \
+  -f deploy/vps/compose.colegio-preview.yaml up -d --wait
+```
+
+Si el puerto está ocupado, no detener otro servicio; seleccionar otro puerto en el archivo privado y reflejarlo en las verificaciones/túnel. Si aparece error, no continuar hasta revisarlo. `docker compose config` sin `--quiet` o `docker inspect` sin formato pueden revelar secretos; no compartir esas salidas.
+
+Comprobar desde el **VPS**:
+
+```bash
+curl --fail --silent --show-error http://127.0.0.1:8082/api/health
+curl --silent --output /dev/null --write-out '%{http_code}\n' \
+  http://127.0.0.1:8082/
+curl --silent --output /dev/null --write-out '%{http_code}\n' \
+  -X POST http://127.0.0.1:8082/api/store/checkout
+```
+
+Esperado: JSON health correcto, inicio 200 y checkout bloqueado 405. No ejecutar checkouts de producción.
+
+Para abrir la vista, ejecutar en **Terminal de la Mac**, manteniéndola abierta:
+
+```bash
+ssh -N -L 8082:127.0.0.1:8082 root@5.183.11.142
+```
+
+Visitar `http://127.0.0.1:8082/`. Si se necesita inspección del panel, Giovanni puede consultar la contraseña temporal personalmente en `nano /opt/colegio/preview.env` en el VPS; no compartirla. No probar recuperación de cuentas ni usar tarjetas. Los datos restaurados no se incluyen en la imagen ni se publican como archivos estáticos de cuentas.
+
+Verificación local ejecutada con imagen del mismo commit y fixture ficticio: ambos servicios healthy, inicio/content/health e imagen 200, checkout/registro/edición 405, catálogo 503, login inexistente y admin sin contraseña 401. Se comprobó red interna exclusiva del colegio, montajes de solo lectura y archivo de cuentas sin cambios. Proyecto temporal de comprobación retirado después; sandbox existente intacto. No se valida todavía cuenta real, correo o pago completo.
+
+Para detener solo esta instancia, sin borrar datos:
+
+```bash
+cd /opt/giovsoft
+docker compose --env-file /opt/colegio/preview.env \
+  -f deploy/vps/compose.colegio-preview.yaml down
+```
+
+Antes de cambiar DNS quedan pendientes: comparar revisión GCP, comprobar visualmente datos reales y cuentas mediante acceso privado, preparar configuración de producción y persistencia escribible separada, correo y conexión Commerce, mantenimiento y copia final sin escrituras. La instancia de lectura no debe conectarse directamente a Caddy público.
