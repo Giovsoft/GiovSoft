@@ -428,6 +428,17 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Estado:** infraestructura local y catálogo listos. **Integración Stripe test todavía pendiente** de que Giovanni introduzca personalmente una clave test y configure/identifique una cuenta Connect de prueba del mismo entorno. Luego verificar capacidades mediante lectura Stripe, preparar la firma del listener y ejecutar el flujo completo. No se creó clave, cuenta Stripe, checkout, cargo, devolución ni destino de eventos.
 - **Producción:** no se cambiaron VPS, GCP, DNS, credenciales ni integración existente del colegio. La configuración del administrador del VPS sigue separada del sandbox.
 
+## 2026-10-26 — Inicio de evaluación para migrar Colegio Iberoamericano al VPS
+
+- **Solicitud:** Giovanni pidió incorporar la migración del colegio al VPS. Se mantiene pendiente configurar Stripe test en el sandbox local; esta solicitud no autoriza sustituir claves de producción por claves de prueba.
+- **Revisión ejecutada:** lectura del repositorio del colegio fijado en `9c867b6a8a489bc6140425ee908fa5d8134d628c` y del Compose/Caddyfile actuales de GiovSoft. No se ejecutaron comandos en el VPS ni cambios en GCP o DNS.
+- **Persistencia identificada:** el servidor del colegio guarda contenido editable, cuentas de tienda y archivos subidos en GCS cuando `GCS_BUCKET` está configurado. Sin GCS usa `/app/data` y `/app/public/uploads`; ambos requerirán almacenamiento persistente y respaldo en el VPS. El contenido del repositorio no demuestra que estén incluidos los últimos cambios de producción.
+- **Integraciones identificadas:** catálogo y checkout pasan por GiovCommerce; el hub de pagos y Stripe permanecen separados. Correo institucional y recuperación de contraseña usan configuraciones SMTP distintas. Deben verificarse antes de cortar tráfico.
+- **Propuesta pendiente de decisión:** migrar primero el sitio del colegio, conservando temporalmente Commerce/hub de producción en GCP y sus credenciales actuales. Configurar Stripe de prueba únicamente en el sandbox. No retirar Commerce ni la API por mover el sitio.
+- **Dato pendiente del usuario:** confirmar si se migran contenido, imágenes y cuentas actuales o si se inicia desde el repositorio. La instrucción anterior de empezar limpio se refería a GiovSoft y no se ha extendido al colegio.
+- **Secuencia prevista:** resolver persistencia; preparar despliegue separado con acceso previo; verificar páginas, imágenes, administración, correo y tienda; cambiar DNS con HTTPS; observar y conservar una ruta de reversión antes de retirar el servicio GCP del colegio.
+- **Estado:** evaluación inicial documentada; migración no ejecutada, dominio y producción sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
