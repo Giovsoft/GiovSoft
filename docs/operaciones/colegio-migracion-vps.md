@@ -60,3 +60,44 @@ Este comando lista objetos y tamaños, no descarga ni imprime su contenido. Si h
 - Restauración ensayada y comparación de manifiestos.
 
 No se han modificado VPS, GCP, DNS ni datos de producción durante este inventario.
+
+## Inventario recibido y respaldo inicial
+
+Captura de Cloud Shell enviada por Giovanni el 2026-10-26 a las 16:52:59 (hora de Ciudad de México): 44 objetos, aproximadamente 80.61 MiB; aparecen `content.json`, `store-accounts.json` y `uploads/`. Se confirma existencia, no integridad ni restaurabilidad todavía. La captura no muestra el contenido de las cuentas.
+
+Siguiente bloque preparado para Cloud Shell. Solo lee GCS y escribe una carpeta privada nueva en el HOME de Cloud Shell. No es una copia consistente de corte mientras producción siga aceptando escrituras. La verificación SHA-256 posterior comprueba los archivos locales y el transporte del archivo, no demuestra que el origen no haya cambiado durante la descarga.
+
+```bash
+(
+  set -eu
+  umask 077
+  colegio_backup_dir=$(mktemp -d "$HOME/colegio-respaldo-inicial.XXXXXX")
+  mkdir "$colegio_backup_dir/datos"
+  gcloud storage rsync --recursive \
+    gs://healthy-genre-497401-j7-iberoamericano/colegio-iberoamericano/ \
+    "$colegio_backup_dir/datos"
+  python3 - "$colegio_backup_dir/datos" <<'PY'
+import hashlib, json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+content = json.loads((root / 'content.json').read_text())
+accounts = json.loads((root / 'store-accounts.json').read_text())
+assert isinstance(content, dict), 'Formato de contenido inesperado'
+assert isinstance(accounts, list), 'Formato de cuentas inesperado'
+assert (root / 'uploads').is_dir(), 'Falta uploads'
+files = sorted(p for p in root.rglob('*') if p.is_file())
+with (root.parent / 'SHA256SUMS').open('w') as out:
+    for p in files:
+        out.write(hashlib.sha256(p.read_bytes()).hexdigest() + '  datos/' + p.relative_to(root).as_posix() + '\n')
+print('JSON válidos; archivos:', len(files), '; bytes:', sum(p.stat().st_size for p in files))
+print('Cuentas conservadas:', len(accounts))
+PY
+  (cd "$colegio_backup_dir" && sha256sum -c SHA256SUMS > /dev/null)
+  tar -C "$colegio_backup_dir" -czf "$colegio_backup_dir/colegio-inicial.tar.gz" datos SHA256SUMS
+  (cd "$colegio_backup_dir" && sha256sum colegio-inicial.tar.gz > colegio-inicial.tar.gz.sha256)
+  printf 'Respaldo inicial preparado en: %s\n' "$colegio_backup_dir"
+)
+```
+
+No subir el respaldo al repositorio ni adjuntarlo al chat: contiene datos de cuentas. Compartir únicamente resultado agregado, ruta y errores si los hay, omitiendo datos personales. Conservar la carpeta hasta verificar la transferencia y restauración en el VPS. La copia final debe hacerse a una carpeta nueva después de detener escrituras.
+
+Referencia de sintaxis: [gcloud storage rsync](https://docs.cloud.google.com/sdk/gcloud/reference/storage/rsync). No se usa la opción de eliminar objetos ni se escribe en el bucket.

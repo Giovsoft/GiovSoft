@@ -447,6 +447,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Procedimiento preparado:** [Migración del colegio al VPS](colegio-migracion-vps.md), con persistencia, copia inicial y final, mantenimiento de escrituras, verificación, dependencias de pagos conservadas y reversión que contempla datos nuevos del VPS.
 - **Siguiente acción:** inventariar objetos del prefijo desde Cloud Shell mediante el comando de la guía. Todavía no hay copia descargada, restauración, despliegue ni cambio DNS del colegio. El usuario sigue ejecutando comandos del VPS.
 
+## 2026-10-26 16:52 — Inventario de objetos del colegio recibido
+
+- **Ejecutado por Giovanni en Cloud Shell:** listado recursivo del prefijo `colegio-iberoamericano/`. La captura confirma 44 objetos y aproximadamente 80.61 MiB, con `content.json`, `store-accounts.json` y archivos de `uploads/`.
+- **Límite:** existencia y tamaño confirmados mediante captura; todavía no se descargaron ni restauraron datos y no se certifica integridad por un listado.
+- **Preparado:** bloque reproducible de respaldo inicial privado en Cloud Shell, validación de JSON, manifiesto SHA-256 y archivo de transporte, incluido en [la guía](colegio-migracion-vps.md). No ejecutado por el asistente. El archivo contiene datos de cuentas y queda fuera de Git y del chat.
+- **Producción:** sin cambios en VPS, GCP, DNS, correo, Commerce o Stripe. Será necesaria una copia final con escrituras detenidas; este respaldo inicial no la sustituye.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
