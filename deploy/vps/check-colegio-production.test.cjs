@@ -42,3 +42,15 @@ test('reports failures without printing sensitive error details', async () => {
   assert.equal(ok, false);
   assert.ok(!lines.join('').includes('private-'));
 });
+
+test('reports allowlisted SMTP diagnostics without the provider message', async () => {
+  const lines = [];
+  await runChecks({env, emit: text => lines.push(text),
+    fetch: async () => ({status: 200}),
+    createTransport: () => ({verify: async () => {
+      throw Object.assign(new Error('private-password and private-user'), {code: 'EAUTH', responseCode: 535, command: 'AUTH PLAIN'});
+    }, close() {}}),
+  });
+  assert.ok(lines.some(line => line.includes('EAUTH') && line.includes('535') && line.includes('AUTH PLAIN')));
+  assert.ok(!lines.join('').includes('private-'));
+});

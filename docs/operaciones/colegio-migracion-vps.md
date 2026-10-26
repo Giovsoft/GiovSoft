@@ -378,3 +378,20 @@ SUPPORT_MAIL_FROM='GiovSoft Soporte <no-reply@giovsoft.com>'
 ```
 
 Completar también `SUPPORT_SMTP_PASS` con el valor privado de `ibero-support-smtp-pass:latest`. Mantener las contraseñas/admin/storefront ya introducidas. La plantilla del repositorio ahora incluye estos valores públicos, pero no se debe reinstalar sobre el archivo existente. Repetir validación, recreación y helper después de guardar. No se considera verificada ninguna credencial por superar solamente la interpolación de Compose.
+
+**Resultado recibido a las 17:36:** school saludable; panel autenticado 200, storefront autenticado 200, SMTP institucional conexión/autenticación OK sin envío. SMTP recuperación falla, con causa aún no identificada. No se enviaron mensajes ni se crearon órdenes/pagos. No editar claves o desactivar TLS a ciegas.
+
+Helper actualizado para imprimir solo código de error permitido, respuesta SMTP numérica y etapa permitida; descarta completamente mensajes y trazas del proveedor. Para obtener el diagnóstico sin reiniciar servicios:
+
+```bash
+(
+  set -eu
+  cd /opt/giovsoft
+  git pull --ff-only origin codex/akira-presentacion
+  docker compose --env-file /opt/colegio/production.env \
+    -f deploy/vps/compose.colegio-production-check.yaml \
+    exec -T school node < deploy/vps/check-colegio-production.cjs
+)
+```
+
+Compartir únicamente las líneas resumidas emitidas por el helper. `EAUTH` con 535 orientaría a autenticación; `ETIMEDOUT`/`CONN` orientaría a conectividad. Estos son criterios de interpretación, no resultados recibidos. No cambiar credenciales o configuración hasta revisar el nuevo código. Actualización local probada: cuatro pruebas pasan; diagnóstico real pendiente.

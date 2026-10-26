@@ -537,6 +537,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Corrección preparada:** proporcionar los siete ajustes no secretos ya observados en la revisión activa de GCP. Se actualizaron también los valores por defecto de la plantilla, sin reemplazar el archivo privado existente del VPS. `SUPPORT_SMTP_PASS` debe completarse personalmente con el contenido de `ibero-support-smtp-pass`, referencia `latest`; no se consultó ni mostró el valor.
 - **Siguiente paso:** editar únicamente campos faltantes en `/opt/colegio/production.env`, conservar el resto, validar Compose con `config --quiet` y repetir recreación/comprobaciones. No copiar de nuevo la plantilla sobre el archivo privado ni compartir su contenido. DNS y producción en GCP intactos.
 
+## 2026-10-26 17:36 — Panel, storefront y SMTP institucional verificados; recuperación pendiente
+
+- **Captura de Giovanni:** contenedor school saludable; `Panel privado: OK (HTTP 200)`, `Storefront autenticado: OK (HTTP 200)` y `SMTP institucional: OK (conexión y autenticación; sin envío)`. Acceso con secreto storefront confirmado desde el VPS. No se revela su contenido ni se infiere qué valor se introdujo solo por el HTTP 200.
+- **Fallo observado:** SMTP de recuperación devuelve fallo genérico de configuración/conexión/autenticación. La evidencia actual no distingue causa; no concluir todavía contraseña errónea ni bloqueo de red.
+- **Efectos:** helper informa que no se enviaron mensajes ni se crearon órdenes o pagos. SMTP institucional OK no certifica entrega final ni remitente autorizado.
+- **Diagnóstico preparado:** helper ampliado con códigos SMTP en lista permitida, número de respuesta y etapa conocida; sin mensajes completos, usuarios, contraseñas, tokens ni trazas del proveedor. Cuatro pruebas locales pasan, incluida protección contra exposición del mensaje sensible. Repetición remota pendiente; no requiere recrear contenedores ni cambiar credenciales.
+- **Estado del corte:** DNS sin cambios. Recuperación pendiente de resolver antes de publicar; integridad, login de cuenta existente, revisión de código, mantenimiento/copia final, persistencia escribible, respaldo y TLS público siguen pendientes según la guía.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

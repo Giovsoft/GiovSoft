@@ -36,8 +36,13 @@ async function runChecks({env, fetch, createTransport, emit}) {
         auth: {user, pass}, connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000});
       await transport.verify();
       emit(`${label}: OK (conexión y autenticación; sin envío)`);
-    } catch {
-      emit(`${label}: FALLO (configuración, conexión o autenticación)`);
+    } catch (error) {
+      const codes = ['EAUTH', 'ETIMEDOUT', 'ECONNECTION', 'ESOCKET', 'EDNS', 'ETLS', 'ECONNREFUSED', 'ECONNRESET', 'ENOTFOUND', 'EENVELOPE'];
+      const stages = ['CONN', 'EHLO', 'HELO', 'STARTTLS', 'AUTH', 'AUTH PLAIN', 'AUTH LOGIN', 'AUTH XOAUTH2'];
+      const code = codes.includes(error?.code) ? error.code : 'NO_CLASIFICADO';
+      const stage = stages.includes(error?.command) ? error.command : 'NO_CLASIFICADA';
+      const response = Number.isInteger(error?.responseCode) && error.responseCode >= 400 && error.responseCode <= 599 ? error.responseCode : 'N/D';
+      emit(`${label}: FALLO (código=${code}; SMTP=${response}; etapa=${stage})`);
       ok = false;
     } finally {
       try { transport?.close(); } catch { /* No secret-bearing errors in output. */ }
