@@ -207,6 +207,14 @@ curl -I https://www.giovsoft.com
 - **Correo y verificaciones conservados en la captura:** MX raíz prioridad 1 a `smtp.google.com`, SPF de Google, DMARC, DKIM, registros de correo de Stripe y verificaciones TXT. Algunos valores aparecen truncados; la captura no equivale a una exportación completa de la zona.
 - **Estado:** configuración web del panel coincide con lo previsto. Falta confirmar propagación del CNAME y resolver el error TLS observado mediante los logs de Caddy, aún no recibidos. No se indican nuevos cambios DNS.
 
+## 2026-10-26 14:03 — Diagnóstico de certificados mediante logs
+
+- **Evidencia:** dos capturas de logs de `edge` enviadas por Giovanni. Los primeros intentos ACME de Let's Encrypt fallan con `unauthorized`: las validaciones HTTP-01 y TLS-ALPN-01 llegan a IPv6 antiguas de Google (`2001:4860:4802:...` para raíz y `2607:f8b0:...` para www), devolviendo 404 o un certificado ajeno a la validación. Esto explica esos intentos fallidos; no indica un fallo del frontend.
+- **Intentos posteriores:** Caddy usa ZeroSSL y registra tiempos de espera de solicitudes ACME (`context deadline exceeded` / `Client.Timeout exceeded while awaiting headers`). La causa de esos tiempos de espera no está aislada.
+- **DNS externo comprobado después:** raíz sin AAAA en `1.1.1.1`; www aún resuelve vía `ghs.googlehosted.com` a direcciones Google en los resolvers consultados (TTL de la cadena observado entre 68 y 182 segundos en esta comprobación). HTTPS directo al VPS sigue fallando con curl 35.
+- **Decisión:** no borrar certificados ni volúmenes, no cambiar configuración TLS ni reiniciar repetidamente. Confirmar que raíz y www resuelvan al VPS antes de provocar un nuevo intento.
+- **Siguiente diagnóstico solicitado en el VPS:** `getent ahostsv4 giovsoft.com`, `getent ahostsv4 www.giovsoft.com`, `getent ahostsv6 giovsoft.com`, `getent ahostsv6 www.giovsoft.com`. Se espera IPv4 `5.183.11.142` para ambos y ninguna IPv6 antigua de Google. Salidas aún pendientes.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
