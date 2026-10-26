@@ -168,3 +168,26 @@ Si termina correctamente, comprobar el manifiesto en otra orden:
 Resultado esperado: ambos JSON válidos, 44 archivos restaurados e integridad local OK. Un número distinto debe revisarse contra el respaldo, no corregirse borrando archivos. Ubicaciones resultantes: `data/content.json`, `data/store-accounts.json`, `uploads/` y `SHA256SUMS`. Carpetas privadas y archivos con permisos restringidos; aún no son los volúmenes de un servicio publicado. No montar la carpeta completa en un directorio web público, porque contiene cuentas.
 
 El helper fue probado localmente con un respaldo ficticio: restauración y conservación de bytes; rechazo de checksum erróneo, ruta con `..` y destino existente. Cuatro pruebas pasan. No se ha ejecutado el helper contra los datos reales ni en el VPS desde el asistente. Confirmación remota de extracción pendiente.
+
+### Restauración confirmada a las 17:12; construcción de imagen pendiente
+
+La captura posterior confirma restauración de 44 archivos, JSON válidos y comprobación del manifiesto local OK en `/opt/colegio/restauracion-inicial`. Se cierra el pendiente de extracción remota. No se certifica todavía login, aplicación funcional o copia final consistente.
+
+Próximas órdenes en el **VPS** para construir el candidato desde el código ya inspeccionado, sin publicar puertos, montar datos privados ni arrancar contenedores:
+
+```bash
+(
+  set -eu
+  cd /opt/colegio
+  git clone https://github.com/Giovsoft/Iberoamericano.git source
+  cd source
+  git checkout --detach 9c867b6a8a489bc6140425ee908fa5d8134d628c
+  test "$(git rev-parse HEAD)" = 9c867b6a8a489bc6140425ee908fa5d8134d628c
+  docker build -t colegio-vps:9c867b6 .
+  docker image inspect colegio-vps:9c867b6 --format '{{.Id}}'
+)
+```
+
+No añadir tokens a la URL de Git ni al chat; utilizar el acceso GitHub del servidor. Si `source` ya existe, el bloque se detendrá para revisarlo sin sobrescribirlo. El contexto Docker es solo `source`, no `/opt/colegio`: los datos restaurados y respaldos no se incorporan a la imagen. El Dockerfile usa su contenido inicial del repositorio; la instancia futura montará los datos privados restaurados por separado. El candidato está fijado al commit conocido, pero la comparación con la revisión desplegada de GCP sigue pendiente antes de cambiar tráfico.
+
+Tras recibir resultado de construcción: preparar entorno privado (administración, correo y storefront), definir persistencia y servicio de comprobación restringido. No iniciar el colegio con la contraseña predeterminada del código ni con credenciales de Stripe test en producción. Durante las comprobaciones, evitar escrituras reales de compras, correo o GCS.

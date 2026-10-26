@@ -468,6 +468,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Verificación ejecutada por el asistente:** cuatro pruebas con datos ficticios pasan: restauración válida, rechazo de ruta que escapa, rechazo de destino existente y rechazo de checksum incorrecto. `git diff --check` sin errores. No se accedió al respaldo real.
 - **Pendiente de Giovanni en VPS:** actualizar el checkout, ejecutar helper y verificar manifiesto. Extracción real, persistencia en contenedor, navegación, login, correo y conexión Commerce aún pendientes. No cambiar DNS ni detener GCP en este paso. La copia final sin escrituras sigue pendiente.
 
+## 2026-10-26 17:12 — Restauración inicial del colegio confirmada en VPS
+
+- **Evidencia recibida:** captura de Giovanni muestra actualización por fast-forward de `/opt/giovsoft` hasta `8387fc1`, ejecución del restaurador y salida «JSON válidos; archivos restaurados: 44» en `/opt/colegio/restauracion-inicial`.
+- **Integridad confirmada:** la comprobación posterior de `SHA256SUMS` terminó con «Integridad local de la restauración: OK». Se verifica extracción de la copia inicial y consistencia con su manifiesto local; no implica una copia final sin escrituras ni validación funcional de cuentas.
+- **Datos:** contenido, cuentas e imágenes restaurados en carpeta privada; no se visualizaron registros de cuentas ni contraseñas. Archivo comprimido y copia de Cloud Shell se conservan.
+- **Siguiente paso preparado:** clonar `Giovsoft/Iberoamericano` en `/opt/colegio/source`, fijar candidato conocido `9c867b6a8a489bc6140425ee908fa5d8134d628c` y construir imagen local `colegio-vps:9c867b6`. La revisión corresponde al código inspeccionado y usado en sandbox; aún debe contrastarse con la revisión que recibe tráfico en GCP antes del corte.
+- **Estado:** construcción remota pendiente; contenedor del colegio, configuración privada, prueba de navegación y DNS sin cambios. Commerce y API de pagos de GCP continúan conservados.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
