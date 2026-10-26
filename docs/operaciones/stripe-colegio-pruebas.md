@@ -12,6 +12,12 @@ La API de GCP `giovsoft-backend` referencia los secretos `giovsoft-stripe-key`, 
 
 No se encontró un proyecto del colegio en el workspace local inspeccionado. Se solicitó la URL y el repositorio del entorno de prueba existente o autorización para preparar uno separado.
 
+## Actualización: entorno separado disponible
+
+Giovanni autorizó preparar el sandbox y ya se levantó localmente la cadena colegio → Commerce → hub, con volúmenes nuevos, producto ficticio, puertos 7410–7412 y aviso visible de pruebas. El catálogo y health checks funcionan. El checkout se bloquea con 503 hasta configurar las credenciales de Stripe test. Las fuentes del colegio y Commerce se localizaron en GitHub y se fijaron por commit; no se descargaron datos de GCP.
+
+Consultar [la guía de preparación](../../deploy/stripe-sandbox/README.md). Siguen pendientes la clave test y una cuenta Connect test, validación de sus capacidades, firma del listener y todos los casos transaccionales de la tabla. La preparación de Docker no implica que Stripe esté conectado ni que se haya probado un pago.
+
 ## Requisitos de aislamiento antes de iniciar checkout
 
 - Backend del colegio y hub de pagos de prueba identificados, con almacenamiento y referencias de órdenes separados de producción.
