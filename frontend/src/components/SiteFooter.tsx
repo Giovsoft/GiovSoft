@@ -12,10 +12,6 @@ const footerSections = [
       { label: "Proceso", href: "/proceso" },
       { label: "Artículos", href: "/articulos" },
       { label: "Nosotros", href: "/nosotros" },
-      { label: "Akira", href: "/akira" },
-      { label: "Academy", href: "/academy" },
-      { label: "Studios", href: "/studios" },
-      { label: "Payments", href: "/payments" },
       { label: "Contacto", href: "/contacto" },
     ],
   },
@@ -25,6 +21,15 @@ const footerSections = [
       label: service.title,
       href: `/servicios/${service.slug}`,
     })),
+  },
+  {
+    title: "Productos",
+    links: [
+      { label: "Akira", href: "/akira" },
+      { label: "Academy", href: "/academy" },
+      { label: "Studios", href: "/studios" },
+      { label: "Payments", href: "/payments" },
+    ],
   },
   {
     title: "Legal",
@@ -98,7 +103,6 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
         </div>
       </div>
 
-      <div className="gs-footer-wordmark" aria-hidden="true">giovsoft<span>↗</span></div>
       <div className="footer-bottom">
         <span>© 2026 GiovSoft. Todos los derechos reservados.</span>
         <button onClick={() => window.dispatchEvent(new Event(openCookieSettingsEvent))} type="button">Preferencias de cookies</button>
