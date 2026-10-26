@@ -365,6 +365,31 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 
 No requiere reconstruir imágenes porque el script se transmite por stdin. Iniciar sesión con ADMIN_EMAIL/ADMIN_PASSWORD del entorno existente; el doble factor seguirá requiriendo SMTP operativo. Si falla el envío 2FA, configurar SMTP en lugar de desactivar la protección. No volver a ejecutar `init-env.py` ni borrar volúmenes para este procedimiento.
 
+## 2026-10-26 — Desactivación de 2FA del VPS solicitada
+
+- **Cambio de criterio autorizado expresamente:** Giovanni indicó «vamos a quitar el 2FA». Esta solicitud sustituye el criterio previo de mantenerlo activo para el administrador del VPS.
+- **Preparado en Compose:** ADMIN_2FA_ENABLED ahora toma la variable del archivo de entorno, con valor true por defecto para instalaciones que no indiquen otra cosa. Se añade la opción al ejemplo de entorno. El backend ya implementa la desactivación con el valor literal false.
+- **Procedimiento entregado:** actualizar el checkout; establecer ADMIN_2FA_ENABLED=false en el archivo privado del VPS y recrear solo backend con Compose. No basta con reiniciarlo: hay que recrear el contenedor para aplicar el entorno.
+- **Alcance:** acceso administrativo del backend del VPS mediante correo y contraseña, sin solicitar el código adicional. No se altera la contraseña, los datos, Stripe ni el servicio de integración del colegio en GCP.
+- **Estado:** preparado y validado localmente; aplicación y prueba de login en el VPS pendientes de confirmación. No se ha recibido aún confirmación del alta inicial del administrador.
+- **Reversión:** cambiar ADMIN_2FA_ENABLED=true y ejecutar el mismo `up -d --no-deps --force-recreate backend`; para usar 2FA por correo será necesario SMTP operativo.
+
+Comandos preparados:
+
+```bash
+cd /opt/giovsoft
+git pull --ff-only origin codex/akira-presentacion
+sed -i '/^ADMIN_2FA_ENABLED=/d' deploy/vps/.env.production
+printf '\nADMIN_2FA_ENABLED=false\n' >> deploy/vps/.env.production
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml up -d --no-deps --force-recreate --wait backend
+```
+
+Verificación sin revelar secretos:
+
+```bash
+docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml exec -T backend node -e 'console.log("ADMIN_2FA_ENABLED=" + process.env.ADMIN_2FA_ENABLED)'
+```
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
