@@ -559,6 +559,12 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Prueba local del comparador con cadenas ficticias:** igualdad true, desigualdad false y entrada vacía exit 2, sin exposición de los valores. Comparación real pendiente de Giovanni.
 - **Estado:** autenticación recuperación aún rechazada 535. No regenerar ni revocar claves por este resultado; no se enviaron correos y DNS/GCP permanecen sin cambios.
 
+## 2026-10-26 17:40 — Comparación de credenciales interrumpida por expansión de historial
+
+- **Captura de Giovanni:** al ejecutar el comando en Cloud Shell, Bash expandió `!s` del fragmento JavaScript dentro de la cadena entre comillas dobles. Node recibió código alterado y devolvió SyntaxError. No se produjo un resultado booleano; no concluir coincidencia ni diferencia de credenciales.
+- **Corrección:** sustituir la condición `if(!s)` por `if(s.length===0)`, sin exclamaciones susceptibles de expansión de historial en el comando externo. Guía actualizada. Se conserva el transporte directo por stdin y la salida únicamente booleana, sin archivos con el secreto.
+- **Estado:** repetir solo esta comparación corregida. No se cambió la contraseña, el contenedor, GCP o DNS por este intento. Recuperación SMTP sigue pendiente.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

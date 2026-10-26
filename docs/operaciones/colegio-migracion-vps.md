@@ -431,7 +431,7 @@ Comparación opcional siguiente, preparada para ejecutar personalmente en **Clou
   gcloud secrets versions access latest \
     --secret=ibero-support-smtp-pass \
     --project=healthy-genre-497401-j7 |
-  ssh root@5.183.11.142 "cd /opt/giovsoft && docker compose --env-file /opt/colegio/production.env -f deploy/vps/compose.colegio-production-check.yaml exec -T school node -e 'const s=require(\"node:fs\").readFileSync(0,\"utf8\"); if(!s){console.log(\"Comparación no realizada: entrada vacía\");process.exit(2)} console.log(JSON.stringify({coincideExactamente:s===process.env.SUPPORT_SMTP_PASS}));'"
+  ssh root@5.183.11.142 "cd /opt/giovsoft && docker compose --env-file /opt/colegio/production.env -f deploy/vps/compose.colegio-production-check.yaml exec -T school node -e 'const s=require(\"node:fs\").readFileSync(0,\"utf8\"); if(s.length===0){console.log(\"Comparación no realizada: entrada vacía\");process.exit(2)} console.log(JSON.stringify({coincideExactamente:s===process.env.SUPPORT_SMTP_PASS}));'"
 )
 ```
 
