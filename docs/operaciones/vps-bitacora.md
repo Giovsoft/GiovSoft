@@ -521,6 +521,15 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Indicación para el VPS:** Giovanni debe introducir privadamente el contenido de esa versión en `GIOVCOMMERCE_STOREFRONT_SECRET` de `/opt/colegio/production.env`; el campo recibe el valor, no el nombre del secreto. No se abrió, leyó ni mostró el contenido del secreto.
 - **Estado:** solo referencia verificada; copia privada al VPS y validación funcional aún pendientes. No se modificaron secretos, servicios, DNS ni pagos.
 
+## 2026-10-26 — Catálogo VPS confirmado y corrección de referencia por tráfico activo
+
+- **Reportado por Giovanni:** archivo de producción completo, contenedores saludables y catálogo HTTP 200. Registro como confirmación del usuario; no acceso del asistente a secretos del VPS. Catálogo público 200 no prueba autenticación storefront.
+- **Corrección importante de la entrada anterior:** al consultar Historial de revisión se comprobó que `colegio-iberoamericano-wh-09151933` atiende **100 %** del tráfico y usa **`giovcommerce-storefront-secret:latest`**. `colegio-iberoamericano-00052-zen` tiene **0 %** y usa **`giovcommerce-storefront-secret-clean:1`**. La consulta previa de Contenedores identificó la configuración más reciente como vigente sin contrastar tráfico; esa conclusión queda corregida. No se abrió contenido de secretos.
+- **Imagen activa:** digest `sha256:3366348b3bfce011cfb4d3e2f82028b384e9edd18a0bec8dc7d97ddaf2a1f96b`, sin metadatos fuente/compilación visibles. Comparación exacta con código local pendiente.
+- **Preparado:** helper privado para panel, storefront filtrado a correo ficticio y verificación SMTP institucional/recuperación sin envío. Tres pruebas locales pasan: lecturas sin mutaciones, destino restringido y no exposición de errores sensibles. Ejecución en VPS pendiente, después de corregir referencia y recrear solo school.
+- **Comprobaciones públicas ejecutadas:** raíces `.com` y `.com.mx` 200/TLS válido aún en Google; raíz con A y AAAA Google. www `.com` sin resolución en consulta local; www `.com.mx` CNAME a raíz y fallo de handshake TLS desde este equipo. Incidencias del origen registradas para preparar alias del corte. Sin cambios DNS.
+- **Siguiente paso del usuario:** corregir valor storefront privadamente, ejecutar helper e integridad, revisar login real por túnel sin escrituras ni compras. No se considera listo el cambio de DNS; mantenimiento/copia final, publicación TLS y respaldo siguen pendientes.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

@@ -293,7 +293,7 @@ Después abrir personalmente `nano /opt/colegio/production.env` en el VPS. Compl
 
 - `ADMIN_PASSWORD`: conservar la contraseña actual del panel del colegio.
 - `GIOVCOMMERCE_STOREFRONT_SECRET`: secreto actual de conexión con Commerce; no cambiarlo solo en un extremo.
-- **Referencia verificada en Cloud Run el 2026-10-26:** `giovcommerce-storefront-secret-clean`, versión **1**. Introducir su contenido privadamente en el campo anterior; no escribir el nombre del secreto como valor. No se consultó su contenido durante la comprobación.
+- **Referencia corregida tras comprobar tráfico el 2026-10-26:** la revisión activa `colegio-iberoamericano-wh-09151933`, con **100 %** de tráfico, usa `giovcommerce-storefront-secret:latest`. La referencia `giovcommerce-storefront-secret-clean:1` observada antes pertenece a `colegio-iberoamericano-00052-zen`, con **0 %** de tráfico. Introducir privadamente el valor de la referencia activa; no el nombre del secreto. No se consultó contenido de secretos.
 - `SMTP_*`, `MAIL_FROM`, `MAIL_TO`: correo institucional actual, incluidos puerto y modo seguro reales.
 - `SUPPORT_SMTP_*`, `SUPPORT_MAIL_FROM`: recuperación de cuentas actual, separada del correo institucional.
 
@@ -323,3 +323,44 @@ Esperado: servicios healthy, health correcto, catálogo 200 y checkout 405. Cat�
 Para revisar en navegador, túnel independiente desde la Mac: `ssh -N -L 8083:127.0.0.1:8083 root@5.183.11.142`, abrir `http://127.0.0.1:8083/`. No conectar este proyecto al Caddy público. Persistencia escribible, certificados/dominos, respaldo periódico, ventana de mantenimiento y copia final deben completarse antes del corte. La carpeta `produccion-preparacion` es una copia inicial para comprobaciones, no el estado final de producción.
 
 Verificación del asistente: Compose válido, dos servicios healthy con datos/ajustes ficticios; inicio/health/content/imagen 200; checkout, recuperación y edición 405; pedidos 503; login inexistente 401. Se comprobaron montajes de solo lectura, puerto de aplicación sin publicación directa, URL canónica y destino Commerce correctos, ausencia de variables Stripe y GCS desactivado. No se invocó el catálogo real ni SMTP ni Stripe durante las pruebas locales. Proyecto local temporal retirado. Configuración remota real pendiente de Giovanni.
+
+### Comprobaciones anteriores al cambio DNS
+
+Giovanni informó que completó el archivo privado, ambos contenedores están saludables y el catálogo responde 200. Confirma catálogo público accesible desde VPS; no valida por sí solo el secreto storefront. Se detectó después la diferencia entre revisión más nueva y revisión activa descrita arriba. La indicación previa de usar `-clean:1` se corrige expresamente.
+
+**Primero:** editar personalmente `/opt/colegio/production.env` y corregir únicamente `GIOVCOMMERCE_STOREFRONT_SECRET` usando el valor privado de `giovcommerce-storefront-secret`, referencia `latest` de la revisión activa. No mostrarlo ni modificar el secreto en GCP. Tras guardar, ejecutar en VPS:
+
+```bash
+(
+  set -eu
+  cd /opt/giovsoft
+  git pull --ff-only origin codex/akira-presentacion
+  docker compose --env-file /opt/colegio/production.env \
+    -f deploy/vps/compose.colegio-production-check.yaml \
+    up -d --no-deps --force-recreate --wait school
+  docker compose --env-file /opt/colegio/production.env \
+    -f deploy/vps/compose.colegio-production-check.yaml \
+    exec -T school node < deploy/vps/check-colegio-production.cjs
+)
+```
+
+El helper lee el entorno ya cargado dentro del contenedor, sin imprimir valores. Prueba GET autenticado al contenido del panel, GET autenticado a Commerce filtrado por `vps-migration-check@example.invalid` y `nodemailer.verify()` para ambas conexiones SMTP. No envía correos, no crea clientes, órdenes o checkouts y no consulta Stripe. La ruta interna de historial filtrado revisada en el código de Commerce no ejecuta conciliación; no confundirla con rutas de pedido/conciliación bloqueadas en el proxy. Redirecciones rechazadas antes de reenviar credenciales.
+
+Esperado: cuatro líneas OK. SMTP verifica conexión/autenticación TLS, no autorización del remitente ni entrega final. El panel OK verifica contraseña configurada y lectura, no edición. Storefront OK confirma acceso autorizado a esa tienda; no valida pago completo. Fallos se imprimen sin mensajes del proveedor que pudieran revelar secretos. Tres pruebas locales verifican lecturas sin mutaciones/envíos, destino restringido y errores sin secretos; ejecución remota real pendiente.
+
+Comprobación de integridad desde VPS:
+
+```bash
+(
+  set -eu
+  cd /opt/colegio/produccion-preparacion
+  sha256sum -c SHA256SUMS > /dev/null
+  printf 'Datos de preparación sin cambios: OK\n'
+)
+```
+
+Revisión personal por túnel 8083: abrir inicio y páginas, imágenes, `/admin` con contraseña actual y `/otros-servicios` con una cuenta existente conocida. No compartir contraseña/sesión ni probar registro, recuperación, edición o compras. El login emite una sesión local sin modificar cuentas. Comprobar por separado checkout POST 405 y recuperación POST 405. La copia de preparación debe seguir íntegra.
+
+**Estado público observado desde el equipo local:** dominios raíz `.com` y `.com.mx` responden HTTPS 200 con validación TLS correcta y direcciones Google. Ambos conservan cuatro A (`216.239.32.21`, `.34.21`, `.36.21`, `.38.21`) y cuatro AAAA (`2001:4860:4802:32::15`, `:34::15`, `:36::15`, `:38::15`). `www.colegioiberoamericano.com` no devuelve A/AAAA/CNAME en esta consulta; `www.colegioiberoamericano.com.mx` es CNAME a la raíz `.com.mx`, pero curl falla en conexión TLS desde este equipo (exit 35). Son observaciones del origen actual, no fallos certificados del VPS. Delegación `.com`: `nsb1` a `nsb4.squarespacedns.com`; consulta NS de `.com.mx` sin respuesta, pendiente confirmar autoridad en su panel antes de editar registros. No se cambió ninguno.
+
+**Revisión Cloud Run activa confirmada en lectura:** `colegio-iberoamericano-wh-09151933` recibe 100 %; imagen `iberoamericano@sha256:3366348b3bfce011cfb4d3e2f82028b384e9edd18a0bec8dc7d97ddaf2a1f96b`. La consola no muestra información de fuente/compilación para vincularla al commit local; igualdad exacta del código aún no demostrada. No cambiar tráfico hasta resolver comprobaciones, configuración pública TLS/Caddy, persistencia escribible, respaldo y copia final durante mantenimiento.
