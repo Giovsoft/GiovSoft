@@ -572,6 +572,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Dato solicitado:** confirmar si `soporte@giovsoft.com` es una cuenta propia de Google Workspace o un alias, para comprobar el usuario de autenticación antes de generar o sustituir credenciales. No se presume la causa exacta del rechazo.
 - **Estado:** no se generaron ni revocaron contraseñas, no se cambió el secreto de GCP ni el usuario SMTP del VPS. Recuperación pendiente; DNS permanece sin cambios.
 
+## 2026-10-26 — Cuenta de soporte propia confirmada; credencial dedicada al VPS propuesta
+
+- **Respuesta de Giovanni:** `soporte@giovsoft.com` tiene su propia cuenta de Google; se conserva como usuario SMTP, no se sustituye por otra cuenta por hipótesis de alias.
+- **Acción preparada para Giovanni:** acceder personalmente a Contraseñas de aplicación de esa cuenta y crear una nueva con etiqueta `Colegio VPS recuperación`, si la política de Workspace lo permite. Google requiere verificación en dos pasos para esa función. No desactivar protecciones, cambiar la contraseña principal ni revocar la credencial anterior.
+- **Destino exclusivo:** introducir la nueva credencial únicamente en `SUPPORT_SMTP_PASS` de `/opt/colegio/production.env`, recrear school y repetir helper. No cambiar `ibero-support-smtp-pass` en GCP ni otras variables. Es una credencial nueva separada: ya no se espera igualdad con latest de GCP.
+- **Estado:** propuesta/guía entregada; creación, actualización privada y autenticación SMTP pendientes de confirmación. No se generó ni leyó una clave por el asistente. DNS y servicios GCP sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
