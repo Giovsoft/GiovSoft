@@ -241,6 +241,14 @@ curl -I https://www.giovsoft.com
 - **www en el VPS:** certificado y redirección 301 ya verificados directamente contra el VPS en la entrada de las 14:12. Los proveedores DoH principales ahora publican el destino correcto, aunque no se garantiza convergencia de todas las cachés mundiales.
 - **Conclusión operativa:** sitio principal y endpoint de salud sirven correctamente desde el dominio en el VPS; www actualizado en Google y Cloudflare por DoH, con resolución residual anterior observada en este equipo. No modificar DNS de nuevo por esa caché. SMTP, formularios, administración y restauración de copias siguen pendientes de pruebas específicas.
 
+## 2026-10-26 — Solicitud de retirar el sitio de GCP
+
+- **Solicitud:** Giovanni indicó «vamos a bajar el sitio de gcp». Continúa ejecutando personalmente los comandos remotos.
+- **Estado:** preparación e identificación; ningún servicio GCP detenido ni eliminado.
+- **Alcance inicial:** identificar el servicio del sitio principal antes de actuar. `api` y `commerce` siguen configurados hacia Google; no asumir que pueden retirarse ni que están alojados en servicios separados.
+- **Siguiente paso solicitado:** desde Google Cloud Shell, ejecutar `gcloud config get-value project` y `gcloud run services list` y compartir las salidas para identificar proyecto, región y servicio. Cloud Run es una hipótesis de alojamiento que debe confirmarse con el inventario.
+- **Condición para la retirada:** revisar dependencias y resolución residual de www; definir la acción concreta y su reversión con los identificadores reales. No borrar proyecto, bases de datos, imágenes ni otros servicios como parte de esta identificación. No descargar datos ni copias de GCP.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
