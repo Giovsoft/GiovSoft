@@ -36,7 +36,7 @@ export const articles: Article[] = [
     author: "Equipo GiovSoft",
     featured: true,
     accent: "#579bff",
-    coverImage: "/img/akira/logo.jpeg",
+    coverImage: "/img/akira/logo-transparent.png",
     coverAlt: "Logo de Akira: una A continua en tonos cian, azul y violeta",
     coverLabel: "akira",
     coverCaption: "Students · Business",

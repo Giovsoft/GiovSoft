@@ -57,7 +57,7 @@ export default function AkiraPage() {
           </div>
           <div className="ak-brand-stage">
             <span className="ak-orbit ak-orbit-one" /><span className="ak-orbit ak-orbit-two" />
-            <img src="/img/akira/logo.jpeg" width="1254" height="1254" alt="Akira: una A de cinta continua en un degradado cian, azul y violeta" fetchPriority="high" />
+            <img src="/img/akira/logo-transparent.png" width="1254" height="1254" alt="Akira: una A de cinta continua en un degradado cian, azul y violeta" fetchPriority="high" />
             <div className="ak-brand-caption"><span>APRENDER ↗</span><span>CREAR ↗</span><span>AVANZAR ↗</span></div>
           </div>
         </section>
