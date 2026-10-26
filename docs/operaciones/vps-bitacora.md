@@ -439,6 +439,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Secuencia prevista:** resolver persistencia; preparar despliegue separado con acceso previo; verificar páginas, imágenes, administración, correo y tienda; cambiar DNS con HTTPS; observar y conservar una ruta de reversión antes de retirar el servicio GCP del colegio.
 - **Estado:** evaluación inicial documentada; migración no ejecutada, dominio y producción sin cambios.
 
+## 2026-10-26 — Conservación del colegio confirmada e inventario de configuración
+
+- **Decisión del usuario:** conservar y migrar contenido, imágenes y cuentas actuales. La pregunta de la evaluación anterior queda resuelta; no iniciar el colegio con datos vacíos.
+- **Lectura confirmada en GCP:** `GCS_BUCKET=healthy-genre-497401-j7-iberoamericano`, prefijo `colegio-iberoamericano`; Commerce `https://commerce.giovsoft.com`; identificador de tienda `colegioiberoamericano.com.mx`; URL pública `https://colegioiberoamericano.com.mx`. Se consultaron únicamente los valores no secretos necesarios. No se guardaron cambios ni se revelaron credenciales.
+- **DNS local:** ambos dominios raíz `.com` y `.com.mx` resuelven a direcciones Google. Inventario completo de nombres y registros aún pendiente; conservar URL de retorno canónica durante el traslado.
+- **Procedimiento preparado:** [Migración del colegio al VPS](colegio-migracion-vps.md), con persistencia, copia inicial y final, mantenimiento de escrituras, verificación, dependencias de pagos conservadas y reversión que contempla datos nuevos del VPS.
+- **Siguiente acción:** inventariar objetos del prefijo desde Cloud Shell mediante el comando de la guía. Todavía no hay copia descargada, restauración, despliegue ni cambio DNS del colegio. El usuario sigue ejecutando comandos del VPS.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
