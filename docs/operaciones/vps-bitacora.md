@@ -249,6 +249,15 @@ curl -I https://www.giovsoft.com
 - **Siguiente paso solicitado:** desde Google Cloud Shell, ejecutar `gcloud config get-value project` y `gcloud run services list` y compartir las salidas para identificar proyecto, región y servicio. Cloud Run es una hipótesis de alojamiento que debe confirmarse con el inventario.
 - **Condición para la retirada:** revisar dependencias y resolución residual de www; definir la acción concreta y su reversión con los identificadores reales. No borrar proyecto, bases de datos, imágenes ni otros servicios como parte de esta identificación. No descargar datos ni copias de GCP.
 
+## 2026-10-26 — Inspección de GCP mediante navegador
+
+- **Autorización:** Giovanni pidió realizar la revisión desde el navegador. Se inspeccionó la consola autenticada; no se ejecutaron comandos en el VPS ni se modificaron servicios GCP.
+- **Proyecto confirmado:** GiovSoft, `healthy-genre-497401-j7`.
+- **Mapeos confirmados en Cloud Run:** `giovsoft.com`, `www.giovsoft.com` y `admin.giovsoft.com` comparten servicio `giovsoft`, región `us-central1`; `api.giovsoft.com` usa `giovsoft-backend` en esa región; `commerce.giovsoft.com` usa `giovcommerce`.
+- **Otros servicios observados:** `colegio-iberoamericano`, `cruje`, `giovsoft-web` y `giovsoft-api`. Los dos últimos están en `northamerica-south1`; su nombre no basta para atribuirles el sitio público actual. No se tocaron.
+- **Configuración actual de giovsoft:** URL `https://giovsoft-598441636410.us-central1.run.app`, escalamiento automático, mínimo de servicio 0, máximo 5, facturación basada en solicitudes, timeout 300 s y concurrencia 80.
+- **Dependencia detectada:** apagar `giovsoft` retiraría también el administrador antiguo. Se solicitó a Giovanni aclarar si ese administrador puede retirarse. La decisión queda pendiente; no se borró ni desactivó ningún servicio ni mapeo.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
