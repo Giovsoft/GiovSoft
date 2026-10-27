@@ -628,6 +628,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Verificación local ejecutada con fixtures:** Compose live healthy, puerta inicial checkout 405, volúmenes escribibles probados con sonda ficticia, alias de red compartida funcional, puerta live inicio 200 y registro inválido 400; Caddy valida. Dos ensayos offline del script de copia pasan, incluyendo rechazo si quedan tags. Proyectos temporales retirados; sin datos reales ni claves usadas.
 - **Estado real:** mantenimiento, copia final, restauración final, publicación TLS y cambios DNS aún no ejecutados. Próximo paso de Giovanni: preparación VPS y acceso a paneles, luego ventana continua de corte siguiendo la guía. No dejar origen pausado a la espera de otro día. Reversión diferenciada antes/después de escrituras nuevas.
 
+## 2026-10-26 — Localizado proveedor DNS de .com.mx; mantenimiento aún no iniciado
+
+- **Respuesta de Giovanni:** solo tiene localizado el panel `.com`. No iniciar pausa del colegio hasta disponer también de la edición DNS `.com.mx`.
+- **Consulta pública ejecutada:** WHOIS directo de NIC México (`whois -h whois.mx colegioiberoamericano.com.mx`) confirma registrador **NEUBOX Internet SA de CV** y nameservers `ns301` a `ns305.cloud-mx-ns.net`. No se guardan datos personales de contactos del registro.
+- **Fuente primaria contrastada:** documentación oficial de NEUBOX identifica esos cinco servidores como su administración DNS y sitúa la gestión en Panel de Clientes → Dominios → Gestionar → Registros DNS. Portal `https://clientes.neubox.com`. No es necesario cambiar NS ni activar una zona nueva sin inspeccionar la existente.
+- **DNS observado:** respuestas SOA de ns304/ns305 con seriales distintos en consultas locales; antes del corte revisar convergencia autoritativa. No editar ni reiniciar servicios a partir de esta observación aislada.
+- **Estado:** se indicó a Giovanni localizar el dominio en la cuenta NEUBOX o del administrador/proveedor que lo gestione. No se solicitaron credenciales ni se enviaron mensajes a terceros. Copia final y DNS siguen preparados, no ejecutados; GCP continúa atendiendo el colegio.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

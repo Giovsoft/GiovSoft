@@ -26,6 +26,8 @@ Si carpeta final/transferencia ya existe, revisar el intento previo; no borrarlo
 
 Guardar en los paneles capturas privadas de los registros DNS web actuales de ambos dominios y TTL; bajar TTL web a 300 si está permitido y esperar el TTL anterior antes de empezar mantenimiento. Esto no cambia el destino. `.com` observado en Squarespace (`nsb1` a `nsb4.squarespacedns.com`); SOA `.com.mx` observado `ns301.cloud-mx-ns.net` (responsable `root.ns305.cloud-mx-ns.net`): confirmar/acceder al panel de esa zona, que no se presupone Squarespace. No iniciar mantenimiento hasta tener acceso a ambos paneles y poder completar el corte.
 
+**Proveedor de `.com.mx` confirmado posteriormente:** WHOIS directo de NIC México identifica registrador NEUBOX y nameservers ns301 a ns305. [La documentación oficial de NEUBOX](https://neubox.com/tutoriales/base-de-conocimientos/como-activar-la-administacion-dns-de-dominio-en-tu-panel-de-clientes-neubox/) asocia ese conjunto a su Administrador DNS. Localizar `colegioiberoamericano.com.mx` en [Panel de Clientes NEUBOX](https://clientes.neubox.com), Dominios → Gestionar → Registros DNS. Si el usuario no lo ve, localizar la cuenta del titular/proveedor sin compartir credenciales. No cambiar servidores de nombres ni activar/recrear la zona a ciegas. Giovanni por ahora solo tiene localizado el panel `.com`; mantenimiento todavía no iniciado.
+
 ## 2. Cloud Shell: iniciar mantenimiento y obtener la copia final
 
 **Este paso interrumpe el sitio antiguo mientras dure el traslado y la convergencia DNS.** No iniciarlo para dejarlo pausado hasta otro día. Evitar ediciones directas del bucket o despliegues simultáneos. Los pagos existentes siguen procesándose en Commerce y el hub; el colegio no crea nuevas compras durante el mantenimiento.
