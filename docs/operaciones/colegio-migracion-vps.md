@@ -479,3 +479,15 @@ Estas comprobaciones no autorizan por sí solas el corte: quedan preparación Ca
 ```
 
 Las rutas del manifiesto son relativas al directorio de trabajo; esto comprueba `data/` y `uploads/` de preparación usando el manifiesto original sin sobrescribir archivos. Si falla, conservar la salida de errores y revisar antes de continuar. Resultado corregido pendiente de confirmación. El chequeo valida los archivos enumerados; no certifica ausencia de archivos extra ni vigencia respecto a cambios posteriores de GCS.
+
+**Confirmación posterior de Giovanni:** el chequeo corregido terminó OK. Se cierra el pendiente de integridad de preparación frente a la restauración inicial. Los accesos personales de tienda y administrador todavía no se han probado, según su respuesta expresa.
+
+Desde Terminal de la **Mac**, abrir y mantener este túnel (sin comandos en el VPS para esta parte):
+
+```bash
+ssh -o ExitOnForwardFailure=yes -N -L 8083:127.0.0.1:8083 root@5.183.11.142
+```
+
+Si el puerto ya está ocupado, revisar qué túnel/servicio lo usa antes de abrir otro. No omitir validación SSH si aparece advertencia. Visitar `http://127.0.0.1:8083/api/health` para confirmar servicio y después `/otros-servicios` y `/admin` para las revisiones personales. Usar una cuenta de tienda existente cuya contraseña se conozca; no usar registro ni recuperación como sustituto de esta prueba. El acceso a `/admin` usa la contraseña del colegio, no la del admin GiovSoft. No guardar cambios ni crear compras. Si no se conoce una contraseña de tienda, declarar prueba pendiente y no fabricar una sesión a partir de los hashes restaurados.
+
+El asistente comprobó que no hay acceso por localhost 8083 en la Mac en este momento (curl exit 7); no afirma indisponibilidad del VPS. DNS continúa intacto. Tras comprobar ambos accesos se preparará el corte con sus pendientes restantes, manteniendo diferenciadas la copia inicial y la final.

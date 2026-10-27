@@ -594,6 +594,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Corrección preparada:** ejecutar la verificación desde la carpeta de preparación usando directamente el manifiesto original `/opt/colegio/restauracion-inicial/SHA256SUMS`. Sus rutas son relativas (`data/` y `uploads/`), por lo que se comprobarán los archivos de preparación. No generar un manifiesto nuevo a partir de la copia que se está evaluando, pues ocultaría diferencias respecto a la restauración original.
 - **Estado:** integridad de la copia de preparación pendiente del resultado corregido. No modificar datos, DNS ni servicios. La restauración inicial y las cuatro comprobaciones privadas mantienen los resultados anteriores, sin confundirlos con este chequeo pendiente.
 
+## 2026-10-26 — Integridad de preparación confirmada; accesos personales pendientes
+
+- **Confirmación de Giovanni:** el chequeo corregido contra `/opt/colegio/restauracion-inicial/SHA256SUMS` terminó OK. Los archivos enumerados de `/opt/colegio/produccion-preparacion` coinciden con la restauración inicial. No prueba vigencia frente a escrituras posteriores en GCS.
+- **Disponibilidad local consultada por el asistente:** `127.0.0.1:8083/api/health` no acepta conexión en la Mac en esta comprobación. No hay túnel activo disponible para revisión del asistente; no se deduce caída del servicio VPS.
+- **Respuesta del usuario:** todavía no probó login de tienda existente ni `/admin` de la instancia privada 8083. No dar por completadas estas pruebas ni sustituirlas por panel HTTP 200 del helper.
+- **Siguiente paso:** abrir túnel desde Terminal de la Mac, verificar health y catálogo, luego iniciar sesión personalmente en tienda con una cuenta conocida y en panel con contraseña actual. No registrar usuarios, editar, recuperar contraseñas o comprar. No compartir datos de cuenta o sesiones. Si hay error, reportar mensaje sin credenciales.
+- **Estado:** cuatro comprobaciones automáticas e integridad aprobadas; accesos personales y preparación del corte aún pendientes. Sin cambios DNS, GCP, credenciales o datos por esta revisión.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
