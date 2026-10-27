@@ -17,7 +17,7 @@ services:
       GIOVCOMMERCE_API_URL: https://commerce.giovsoft.com
       GIOVCOMMERCE_STORE_DOMAIN: colegioiberoamericano.com.mx
       GIOVCOMMERCE_STOREFRONT_SECRET: ${GIOVCOMMERCE_STOREFRONT_SECRET:?Copy current school storefront secret privately}
-      PUBLIC_URL: https://colegioiberoamericano.com.mx
+      PUBLIC_URL: https://colegioiberoamericano.com
       SMTP_HOST: ${SMTP_HOST:?Copy school SMTP settings privately}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_SECURE: ${SMTP_SECURE:-false}

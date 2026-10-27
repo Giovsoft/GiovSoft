@@ -2,9 +2,10 @@
 # Run personally in Cloud Shell, after VPS preflight. No Stripe/Commerce changes.
 set -euo pipefail
 umask 077
-if [[ "${1:-}" != --freeze-and-copy ]]; then
-  printf 'Uso en Cloud Shell: bash colegio-final-copy.sh --freeze-and-copy\n'
-  printf 'Inicia mantenimiento del colegio GCP; conserva Commerce y API.\n'
+if [[ "${1:-}" != --freeze-shared-origin-and-copy ]]; then
+  printf 'Uso: bash colegio-final-copy.sh --freeze-shared-origin-and-copy\n'
+  printf 'ATENCIÓN: pausa el origen compartido de .com Y .com.mx.\n'
+  printf 'No usar si .com.mx debe continuar activo. Conserva Commerce y API.\n'
   exit 2
 fi
 project=healthy-genre-497401-j7

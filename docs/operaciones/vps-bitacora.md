@@ -636,6 +636,16 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **DNS observado:** respuestas SOA de ns304/ns305 con seriales distintos en consultas locales; antes del corte revisar convergencia autoritativa. No editar ni reiniciar servicios a partir de esta observación aislada.
 - **Estado:** se indicó a Giovanni localizar el dominio en la cuenta NEUBOX o del administrador/proveedor que lo gestione. No se solicitaron credenciales ni se enviaron mensajes a terceros. Copia final y DNS siguen preparados, no ejecutados; GCP continúa atendiendo el colegio.
 
+## 2026-10-27 — Alcance reducido a .com; .com.mx debe seguir funcionando
+
+- **Instrucción y aclaración de Giovanni:** excluir por ahora `.com.mx` de la migración y mantenerlo funcionando. No está autorizado pausar el origen compartido para este alcance. No se requiere acceso a NEUBOX para migrar solo `.com`.
+- **Plan anterior suspendido:** pausa/retirada de tags/copia final/restauración local escribible no se ejecutan. La guía antigua queda marcada histórica. Script anterior rechaza ahora el argumento genérico `--freeze-and-copy`; la variante explícita avisa que pausaría ambos dominios y tampoco debe usarse en este plan.
+- **Configuración de dominios ajustada:** snippet Caddy solo `.com` y `www.com`, redirección a raíz `.com`; ya no incluye ni solicita certificados `.com.mx`. PUBLIC_URL de candidatos locales pasa a `.com`, pero identificador interno Commerce `.com.mx` se conserva. Estos cambios de archivos no han sido desplegados al VPS por el asistente.
+- **Etapa intermedia preparada:** proyecto `colegio-com-shared`, frontend en VPS y todas las API/uploads por HTTPS verificado al backend existente GCP. Un único almacenamiento y backend para ambos dominios, sin cuentas independientes escribiéndose en dos copias. Contenedor web sin volúmenes de datos, con red interna. Puerta inicial bloquea mutaciones salvo login; loopback 8085 y alias compartido con Caddy.
+- **Límites explícitos:** no es salida completa de GCP. Retornos de pago/recuperación siguen usando PUBLIC_URL del backend `.com.mx`. Credencial de recuperación exclusiva del VPS no se aplica automáticamente a ese backend; no se han cambiado secretos GCP ni validado allí de nuevo el envío de correo.
+- **Verificación ejecutada:** Compose de candidatos valida URL pública .com e identificador Commerce original; Caddy valida solo dominios nuevos .com. Nueva ruta compartida web/access healthy: inicio, health/content/catalog del origen por proxy e imagen subida 200; checkout/recuperación POST e historial 405; sin logins reales, escrituras, correos ni compras. Web sin volúmenes de cuentas y red interna exclusiva comprobados. Proyecto temporal retirado tras pruebas. Ensayos offline de pausa/copia y rechazo del argumento antiguo verificados.
+- **Guía vigente:** [Solo .com con backend compartido](colegio-com-con-backend-gcp.md). Pendientes arranque y comprobación en VPS, activación Caddy .com, DNS de Squarespace, HTTPS y apertura del proxy. GCP y DNS permanecen sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

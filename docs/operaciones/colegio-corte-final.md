@@ -1,5 +1,7 @@
 # Colegio: copia final y corte al VPS
 
+> **PLAN ANTERIOR SUSPENDIDO — 2026-10-27.** Giovanni excluye `.com.mx` de la migración y requiere que siga funcionando en GCP. No ejecutar la pausa, copia final, activación live ni cambios DNS de esta guía. El procedimiento vigente es [Solo .com con backend compartido](colegio-com-con-backend-gcp.md). El script antiguo ya no acepta `--freeze-and-copy`; el nuevo argumento explicita que pausaría ambos dominios y tampoco está autorizado para este alcance. El contenido restante se conserva como referencia histórica.
+
 Estado: procedimiento preparado y probado localmente con datos ficticios; **mantenimiento, copia final, DNS y publicación no ejecutados**. Giovanni ejecuta comandos de VPS y Cloud Shell. Aprobados por Giovanni: páginas/imágenes, login de tienda y panel, integridad de copia inicial; cuatro comprobaciones privadas pasan. Candidato de código `9c867b6a8a489bc6140425ee908fa5d8134d628c` validado funcionalmente, construido desde GitHub; no se presenta como identidad binaria del artefacto GCP.
 
 Mantener Commerce, API GiovSoft de pagos y Stripe en GCP. Este procedimiento afecta únicamente `colegio-iberoamericano` y registros web del colegio. No cambiar claves, MX, TXT, DKIM, DMARC o NS. El sandbox Stripe local no interviene.

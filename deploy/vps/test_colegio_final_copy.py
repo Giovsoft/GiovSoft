@@ -36,7 +36,7 @@ class CopyTests(unittest.TestCase):
 curl() { printf 503; }
 sleep() { :; }
 export -f gcloud curl sleep
-bash "$1" --freeze-and-copy
+bash "$1" --freeze-shared-origin-and-copy
 '''
             result = subprocess.run(['bash', '-c', shell, 'test', str(SCRIPT)], env=env, text=True, capture_output=True)
             copies = list(root.glob('colegio-respaldo-final.*'))
@@ -61,6 +61,11 @@ bash "$1" --freeze-and-copy
 
     def test_refuses_copy_if_tag_remains(self):
         self.exercise(tags_remain=True)
+
+    def test_refuses_old_argument_before_any_cloud_action(self):
+        result = subprocess.run(['bash', str(SCRIPT), '--freeze-and-copy'], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('.com Y .com.mx', result.stdout)
 
 
 if __name__ == '__main__':

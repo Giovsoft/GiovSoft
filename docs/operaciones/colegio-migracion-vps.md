@@ -1,5 +1,7 @@
 # Migración de Colegio Iberoamericano al VPS
 
+> **Cambio de alcance 2026-10-27:** solo se migra `.com` y `.com.mx` debe seguir funcionando. No ejecutar la pausa/copia final o publicación local descritas en las secciones históricas siguientes. Procedimiento vigente: [Solo .com con backend GCP compartido](colegio-com-con-backend-gcp.md).
+
 Estado al 2026-10-26: conservación de datos autorizada; inventario inicial confirmado; copia, restauración y corte pendientes. Giovanni ejecuta los comandos del VPS.
 
 ## Alcance y decisiones
