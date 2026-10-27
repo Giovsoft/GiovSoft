@@ -602,6 +602,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Siguiente paso:** abrir túnel desde Terminal de la Mac, verificar health y catálogo, luego iniciar sesión personalmente en tienda con una cuenta conocida y en panel con contraseña actual. No registrar usuarios, editar, recuperar contraseñas o comprar. No compartir datos de cuenta o sesiones. Si hay error, reportar mensaje sin credenciales.
 - **Estado:** cuatro comprobaciones automáticas e integridad aprobadas; accesos personales y preparación del corte aún pendientes. Sin cambios DNS, GCP, credenciales o datos por esta revisión.
 
+## 2026-10-26 — Diagnóstico de acceso por túnel 8083
+
+- **Reporte de Giovanni:** no puede abrir la vista mediante el túnel. La respuesta anterior de que una terminal sin prompt es normal no comprobaba la respuesta HTTP.
+- **Comprobación local ejecutada:** `lsof` muestra proceso SSH escuchando en IPv4 `127.0.0.1:8083` e IPv6 `::1:8083`; argumentos del proceso confirman destino `root@5.183.11.142` y redirección `8083:127.0.0.1:8083`. No se leyó contraseña ni se abrió nueva conexión SSH por el asistente.
+- **Resultado HTTP:** curl al health local termina con exit 56, «Connection reset by peer». Hay listener SSH local, pero no se obtuvo respuesta del destino; aún no distingue caída de sesión, puerto remoto o proxy/app.
+- **Siguiente paso de Giovanni en consola web del VPS:** consultar `docker compose ... ps --all`, asegurar el proyecto completo con `up -d --wait` (incluido access, no solo school), y probar health directamente en `127.0.0.1:8083` del VPS. No se ejecutó ni reinició nada remoto desde el asistente.
+- **Estado:** acceso personal sigue pendiente; integridad y cuatro checks anteriores no se invalidan automáticamente por este problema de acceso. Sin cambios DNS o GCP.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
