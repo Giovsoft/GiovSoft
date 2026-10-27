@@ -618,6 +618,16 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Integridad:** la misma captura confirma el resultado OK contra el manifiesto original. No se volvió a generar ni se sobrescribieron datos.
 - **Pendiente:** Giovanni debe probar login de tienda existente y acceso al panel por 8083, sin escrituras ni compras. No se extraen contraseñas o sesiones para suplir esta prueba. DNS y GCP sin cambios.
 
+## 2026-10-26 — Accesos personales confirmados; corte final preparado
+
+- **Confirmado por Giovanni:** login de tienda existente y administrador funcionan en instancia privada. Autoriza continuar copia final y cambio DNS. Se cierran esos pendientes funcionales; no se realizaron compras de prueba.
+- **Preparado:** [procedimiento completo de corte](colegio-corte-final.md), Compose live separado, puerta de mutaciones inicialmente cerrada, snippet Caddy desactivado y montaje opcional de sites-enabled. Hacer pull por sí solo no publica el colegio ni cambia DNS.
+- **Persistencia:** nueva restauración final exigida en `/opt/colegio/restauracion-final`, volumen escribible separado de las copias iniciales. School sin publicación directa; access comparte red con Caddy y loopback 8084. Las credenciales privadas actuales se reutilizan sin copiarlas al repositorio.
+- **Mantenimiento preparado:** script para Cloud Shell guarda configuración/etiquetas y reactivación, retira tags, manual/0 solo para el colegio, drena solicitudes y verifica URLs antes de copiar GCS. La documentación oficial confirma que manual/0 por sí solo no desactiva revisiones con tags. No aplicar al hub ni Commerce.
+- **DNS:** dos zonas distintas; `.com` delegado a Squarespace y SOA `.com.mx` consultado en `8.8.8.8` identifica `ns301.cloud-mx-ns.net` / `root.ns305.cloud-mx-ns.net`. Acceso a ambos paneles necesario antes del mantenimiento. Se preparó tabla A/CNAME y retirada de AAAA web Google, preservando correo y NS. No editados por el asistente.
+- **Verificación local ejecutada con fixtures:** Compose live healthy, puerta inicial checkout 405, volúmenes escribibles probados con sonda ficticia, alias de red compartida funcional, puerta live inicio 200 y registro inválido 400; Caddy valida. Dos ensayos offline del script de copia pasan, incluyendo rechazo si quedan tags. Proyectos temporales retirados; sin datos reales ni claves usadas.
+- **Estado real:** mantenimiento, copia final, restauración final, publicación TLS y cambios DNS aún no ejecutados. Próximo paso de Giovanni: preparación VPS y acceso a paneles, luego ventana continua de corte siguiendo la guía. No dejar origen pausado a la espera de otro día. Reversión diferenciada antes/después de escrituras nuevas.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

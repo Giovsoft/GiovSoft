@@ -17,3 +17,6 @@
 www.{$SITE_DOMAIN} {
   redir https://{$SITE_DOMAIN}{uri} permanent
 }
+
+# Empty until an additional site is enabled explicitly on the VPS.
+import /etc/caddy/sites-enabled/*.caddy

@@ -1,0 +1,8 @@
+colegioiberoamericano.com.mx, colegioiberoamericano.com {
+  encode zstd gzip
+  reverse_proxy colegio-public:80
+}
+
+www.colegioiberoamericano.com.mx, www.colegioiberoamericano.com {
+  redir https://colegioiberoamericano.com.mx{uri} permanent
+}
