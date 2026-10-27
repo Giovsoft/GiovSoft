@@ -465,3 +465,17 @@ Siguiente bloque en el **VPS**, sin modificar datos:
 Esperado: integridad OK y ambas rutas HTTP 405. Revisar por túnel 8083 el catálogo y login de una cuenta existente conocida, y abrir `/admin` sin guardar cambios. No introducir tarjetas, crear cuentas, cambiar perfiles/contraseñas ni enviar formularios. Solo informar si el acceso funcionó; no compartir correo personal, contraseña, datos de alumnos o token. Ejecutar la comprobación de integridad nuevamente después del login si se detecta algún comportamiento inesperado.
 
 Estas comprobaciones no autorizan por sí solas el corte: quedan preparación Caddy/TLS y alias, persistencia escribible, respaldo, comparación de código desplegado y copia final con origen sin escrituras. La copia inicial de las 16:57 no sustituye la copia final de cuentas/contenido actualizados.
+
+**Incidencia recibida a las 22:13:** falta `SHA256SUMS` en `produccion-preparacion`. El bloque abreviado entregado por chat copió solo directorios, omitiendo el manifiesto que sí figuraba en la guía completa. No concluir que los datos están dañados ni regenerar un manifiesto desde esa copia. Para verificarla contra la referencia original:
+
+```bash
+(
+  set -eu
+  cd /opt/colegio/produccion-preparacion
+  test -f /opt/colegio/restauracion-inicial/SHA256SUMS
+  sha256sum -c /opt/colegio/restauracion-inicial/SHA256SUMS > /dev/null
+  printf 'Datos de preparación coinciden con la restauración inicial: OK\n'
+)
+```
+
+Las rutas del manifiesto son relativas al directorio de trabajo; esto comprueba `data/` y `uploads/` de preparación usando el manifiesto original sin sobrescribir archivos. Si falla, conservar la salida de errores y revisar antes de continuar. Resultado corregido pendiente de confirmación. El chequeo valida los archivos enumerados; no certifica ausencia de archivos extra ni vigencia respecto a cambios posteriores de GCS.

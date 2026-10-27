@@ -587,6 +587,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Siguiente verificación preparada:** comprobar manifiesto de `/opt/colegio/produccion-preparacion`, verificar bloqueo checkout/recuperación y revisar personalmente por túnel 8083 catálogo y login de una cuenta conocida sin escrituras ni compras. No compartir datos personales ni tokens.
 - **Pendientes antes del corte:** revisión funcional restante, relación entre imagen GCP y candidato local, persistencia escribible y respaldo, publicación Caddy/TLS, mantenimiento del origen y copia final consistente. DNS todavía sin cambios; no retirar GCP, Commerce o API.
 
+## 2026-10-26 22:13 — Verificación de preparación detenida por manifiesto no copiado
+
+- **Captura de Giovanni:** `/opt/colegio/produccion-preparacion` existe, pero `sha256sum -c SHA256SUMS` falla con «No such file or directory». No se ejecutó la salida de éxito del bloque.
+- **Causa identificada en las instrucciones:** el bloque abreviado del chat copió `data/` y `uploads/`, pero omitió copiar `SHA256SUMS`. La variante completa de la guía sí incluía esa copia. La ausencia del manifiesto no demuestra pérdida o modificación de datos.
+- **Corrección preparada:** ejecutar la verificación desde la carpeta de preparación usando directamente el manifiesto original `/opt/colegio/restauracion-inicial/SHA256SUMS`. Sus rutas son relativas (`data/` y `uploads/`), por lo que se comprobarán los archivos de preparación. No generar un manifiesto nuevo a partir de la copia que se está evaluando, pues ocultaría diferencias respecto a la restauración original.
+- **Estado:** integridad de la copia de preparación pendiente del resultado corregido. No modificar datos, DNS ni servicios. La restauración inicial y las cuatro comprobaciones privadas mantienen los resultados anteriores, sin confundirlos con este chequeo pendiente.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
