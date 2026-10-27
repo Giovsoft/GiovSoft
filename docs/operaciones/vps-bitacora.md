@@ -610,6 +610,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Siguiente paso de Giovanni en consola web del VPS:** consultar `docker compose ... ps --all`, asegurar el proyecto completo con `up -d --wait` (incluido access, no solo school), y probar health directamente en `127.0.0.1:8083` del VPS. No se ejecutó ni reinició nada remoto desde el asistente.
 - **Estado:** acceso personal sigue pendiente; integridad y cuatro checks anteriores no se invalidan automáticamente por este problema de acceso. Sin cambios DNS o GCP.
 
+## 2026-10-26 22:31 — Acceso privado 8083 restablecido y verificado desde la Mac
+
+- **Captura de Giovanni:** `ps --all` listaba solo school; tras `up -d --wait`, school y access aparecen healthy. Health consultado directamente en el VPS devuelve `{"ok":true,"service":"colegio-iberoamericano-site"}`.
+- **Causa confirmada:** faltaba levantar access, responsable de publicar el puerto 8083. Los comandos anteriores que recreaban únicamente school no iniciaban ese proxy. No era necesario cambiar la contraseña SSH ni desactivar validaciones.
+- **Verificación independiente del asistente:** curl desde la Mac a `http://127.0.0.1:8083/api/health` ahora devuelve el mismo JSON correcto, exit 0. Túnel y servicio de destino funcionales en esta comprobación.
+- **Integridad:** la misma captura confirma el resultado OK contra el manifiesto original. No se volvió a generar ni se sobrescribieron datos.
+- **Pendiente:** Giovanni debe probar login de tienda existente y acceso al panel por 8083, sin escrituras ni compras. No se extraen contraseñas o sesiones para suplir esta prueba. DNS y GCP sin cambios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
