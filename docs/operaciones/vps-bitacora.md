@@ -646,6 +646,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Verificación ejecutada:** Compose de candidatos valida URL pública .com e identificador Commerce original; Caddy valida solo dominios nuevos .com. Nueva ruta compartida web/access healthy: inicio, health/content/catalog del origen por proxy e imagen subida 200; checkout/recuperación POST e historial 405; sin logins reales, escrituras, correos ni compras. Web sin volúmenes de cuentas y red interna exclusiva comprobados. Proyecto temporal retirado tras pruebas. Ensayos offline de pausa/copia y rechazo del argumento antiguo verificados.
 - **Guía vigente:** [Solo .com con backend compartido](colegio-com-con-backend-gcp.md). Pendientes arranque y comprobación en VPS, activación Caddy .com, DNS de Squarespace, HTTPS y apertura del proxy. GCP y DNS permanecen sin cambios.
 
+## 2026-10-28 — Administración DNS de .com mediante Cloudflare solicitada
+
+- **Aclaración de Giovanni:** necesita administrar registros DNS, no únicamente usar un resolvedor. Se preparará Cloudflare como DNS autoritativo de `colegioiberoamericano.com`, manteniendo el registro en Squarespace y `.com.mx` sin cambios.
+- **Lectura pública nueva:** NS siguen `nsb1`–`nsb4.squarespacedns.com`. Raíz conserva los cuatro A y AAAA de Google; www no devuelve A/AAAA/CNAME. TXT raíz incluye `v=spf1 -all` y verificación de Google; no se observan MX/CAA en la consulta puntual. Esto no es un inventario completo de zona ni demuestra ausencia de registros en otros nombres.
+- **Preparado:** añadir zona .com en la cuenta Cloudflare de Giovanni, revisar/importar todos los registros del panel Squarespace y comprobar DNSSEC antes de delegar. No confiar solo en escaneo automático; no usar un import parcial como zona completa.
+- **Separación de cambios:** primero conservar destinos actuales y mover administración DNS; el cambio A al VPS se hará después de revisar Caddy/HTTPS y la instancia compartida. Usar DNS only inicialmente para no añadir proxy HTTP durante el diagnóstico. No transferir registro ni editar .com.mx.
+- **Estado:** no se creó una zona Cloudflare, cambió NS, desactivó DNSSEC, cambió DNS web o modificó GCP desde el asistente. Continúa pendiente acceso al panel Cloudflare y copia completa de registros de Squarespace. Fuente: guía oficial Cloudflare Full setup.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

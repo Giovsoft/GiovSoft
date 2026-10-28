@@ -1,5 +1,7 @@
 # Solo .com en VPS; .com.mx continúa en GCP
 
+> **DNS actualizado el 2026-10-28:** Giovanni solicita administrar `.com` en Cloudflare, conservando registro en Squarespace. Antes de aplicar la sección DNS siguiente, añadir zona en Cloudflare y copiar todos los registros actuales desde Squarespace, inicialmente con los mismos destinos y DNS only. Verificar DNSSEC/DS y la zona completa antes de cambiar los NS por los dos asignados a esa zona de Cloudflare. No inventar NS ni desactivar DNSSEC sin comprobar su estado. El escaneo automático no garantiza encontrar subdominios o verificaciones. Confirmar delegación activa conservando el sitio actual; después aplicar A/CNAME al VPS en Cloudflare, no en el panel antiguo. `.com.mx` queda intacto. No transferir el registro del dominio.
+
 Decisión de Giovanni del 2026-10-27: excluir `.com.mx` de la migración y mantenerlo funcionando. Este procedimiento sustituye el corte conjunto anterior. **No pausar Cloud Run, retirar tags o ejecutar copia final del plan previo. No modificar DNS, NS ni configuración de `.com.mx`.**
 
 ## Alcance intermedio
