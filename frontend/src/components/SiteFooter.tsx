@@ -12,18 +12,24 @@ const footerSections = [
       { label: "Proceso", href: "/proceso" },
       { label: "Artículos", href: "/articulos" },
       { label: "Nosotros", href: "/nosotros" },
-      { label: "Academy", href: "/academy" },
-      { label: "Studios", href: "/studios" },
-      { label: "Payments", href: "/payments" },
       { label: "Contacto", href: "/contacto" },
     ],
   },
   {
     title: "Servicios",
-    links: serviceItems.map((service) => ({
+    links: serviceItems.filter((service) => ["inteligencia-artificial", "automatizacion-ia", "sitios-web", "desarrollo-aplicaciones-moviles", "hosting-administrado"].includes(service.slug)).map((service) => ({
       label: service.title,
       href: `/servicios/${service.slug}`,
     })),
+  },
+  {
+    title: "Productos",
+    links: [
+      { label: "Akira", href: "/akira" },
+      { label: "Academy", href: "/academy" },
+      { label: "Studios", href: "/studios" },
+      { label: "Payments", href: "/payments" },
+    ],
   },
   {
     title: "Legal",
@@ -57,8 +63,8 @@ export default function SiteFooter({ isDark }: SiteFooterProps) {
             alt="GiovSoft"
           />
           <p>
-            Tu aliado tecnológico para crear soluciones que ayuden a vender,
-            comunicarse, operar y crecer con una base digital profesional.
+            Inteligencia artificial, diseño y software para conectar ideas
+            con posibilidades reales. Desde Guadalajara, México.
           </p>
           <a className="footer-contact" href="mailto:hola@giovsoft.com">
             hola@giovsoft.com

@@ -1,0 +1,18 @@
+/* Scroll motion is progressive: no observer or no JS means fully visible content. */
+[data-gs-reveal]{
+  --gs-reveal-duration:720ms;
+  opacity:1;
+  translate:0 0;
+  scale:1;
+  animation:none!important;
+  transition:opacity var(--gs-reveal-duration) cubic-bezier(.22,1,.36,1) var(--gs-reveal-delay,0ms),translate var(--gs-reveal-duration) cubic-bezier(.22,1,.36,1) var(--gs-reveal-delay,0ms),scale var(--gs-reveal-duration) cubic-bezier(.22,1,.36,1) var(--gs-reveal-delay,0ms),border-color 250ms,background-color 250ms,box-shadow 250ms,transform 250ms;
+}
+[data-gs-reveal-state=pending]{opacity:0;translate:0 26px;transition:none}
+[data-gs-reveal=visual][data-gs-reveal-state=pending]{translate:0 20px;scale:.97}
+[data-gs-reveal]:focus-within{opacity:1;translate:0 0;scale:1;transition:none}
+.site-header::after{content:"";position:absolute;inset:auto 0 -1px;height:2px;background:linear-gradient(90deg,#61d7ff,#579bff 65%,#7d79ff);transform-origin:left;transform:scaleX(var(--gs-scroll-progress,0));pointer-events:none;z-index:2}
+/* Replace the earlier view-timeline approximation with once-per-visit entrances. */
+:root :is(.site-shell,.service-page-shell,.studios-shell,.payments-shell) main>section{animation-timeline:auto;animation-name:none}
+@media(max-width:600px){[data-gs-reveal]{--gs-reveal-duration:580ms}[data-gs-reveal-state=pending]{translate:0 18px}}
+@media(prefers-reduced-motion:reduce){[data-gs-reveal]{opacity:1!important;translate:none!important;scale:1!important;animation:none!important;transition:none!important}.site-header::after{display:none}}
+@media print{[data-gs-reveal]{opacity:1!important;translate:none!important;scale:1!important;animation:none!important;transition:none!important}.site-header::after{display:none}}

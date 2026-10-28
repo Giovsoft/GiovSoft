@@ -1,0 +1,12 @@
+{
+  "school": {
+    "repository": "https://github.com/Giovsoft/Iberoamericano.git",
+    "directory": "colegio-sandbox-source",
+    "commit": "9c867b6a8a489bc6140425ee908fa5d8134d628c"
+  },
+  "commerce": {
+    "repository": "https://github.com/Giovsoft/GiovCommerce.git",
+    "directory": "commerce-sandbox-source",
+    "commit": "7d5f7763b52493d107a163e47462220acbdfa54d"
+  }
+}

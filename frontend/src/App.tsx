@@ -27,6 +27,8 @@ import TermsPage from "./pages/TermsPage";
 import WebsitePortfolioPage from "./pages/WebsitePortfolioPage";
 import Website from "./pages/Website";
 
+const AkiraPage = lazy(() => import("./pages/AkiraPage"));
+
 const AdminApplications = lazy(() => import("./pages/AdminApplications"));
 const AdminBusinessLines = lazy(() => import("./pages/AdminBusinessLines"));
 const AdminSales = lazy(() => import("./pages/AdminSales"));
@@ -38,7 +40,6 @@ const AdminPlaceholder = lazy(() => import("./pages/AdminPlaceholder"));
 const AdminBilling = lazy(() => import("./pages/AdminBilling"));
 const AdminIntegrations = lazy(() => import("./pages/AdminIntegrations"));
 const AdminLeadIntelligence = lazy(() => import("./pages/AdminLeadIntelligence"));
-const AdminPayments = lazy(() => import("./pages/AdminPayments"));
 const AdminProfile = lazy(() => import("./pages/AdminProfile"));
 const AdminProjects = lazy(() => import("./pages/AdminProjects"));
 const AdminQuotes = lazy(() => import("./pages/AdminQuotes"));
@@ -68,6 +69,7 @@ function App() {
         <Route path="/" element={isAdminHost ? <Navigate to="/admin" replace /> : <Website />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/akira" element={<AkiraPage />} />
         <Route path="/academy" element={<AcademyPage />} />
         <Route path="/studios" element={<StudiosPage />} />
         <Route path="/payments" element={<PaymentsPage />} />
@@ -241,7 +243,7 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <Layout>
-                <AdminPayments />
+                <Navigate to="/admin" replace />
               </Layout>
             </ProtectedAdminRoute>
           }

@@ -8,16 +8,99 @@ export type Article = {
   slug: string;
   title: string;
   excerpt: string;
-  category: "Estrategia digital" | "Desarrollo" | "Infraestructura" | "Marketing";
+  category: "Estrategia digital" | "Desarrollo" | "Infraestructura" | "Marketing" | "Inteligencia artificial";
   publishedAt: string;
   readTime: string;
   author: string;
   featured?: boolean;
+  homeTitle?: string;
+  coverImage?: string;
+  coverAlt?: string;
+  coverLabel?: string;
+  coverCaption?: string;
+  status?: string;
+  project?: { title: string; copy: string; href: string; label: string };
   accent: string;
   sections: ArticleSection[];
 };
 
 export const articles: Article[] = [
+  {
+    slug: "conoce-akira-inteligencia-para-aprender-y-avanzar",
+    title: "Conoce a Akira: inteligencia para aprender y avanzar",
+    homeTitle: "Akira. Una nueva forma de aprender y avanzar.",
+    excerpt: "Estamos creando una experiencia de inteligencia artificial para transformar información en aprendizaje y acción. Conoce la visión de Akira Students y Business, un proyecto de GiovSoft en desarrollo.",
+    category: "Inteligencia artificial",
+    publishedAt: "26 de octubre de 2026",
+    readTime: "5 min",
+    author: "Equipo GiovSoft",
+    featured: true,
+    accent: "#579bff",
+    coverImage: "/img/akira/logo-transparent.png",
+    coverAlt: "Logo de Akira: una A continua en tonos cian, azul y violeta",
+    coverLabel: "akira",
+    coverCaption: "Students · Business",
+    status: "Proyecto en desarrollo",
+    project: { title: "Conoce la visión de Akira.", copy: "Explora Students y Business y cuéntanos qué te gustaría aprender o mejorar en tu trabajo.", href: "/akira", label: "Descubrir Akira" },
+    sections: [
+      {
+        heading: "Una idea que empieza en las personas",
+        paragraphs: [
+          "A veces, avanzar comienza con una buena pregunta. Comprender un tema que parecía difícil. Encontrar una respuesta entre varios documentos. Convertir las notas de una reunión en un siguiente paso claro. En GiovSoft queremos que la inteligencia artificial ayude precisamente en esos momentos.",
+          "Por eso estamos creando Akira: una experiencia de IA pensada para convertir información en aprendizaje y acción. Nuestra visión es que pueda acompañar tanto a quien quiere comprender algo nuevo como a un equipo que necesita trabajar con más claridad.",
+          "Akira está en desarrollo. Lo que compartimos aquí es la dirección del producto y las capacidades que queremos construir; no es el anuncio de una herramienta que ya esté disponible para el público.",
+        ],
+      },
+      {
+        heading: "Más contexto para dar el siguiente paso",
+        paragraphs: [
+          "Una respuesta resulta más útil cuando tiene relación con lo que estás haciendo. Queremos que Akira pueda trabajar con las preguntas, los documentos y los objetivos que decidas compartir para ofrecer una asistencia que tenga sentido dentro de tu contexto.",
+          "La intención es conectar la conversación con una tarea concreta: explicar una idea, organizar información, preparar un borrador o proponer una secuencia de trabajo. Estamos diseñando esa experiencia con una premisa: las personas deben poder entender y revisar lo que sucede.",
+        ],
+      },
+      {
+        heading: "Akira Students: comprender, practicar y avanzar",
+        paragraphs: [
+          "Students es la edición que imaginamos para aprender a tu ritmo. Un espacio donde hacer preguntas, pedir otra explicación y practicar sin quedarte con una duda por no saber cómo formularla.",
+          "Queremos que ayude a desarrollar el razonamiento. Por ejemplo, ante una pregunta sobre fracciones, la experiencia podría comenzar con algo cotidiano, como repartir una pizza, y continuar con un ejercicio que permita comprobar lo comprendido. Este es un ejemplo de diseño, no una demostración de una función disponible.",
+          "Students se concibe como un apoyo al aprendizaje y al trabajo de docentes y estudiantes. Las explicaciones deberán revisarse en su contexto y adaptarse a las necesidades de cada persona.",
+        ],
+        bullets: [
+          "Explicaciones adaptadas al nivel y a las preguntas de quien aprende.",
+          "Guía para estudiar documentos compartidos por el usuario.",
+          "Ejercicios y práctica con retroalimentación para seguir avanzando.",
+        ],
+      },
+      {
+        heading: "Akira Business: información que se convierte en acción",
+        paragraphs: [
+          "Business está orientada al trabajo de equipos. Su objetivo es ayudar a consultar información de la organización, preparar materiales y reducir tareas repetitivas, con permisos adecuados para cada uso.",
+          "Imaginamos, por ejemplo, una conversación que transforme notas de reunión en un borrador de seguimiento: acuerdos ordenados por tema, tareas y responsables por confirmar, y una revisión antes de compartir o ejecutar cualquier acción. Ese recorrido ilustra lo que buscamos construir.",
+          "La prioridad es que la asistencia forme parte de un proceso comprensible. Cada integración y automatización deberá definir qué información puede consultar, qué puede preparar y en qué momento necesita la aprobación de una persona.",
+        ],
+        bullets: [
+          "Consulta contextual de documentos de trabajo.",
+          "Preparación de borradores y archivos para revisión.",
+          "Automatizaciones con permisos y supervisión humana.",
+        ],
+      },
+      {
+        heading: "Más capacidad, con las personas al mando",
+        paragraphs: [
+          "El diseño previsto contempla separar la información por usuario u organización y controlar el acceso de cada integración. No anunciamos entrenamiento automático con documentos de clientes. Las condiciones concretas de privacidad y tratamiento de datos se definirán antes de la disponibilidad del producto.",
+          "También queremos que los resultados puedan revisarse. La IA puede equivocarse, por lo que una respuesta o un borrador deben evaluarse antes de utilizarlos. Las acciones relevantes requerirán puntos de control acordes con su impacto.",
+        ],
+      },
+      {
+        heading: "Lo que viene se construye escuchando",
+        paragraphs: [
+          "Students y Business comparten una misma visión: ayudar a que la curiosidad, la información y las ideas encuentren un siguiente paso. El alcance final de cada edición se validará durante el desarrollo.",
+          "Todavía no anunciamos una fecha de lanzamiento, precios ni acceso público. Hoy queremos presentar la idea, compartir su dirección y escuchar qué necesitan las personas que podrían usarla.",
+          "Puedes conocer las dos ediciones en la página de Akira y conversar con GiovSoft sobre el tema que te gustaría aprender o el proceso que quieres mejorar. Esa conversación también puede ayudarnos a dar forma a lo que sigue.",
+        ],
+      },
+    ],
+  },
   {
     slug: "guia-ciberseguridad-empresas",
     title: "Ciberseguridad para empresas: guía completa para proteger personas, información y operación",
@@ -26,7 +109,7 @@ export const articles: Article[] = [
     publishedAt: "8 de agosto de 2026",
     readTime: "28 min",
     author: "Equipo GiovSoft",
-    featured: true,
+    featured: false,
     accent: "#18a98f",
     sections: [
       {
