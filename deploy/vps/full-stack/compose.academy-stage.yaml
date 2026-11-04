@@ -1,4 +1,4 @@
-# Private restoration of the Academy snapshot; no published ports or app workers.
+# Private validation of Academy. Only a read-only gateway on host loopback.
 name: academy-stage
 services:
   database:
@@ -21,7 +21,7 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     tmpfs: [/tmp]
-    networks: [database]
+    networks: [database, app]
     depends_on:
       database: {condition: service_healthy}
     healthcheck:
@@ -32,7 +32,37 @@ services:
     logging:
       driver: json-file
       options: {max-size: 10m, max-file: "3"}
+  web:
+    image: rescue-giovsoft-web-00035-xey:saved
+    restart: unless-stopped
+    read_only: true
+    environment: {PORT: "8080"}
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    networks: [app]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  access:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    networks: [app, access]
+    ports: ["127.0.0.1:8095:80"]
+    volumes:
+      - ./academy-stage-access.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api: {condition: service_healthy}
+      web: {condition: service_healthy}
 networks:
   database: {internal: true}
+  app: {internal: true}
+  access:
 volumes:
   database:
