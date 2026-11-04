@@ -2,7 +2,7 @@
 
 Giovanni comunica que GCP dejará de funcionar mañana a las 23:00. Se interpreta como 2026-11-04 23:00, hora de México; no se ha verificado causa de suspensión ni aviso de facturación. La estrategia temporal con backend en GCP ya no satisface ese plazo como destino final.
 
-## Estado operativo al cierre de esta sesión
+## Estado al cierre del 3 de noviembre (histórico)
 
 - DNS sin cambios de alojamiento. Colegio (.com y .com.mx), Commerce y API principal nuevamente activos en GCP, comprobados HTTP 200 tras reactivación. GiovSoft principal conserva su despliegue previo en VPS.
 - VPS: dos bases restauradas en recursos privados separados; colegio/Commerce/pagos saludables y autenticación interna comprobada; Crüje privado saludable/200; API adicional saludable/200 y perfil sin autenticación 401. API adicional sin puertos publicados, frontend/API vía gateway de solo lectura en loopback 8095 y aplicaciones financieras sin salida a Internet.
@@ -99,3 +99,7 @@ El diagnóstico de Academy cambió al contrastar aplicación y rutas: revisión 
 La aplicación Academy correcta sí usa Vertex. La conclusión anterior sobre variables heredadas describía únicamente la imagen incorrecta 39. Se conserva la decisión del usuario de posponer IA; no habilitar un stub de evaluación como sustituto de producción ni ejecutar código de alumnos dentro de la API con secretos. Preparar indisponibilidad explícita de esas funciones hasta aislar runner y sustituir Vertex. Cuentas/cursos/pagos requieren validación con imagen correcta y copia final de figma_academy.
 
 La firma del webhook Academy existente se recuperó desde su propio detalle Stripe y se guardó en archivo privado 0600 del VPS. No se habilitó Secret Manager 6 ni se sustituyó por la clave 5 del colegio. No se rotaron claves ni se alteraron endpoints. Comprobación de uso y firma aún pendiente en copia aislada.
+
+### Academy: comprobación final de esta preparación
+
+Imagen 38 recibida y checksum correcto. API privada saludable, catálogo público 200 con 121 cursos y auth/me 401 sin sesión. Webhook sintético tipo migration.validation probado solo por loopback dentro de contenedor aislado: firma inválida 400, firma válida 200. Sin contacto con Stripe, cargos, correos ni cambio en endpoint. No es prueba de compra/login reales ni copia final de producción.

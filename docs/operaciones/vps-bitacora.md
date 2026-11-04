@@ -805,3 +805,5 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Imagen revisión 38 recibida (146 MiB aprox.), SHA256 correcto y cargada como `rescue-academy-api38:saved`.
 - `runtime38.json` privado separado, firma existente y DATABASE_URL de la copia local; recreada únicamente API de academy-stage. Sin cambios a GCP, tráfico DNS ni base canónica.
 - Resultado leído: contenedor saludable; /api/health 200; /api/public/courses 200 con 121 cursos; /api/auth/me 401 sin sesión. Informe privado `api38-validation.json`. Esta prueba corrige la validación insuficiente de la imagen anterior; no equivale a login de usuario ni compra autenticada.
+
+- Webhook Academy verificado únicamente en copia aislada: evento sintético `migration.validation`, firma inválida 400 y válida 200. Sin llamadas a Stripe ni efectos financieros. Corte público sigue pendiente de sesión Squarespace y confirmación de retirada de siete DNS antiguos; GCP permanece activo.
