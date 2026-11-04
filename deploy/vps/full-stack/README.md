@@ -30,3 +30,9 @@ El proyecto es `colegio-completo-stage`, con PostgreSQL y copias de datos separa
 Las aplicaciones pueden actualizar sus copias locales o registrar fallos de entrega durante las pruebas; nada de esa copia se debe sincronizar de vuelta a GCP. No usar health 200 como prueba suficiente de PostgreSQL: comprobar tablas, recuentos, administrador y catálogo autenticados. No ejecutar checkout real ni pruebas de email.
 
 Comprobación local de configuración realizada: esquema Compose válido; contenedor Node con dato ficticio confirma que `$`, comillas y salto de línea sobreviven; aplicaciones sin puertos publicados, red interna y proxy solo loopback. Esto no sustituye la restauración e integración real del VPS.
+
+### Protección del almacenamiento Commerce (incidente 2026-11-04)
+
+La imagen rescatada de Commerce reemplazaba el JSON por un estado vacío ante cualquier error de lectura y escribía directamente sobre el archivo activo. `commerce-storage-patch.mjs original.js patched.js` aplica una sustitución exacta y rechaza versiones desconocidas. Pruebas: `node --test deploy/vps/full-stack/commerce-storage.test.mjs`.
+
+Producción `colegio-completo-r2` monta `/opt/colegio-completo/production-20261104-r2/commerce-index-safe.js` sobre `/app/server/index.js` en solo lectura mediante su runtime privado. Conservar ese montaje al recrear el servicio. No recuperar archivos automáticamente ante un error ni inicializar una tienda vacía: detener escrituras, preservar el archivo afectado y contrastar el respaldo final y cualquier cambio posterior antes de restaurar.
