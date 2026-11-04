@@ -11,7 +11,9 @@ services:
       edge:
         aliases: [colegio-public]
 networks:
-  quarantine: {internal: false}
+  quarantine:
+    name: colegio-completo_live
+    internal: false
   database: {internal: true}
   edge:
     external: true

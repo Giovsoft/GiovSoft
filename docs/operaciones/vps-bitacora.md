@@ -723,3 +723,21 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Stripe consultado únicamente mediante GET: endpoint API principal habilitado, duplicado deshabilitado y endpoint Academy habilitado. Ningún cargo, evento ni correo creado.
 - Preparado override de producción y proxy API/Commerce; `docker compose config --quiet` correcto. No habilitados en producción; DNS y escritores originales conservados.
 - Pendiente: rescate adicional, pruebas aisladas, copia final coordinada y corte. No declarar independencia de GCP mientras subsistan base adicional o Vertex.
+
+### 2026-11-03 — Restauración aislada comprobada y segunda base recibida
+
+- Payload: checksum del archivo e integridad de 47 entradas del manifiesto correctos en VPS. Cargadas tres imágenes originales (colegio, Commerce y pagos).
+- Proyecto privado `colegio-completo-stage`: base restaurada sin errores; 34 tablas públicas. PostgreSQL, pagos, Commerce y colegio saludables. Acceso ligado únicamente a loopback 8091/8092/8093; aplicaciones en redes internas.
+- Panel privado autenticado 200 y storefront autenticado 200 por nombre interno `commerce`; salud, contenido y catálogo del colegio 200. No depende de GCP para estas comprobaciones.
+- Segunda base: proxy directo agotaba conexión privada; pg_dump de VM era versión 15 frente a servidor 16. Se resolvió usando túnel SSH/IAP existente por `giovsoft-ops` hacia SQL privado y pg_dump 16 en Cloud Shell, sin publicar SQL. Dump 2036638 bytes, listado válido.
+- `additional-critical.tar.gz`: transferido, checksum correcto y listado pg_restore válido dentro del contenedor PostgreSQL del VPS. Incluye segunda base, configuraciones adicionales y metadata VM. No implica aún restauración/publicación de Academy.
+- API adicional identificada como Academy (FRONTEND_URL academy.giovsoft.com); depende de Vertex del proyecto. Pregunta de prioridad IA pendiente; se continúa rescate independiente.
+
+### 2026-11-03 — Validaciones finales previas a mantenimiento
+
+- Webhook sintético solo en copia aislada: firma incorrecta 400, firma válida 200. Tipo `migration.validation`, sin petición a Stripe ni cargos; no reproducir este evento en producción. Gateway privado rechaza POST con 405.
+- SMTP institucional y recuperación: autenticación correcta desde contenedor puntual sin trabajadores de pagos; sin envío. Conservada privadamente la configuración de recuperación previamente corregida en VPS para usarla en la configuración final.
+- Balanceador confirmado: Academy/admin-academy hacia frontend y API propios; `cruje.mx` y `www.cruje.mx` hacia Crüje. Academy responde desde Google aunque su A sea 136.68.177.225: ese destino pertenece al balanceador, no se considerará alojamiento externo independiente.
+- Cloudflare .com.mx: proxy activo, cifrado Completo automático y Usar siempre HTTPS apagado. Se preparará el corte conservando proxy y cifrado; no se han modificado estas protecciones.
+- Preflight de colegio/Commerce/API: revisiones activas coinciden con imágenes rescatadas; reversión de escalado/etiquetas guardada. Drenaje máximo 330 segundos.
+- Iniciado procedimiento coordinado de mantenimiento y copia final. Si falla antes de escrituras VPS, intenta reactivar orígenes con la configuración guardada. Verificar salida antes de declarar que el mantenimiento o la copia terminaron.

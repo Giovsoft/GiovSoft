@@ -1,0 +1,26 @@
+# Exact static image rescued from the active Cloud Run revision.
+name: cruje-vps
+services:
+  web:
+    image: rescue-cruje-00003-279:saved
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    ports: ["127.0.0.1:8094:8080"]
+    networks:
+      edge:
+        aliases: [cruje-public]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  edge:
+    external: true
+    name: giovsoft-vps_app
