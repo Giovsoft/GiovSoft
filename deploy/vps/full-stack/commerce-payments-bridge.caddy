@@ -1,0 +1,15 @@
+# Temporary DNS cutover bridge. Replace with commerce-payments.caddy after
+# the consistent final database restore; never run duplicate public writers.
+commerce.giovsoft.com {
+  encode zstd gzip
+  reverse_proxy https://giovcommerce-7752ufmobq-uc.a.run.app {
+    header_up Host giovcommerce-7752ufmobq-uc.a.run.app
+  }
+}
+
+api.giovsoft.com {
+  encode zstd gzip
+  reverse_proxy https://giovsoft-backend-7752ufmobq-uc.a.run.app {
+    header_up Host giovsoft-backend-7752ufmobq-uc.a.run.app
+  }
+}

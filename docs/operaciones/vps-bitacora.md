@@ -775,3 +775,11 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Confirmado inventario Scheduler recibido (34 regiones, 0 trabajos) y ausencia de crontabs de usuario en respaldo VM.
 - Referencia webhook heredada: versión 6 creada 2026-08-29 y DISABLED. No se habilitó ni se leyó su valor. La API adicional no contiene `/api/checkout/webhook` que figura como destino Stripe Academy; sí contiene `/api/webhooks/stripe`. Revisar uso real antes de reactivar esa integración; no confundirla con el receptor principal del colegio pinneado a versión 5.
 - Producción sigue en el origen previo, con cuatro comprobaciones HTTP 200 tras reversión; destinos DNS no modificados. Próximo paso depende de recuperar sesión de edición DNS en Squarespace y repetir una sincronización final nueva.
+
+### 2026-11-04 — Preflight renovado y preparación sin mantenimiento
+
+- Usuario recuperó edición Squarespace. Se guardó TXT inocuo `_vps-preflight=vps-ready-20261104` en GiovSoft para comprobar escritura real; edición del A del colegio abierta y cancelada sin modificar destino.
+- SSH al VPS autorizado personalmente por el usuario; conexión persistente de transferencia confirmada. No se imprimieron credenciales.
+- Nueva precopia `cut-20261104.hnbahgcz`: revisiones/configuración privada actualizadas y rsync por checksum de colegio y Commerce terminados con origen activo. PostgreSQL principal accesible; SELECT 1 correcto. Ningún escritor pausado.
+- Academy requiere diagnóstico adicional: API pública devuelve 500 en salud y cursos; copia privada devuelve salud 200 pero cursos `/api/v1/courses` 404. La igualdad de HTML y salud no valida cursos/cuentas. No se declara Academy funcional ni se publica esa copia como solución completa.
+- Se prepara puente temporal API/Commerce a sus URLs run.app verificadas, con TLS validado y Host explícito. Permite propagar DNS antes de detener escritores; debe sustituirse por el backend VPS después de restaurar copia final consistente. Es una etapa transitoria, no el estado final solicitado.
