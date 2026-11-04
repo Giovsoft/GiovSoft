@@ -672,6 +672,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **DNSSEC:** Squarespace muestra activo; consulta Google DNS confirma DS con TTL 21600 segundos (seis horas). Se solicitó confirmación de acción para retirarlo temporalmente y delegar a los dos NS asignados `.com`. Ninguno de esos dos cambios se ha ejecutado aún. Tras retirar el DS, comprobar su ausencia autoritativa y esperar la caducidad de cachés antes de sustituir NS; no combinar de inmediato si sigue publicado/cacheado.
 - **Estado:** sitios y pagos en GCP siguen activos. Copia final y cambio de destinos al VPS pendientes. Paneles DNS ahora localizados para ambos dominios.
 
+## 2026-11-03 20:50 — DNSSEC .com desactivado con confirmación; delegación diferida por DS
+
+- **Autorización recibida:** Giovanni confirma retirar temporalmente DNSSEC de `.com` y delegar a `coen.ns.cloudflare.com` / `raquel.ns.cloudflare.com`, conservando destinos Google. No se necesita repetir esa autorización si se mantienen exactamente alcance y destino.
+- **Ejecutado por navegador:** Squarespace → DNSSEC → desactivar → confirmar. Estado posterior del control: desactivado (0). No se cambió contraseña, registro del dominio ni registros web.
+- **Comprobación nueva:** a las 20:50 de México (2026-11-04T02:50:41Z), `a.gtld-servers.net` todavía devuelve el DS con TTL autoritativo 86400 segundos; Cloudflare resolver también responde DS con 86400, Google con 21600. Corrección de la estimación anterior: las seis horas observadas en Google NO eran el máximo global; el horizonte observado es 24 horas.
+- **Decisión:** no sustituir NS mientras el DS anterior siga publicado o pueda quedar en cachés que validan DNSSEC. Esperar a comprobar ausencia en el padre `.com` y dejar transcurrir su TTL previo desde la retirada autoritativa confirmada; Squarespace advierte que la actualización puede tardar hasta 48 horas. Todavía no se ha confirmado la retirada del padre.
+- **Estado:** cambio NS autorizado pero pendiente, no ejecutado. Mantener origen GCP activo, ambos dominios operativos y sin copia final ni cambios de destinos al VPS. Próxima revisión: DS autoritativo y resolutores antes de delegación; luego reactivar DNSSEC usando parámetros Cloudflare una vez estable la nueva delegación.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
