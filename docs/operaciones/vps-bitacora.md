@@ -834,3 +834,11 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - PostgreSQL local conserva 34 tablas. Desde el propio contenedor de pagos se verificó conexión y consulta con base giovsoft y rol giovsoft_app correctos. DATABASE_URL ausente, PGHOST=database y CLOUD_SQL_CONNECTION_NAME vacío; código del pool elige la configuración local.
 - SMTP institucional y recuperación: autenticación correcta desde contenedor publicado, sin enviar mensajes. Configuración de recuperación corregida en VPS conservada.
 - GCP principal debe permanecer pausado; no reactivarlo tras nuevas escrituras VPS. No se eliminaron recursos GCP ni volúmenes de copias privadas. Academy y Crüje siguen siendo etapas adicionales pendientes de publicación; no declarar todavía salida completa de todo el proyecto.
+
+### 2026-11-04 — Crüje publicado y preflight final Academy
+
+- Crüje: HTML del VPS coincide por SHA256 con origen. Caddy configurado y A raíz de cruje.mx cambiado de 136.68.177.225 a 5.183.11.142; www conserva CNAME cruje.mx. Autoritativo nse1 confirma nuevo A, sin AAAA. HTTPS directo al VPS para raíz y www: 200, certificado validado. Sitio estático sin base; origen puede mantenerse durante TTL de 4 horas sin escritores duplicados.
+- Evidencia pública guardada en `evidencias/cruje-vps-2026-11-04.jpg`. No se enviaron formularios del sitio.
+- Academy: base nueva y runner separados saludables, API todavía sin iniciar. Runner rechaza token incorrecto 403. Prueba de compilación detectó /tmp noexec; se confirmó en /proc/mounts y se permitió exec únicamente en tmpfs del runner, conservando UID 1000, raíz de solo lectura, cap_drop ALL, límites y red interna sin credenciales financieras. Nueva prueba: compilación/ejecución 200, salida VPS_OK y código 0.
+- SMTP Academy original devolvió EAUTH. Usuario autoriza usar soporte@giovsoft.com; configurado remitente GiovSoft Academy con esa cuenta y la configuración privada ya validada. Nueva autenticación SMTP correcta, sin enviar mensajes ni iniciar API.
+- Preparado controlador Academy con copia SQL después de pausar API/runner, checksum y watchdog antes de nuevas escrituras. Editor DNS reautenticado por usuario; se mantiene origen activo hasta completar preflight de publicación.
