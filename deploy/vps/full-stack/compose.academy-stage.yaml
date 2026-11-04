@@ -1,0 +1,20 @@
+# Private restoration of the Academy snapshot; no published ports or app workers.
+name: academy-stage
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks: [database]
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d figma_academy]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  database: {internal: true}
+volumes:
+  database:
