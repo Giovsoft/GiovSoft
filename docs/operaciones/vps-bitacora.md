@@ -823,3 +823,14 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - La sesión fue interrumpida antes de promover servicios. Watchdog reactivó automáticamente los tres orígenes; comprobados scaling automatic y marcador WATCHDOG_ROLLBACK. Sitios y API/Commerce públicos 200. La copia restaurada se marcó STALE_AFTER_GCP_ROLLBACK y el snapshot STALE_AFTER_WATCHDOG_ROLLBACK; no promoverlos después de nuevas escrituras en origen.
 - Se renovaron consola Hostinger, conexión de transferencia (contraseña introducida por usuario), proxy SQL principal e IAP para SQL Academy. Nueva precopia con configuración privada actualizada terminada: `cut-20261104.9k1dc005`.
 - Segundo intento usa destino privado y proyecto Docker separados con sufijo r2; controlador con drenaje 330 segundos, reversión por fallo y watchdog de 20 minutos antes de nuevas escrituras. No eliminar volúmenes ni reutilizar snapshot anterior como versión final.
+
+### 2026-11-04 — Corte definitivo del colegio, Commerce y pagos al VPS
+
+- Snapshot nuevo `cut-20261104.9k1dc005`: 45 archivos comprobados, una diferencia respecto al respaldo inicial, delta de 6263108 bytes recibido y checksum correcto. PostgreSQL y archivos restaurados en `/opt/colegio-completo/production-20261104-r2`, proyecto separado `colegio-completo-r2`.
+- Antes de publicar: administrador autenticado 200 y storefront autenticado 200 en red aislada. Marcador VPS_WRITES_ACTIVE escrito antes de permitir salida/escrituras; desde ese punto no aplicar reversión ciega a GCP.
+- Primer arranque en red definitiva falló porque contenedores conservaban NetworkMode de la red temporal ya retirada. Se comprobó el error y se recrearon contenedores con --force-recreate, conservando el volumen PostgreSQL; Caddy validado y recargado. Marcador VPS_MAIN_PUBLICADO leído.
+- Se detuvo el puente `colegio-com-shared` y se sustituyó el fragmento API/Commerce por destinos locales `colegio-public:81/82`. Colegio usa alias local :80. No quedan estos tres servicios sirviendo mediante run.app.
+- Comprobaciones públicas posteriores: .com/api/health, .com.mx/api/health, api.giovsoft.com/api/health y commerce.giovsoft.com/api/health responden 200 con TLS válido, sin omitir validación de certificados.
+- PostgreSQL local conserva 34 tablas. Desde el propio contenedor de pagos se verificó conexión y consulta con base giovsoft y rol giovsoft_app correctos. DATABASE_URL ausente, PGHOST=database y CLOUD_SQL_CONNECTION_NAME vacío; código del pool elige la configuración local.
+- SMTP institucional y recuperación: autenticación correcta desde contenedor publicado, sin enviar mensajes. Configuración de recuperación corregida en VPS conservada.
+- GCP principal debe permanecer pausado; no reactivarlo tras nuevas escrituras VPS. No se eliminaron recursos GCP ni volúmenes de copias privadas. Academy y Crüje siguen siendo etapas adicionales pendientes de publicación; no declarar todavía salida completa de todo el proyecto.
