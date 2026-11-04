@@ -807,3 +807,10 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Resultado leído: contenedor saludable; /api/health 200; /api/public/courses 200 con 121 cursos; /api/auth/me 401 sin sesión. Informe privado `api38-validation.json`. Esta prueba corrige la validación insuficiente de la imagen anterior; no equivale a login de usuario ni compra autenticada.
 
 - Webhook Academy verificado únicamente en copia aislada: evento sintético `migration.validation`, firma inválida 400 y válida 200. Sin llamadas a Stripe ni efectos financieros. Corte público sigue pendiente de sesión Squarespace y confirmación de retirada de siete DNS antiguos; GCP permanece activo.
+
+### 2026-11-04 — DNS .mx y API/Commerce hacia VPS
+
+- Usuario confirmó retirada de siete destinos Google en .com.mx. Guardado A raíz 5.183.11.142, proxy conservado; retirados únicamente tres A y cuatro AAAA antiguos. Zona conserva nueve registros, incluidos correo/verificaciones. HTTPS directo al VPS por SNI .com.mx: /api/health 200, certificado validado sin excepciones.
+- Squarespace GiovSoft reautenticado: api y commerce CNAME cambiados de ghs.googlehosted.com a giovsoft.com (raíz ya en VPS). Autoritativo nsc1 confirma ambos valores. API directa VPS /api/health 200/TLS válido. Servicios aún usan puente hacia GCP, sin duplicar escritores.
+- Usuario autorizó también retirar siete destinos antiguos .com en Squarespace y zona pendiente de Cloudflare. En Cloudflare ya retirados y A restante 5.183.11.142; creado www CNAME raíz, Solo DNS como el resto de esa zona. La delegación todavía pendiente no se adelantó a ventana DNSSEC.
+- Squarespace del colegio sigue con cuadro de reautenticación vacío aun después de recargar; se pidió completar esa sesión específica. No se alteraron sus A/AAAA autoritativos todavía. No hay mantenimiento ni copia final activa.
