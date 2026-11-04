@@ -714,3 +714,12 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Verificación y evidencia:** resultado recibido y criterio de éxito.
 - **Reversión:** procedimiento concreto si aplica, sin eliminar datos persistentes.
 - **Siguiente paso:** pendiente resultante.
+
+### 2026-11-03 — Rescate ampliado a todo el proyecto
+
+- Usuario confirma alcance total del proyecto; inventariados seis servicios adicionales, VM `giovsoft-ops` y segunda instancia PostgreSQL privada `giovsoft-pg`.
+- Configuración privada y dump principal preliminar verificados por checksum en VPS. Transferencia del payload de 380529058 bytes terminada; checksum OK y extracción privada completada. Verificación interna y carga de imágenes en curso.
+- Segunda base: respaldo fallido por conectividad privada; no existe todavía dump válido. Se investiga VM existente; no se abrió acceso público SQL.
+- Stripe consultado únicamente mediante GET: endpoint API principal habilitado, duplicado deshabilitado y endpoint Academy habilitado. Ningún cargo, evento ni correo creado.
+- Preparado override de producción y proxy API/Commerce; `docker compose config --quiet` correcto. No habilitados en producción; DNS y escritores originales conservados.
+- Pendiente: rescate adicional, pruebas aisladas, copia final coordinada y corte. No declarar independencia de GCP mientras subsistan base adicional o Vertex.

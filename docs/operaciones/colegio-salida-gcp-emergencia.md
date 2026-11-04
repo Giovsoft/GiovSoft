@@ -41,3 +41,17 @@ Copias GCS e imágenes exactas iniciadas. Aún debe verificarse su finalización
 - Revisar rutas de webhook Stripe, claves de firma, Connected Account y callback Commerce conservando autenticación/idempotencia.
 - DNSSEC .com: respetar retirada DS/TTL documentados, ventana segura desde 2026-11-04 20:52. .com.mx ya está en Cloudflare. Si hay problemas, priorizar continuidad de .com.mx y api/commerce antes del límite comunicado.
 - Documentar prueba final y reversión; no prometer disponibilidad total hasta verificaciones completas.
+
+## Ampliación confirmada: todo el proyecto
+
+El usuario confirma que el límite afecta todo el proyecto. Inventario adicional: servicios `cruje`, `giovsoft`, `giovsoft-frontend`, `giovsoft-api`, `giovsoft-runner`, `giovsoft-web`; VM `giovsoft-ops` en northamerica-south1-a; Cloud SQL `giovsoft-pg`, PostgreSQL 16, base `figma_academy`, solo IP privada. La API adicional referencia Vertex: trasladar contenedores no elimina esa dependencia de IA.
+
+Configuración principal y dump preliminar: recibidos y checksum correcto en VPS. Archivo `production-payload.tar.gz` de 380529058 bytes recibido, checksum correcto y extraído en carpeta privada; verificación del manifiesto interno y carga de imágenes en curso. No es copia final de escritores detenidos.
+
+La segunda base todavía NO tiene respaldo válido: el intento con región incorrecta falló, y el proxy de región correcta agotó conexión a IP privada. No se ha publicado la base en Internet. Se investiga acceso desde VM existente en su red.
+
+La referencia `latest` del secreto webhook usada por la API adicional apunta a versión 6 deshabilitada; versión 5 está habilitada y es la referencia explícita de la API principal. No se ha sustituido silenciosamente una referencia por otra.
+
+Consulta Stripe de solo lectura: webhook habilitado en `https://api.giovsoft.com/api/webhooks/stripe`, otro duplicado deshabilitado y un webhook habilitado en `https://academy.giovsoft.com/api/checkout/webhook`. No se modificaron endpoints ni se generaron pagos. Conservar Academy y comprobar sus dependencias antes de retirar el proyecto.
+
+El cambio de alojamiento puede adelantarse cambiando A/AAAA en Squarespace; la espera DNSSEC corresponde a delegación de nameservers. Mantener también actualizada la zona pendiente de Cloudflare antes de delegarla.
