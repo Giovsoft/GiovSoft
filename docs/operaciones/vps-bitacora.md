@@ -748,3 +748,30 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Corrección comprobada: PORT 8080, tmpfs para conf.d y únicamente CHOWN/SETUID/SETGID adicionales. Contenedor saludable y HTTP privado 200 en loopback 8094. DNS de Crüje todavía sin modificar.
 - Squarespace permite consultar registros, pero exige reautenticación al editarlos; cuadro de reautenticación vacío. Se solicitó al usuario completar acceso en la pestaña giovsoft.com. Ningún registro editado todavía.
 - Política operativa: no habilitar escritores públicos VPS con origen activo; si la sesión DNS no se resuelve al terminar la copia consistente, reactivar origen y repetir sincronización final antes del corte posterior.
+
+### 2026-11-03 22:37 — Origen reactivado; corte DNS aplazado por sesión
+
+- La pausa de los tres escritores se confirmó aproximadamente a las 22:21; drenaje de 330 segundos terminado. Se inició copia GCS desde cero y no llegó a constituir una copia final validada antes de abortar.
+- Squarespace exigió reautenticación al editar DNS pese a permitir lectura. Debió comprobarse la edición antes de iniciar mantenimiento. Se interrumpió coordinador/copias del intento y se ejecutó reversión de escalado y etiquetas guardadas; no hubo escrituras públicas VPS ni cambios DNS.
+- Servicios figuraban Ready/automatic pero devolvieron inicialmente 500 de Google durante arranque. Logs de plataforma confirmaron inicio/probe correcto de API; posteriormente .com, .com.mx, Commerce y API devolvieron 200, comprobado desde Cloud Shell y desde equipo local (principales).
+- Carpeta `corte-final.iknfumhu` marcada `NOT_FINAL_DNS_SESSION_BLOCKED`; referencia trasladada a `last-aborted-cut-path`. No promover su contenido parcial. Repetir preflight y copia final después de resolver sesión.
+- Corrección del procedimiento: prevalidar edición de TODOS los DNS y precalentar archivos antes del mantenimiento; sincronizar por checksum/diferencias durante corte para reducir la interrupción.
+
+### 2026-11-03 — Rescate adicional verificado fuera de GCP
+
+- Archivo Academy de 253954954 bytes recibido, checksum OK y tres imágenes exactas cargadas. PostgreSQL Academy restaurado: 68 tablas; API adicional en red privada saludable, /api/health 200 y /api/admin/profile 401 sin credenciales. No se probó login autenticado ni Stripe de esta API.
+- Prueba TCP de salida desde API adicional y copia de pagos: bloqueada por aislamiento. No se enviaron correos ni se hicieron cargos; pruebas de webhook anteriores limitadas a evento sintético en copia aislada.
+- Corrección de inferencia Vertex: variables heredadas presentes, pero arranque exacto usa index.js sin referencias VERTEX_PROJECT/RUNNER_URL ni SDK Vertex en dependencias. No se cambió proveedor y la pregunta preliminar de IA deja de ser requisito para este corte.
+- Falta de secreto de webhook de API adicional sigue sin resolver: latest corresponde a versión 6 deshabilitada. No se reemplazó por versión 5 ni se publicó una configuración incompleta.
+- Cloud Scheduler: 34 ubicaciones soportadas revisadas, cero errores, cero trabajos. Intento de región northamerica-south1 no soportada fue sustituido por inventario de ubicaciones oficiales. JSON completo transferido privadamente.
+- Cron/systemd de VM `giovsoft-ops` respaldados, transferidos y checksum OK; no se migraron claves SSH personales ni se alteraron tareas originales.
+- Pendiente necesario para continuar corte: el usuario debe recuperar edición de registros en Squarespace; solicitud enviada sin pedir contraseña en el chat. DNSSEC/NS siguen según estado anterior; ningún destino web cambiado en esta sesión.
+
+### 2026-11-03 — Consolidación de pruebas y evidencia privada
+
+- Academy frontend/API/access levantados privadamente. Gateway 127.0.0.1:8095 devuelve raíz 200, salud API 200 y perfil no autenticado 401; POST bloqueado 405. HTML coincide por SHA256 con academy.giovsoft.com. No aparecieron referencias run.app en búsqueda sobre sus estáticos.
+- Se preservó la configuración Nginx original de imagen en carpeta privada del VPS; no se reescribieron diseño ni contenido. Crüje reconciliado con Compose versionado sin el override de diagnóstico y sigue saludable.
+- Auditoría del corte abortado transferida y checksum correcto. Índice privado de siete archivos creado en `/root/colegio-emergencia-20261103/rescue-index.json`, marcado sin corte de producción y con copias preliminares.
+- Confirmado inventario Scheduler recibido (34 regiones, 0 trabajos) y ausencia de crontabs de usuario en respaldo VM.
+- Referencia webhook heredada: versión 6 creada 2026-08-29 y DISABLED. No se habilitó ni se leyó su valor. La API adicional no contiene `/api/checkout/webhook` que figura como destino Stripe Academy; sí contiene `/api/webhooks/stripe`. Revisar uso real antes de reactivar esa integración; no confundirla con el receptor principal del colegio pinneado a versión 5.
+- Producción sigue en el origen previo, con cuatro comprobaciones HTTP 200 tras reversión; destinos DNS no modificados. Próximo paso depende de recuperar sesión de edición DNS en Squarespace y repetir una sincronización final nueva.
