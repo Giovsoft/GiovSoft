@@ -665,6 +665,13 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Pendientes antes del corte:** acceso al panel Squarespace de `.com`, inventario completo de esa zona y DNSSEC, actualizar procedimiento/Caddy para ambos dominios, copia final coordinada y restauración, pruebas privadas de credenciales e integraciones, publicación y verificación HTTPS. No cortar DNS o pausar GCP antes de disponer de ambos paneles y la ruta de reversión. La copia inicial no sustituye la copia final.
 - **Incidencia de terminal:** el primer envío multilínea concatenó dos comandos de consulta y produjo un error de argumento; se corrigió enviando cada comando con Enter separado. No hubo modificación derivada de ese error.
 
+## 2026-11-03 — Inventario DNS .com comparado y DNSSEC detectado
+
+- **Acceso:** Giovanni abrió Squarespace para `.com`. Se comparó la tabla completa con Cloudflare: 14 registros coincidentes (cuatro A, cuatro AAAA, CNAME `_domainconnect` y `test`, TXT de verificación, SPF, DMARC y DKIM vacío de la política de no envío). No hay MX en esta zona; no copiar los de `.com.mx`.
+- **Cambio aplicado en zona pendiente Cloudflare:** diez registros A/AAAA/CNAME pasaron de proxy a Solo DNS conservando todos sus destinos. Los cuatro TXT permanecen sin cambios. Confirmación visual posterior: 14 registros y los diez elegibles en Solo DNS. Como la delegación sigue en Squarespace, esto no cambia el tráfico público.
+- **DNSSEC:** Squarespace muestra activo; consulta Google DNS confirma DS con TTL 21600 segundos (seis horas). Se solicitó confirmación de acción para retirarlo temporalmente y delegar a los dos NS asignados `.com`. Ninguno de esos dos cambios se ha ejecutado aún. Tras retirar el DS, comprobar su ausencia autoritativa y esperar la caducidad de cachés antes de sustituir NS; no combinar de inmediato si sigue publicado/cacheado.
+- **Estado:** sitios y pagos en GCP siguen activos. Copia final y cambio de destinos al VPS pendientes. Paneles DNS ahora localizados para ambos dominios.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
