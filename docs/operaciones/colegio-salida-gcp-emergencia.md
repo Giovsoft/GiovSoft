@@ -85,3 +85,17 @@ Scheduler: inventariadas 34 ubicaciones soportadas, sin errores y sin trabajos. 
 - Configuración Nginx original de Academy copiada desde su imagen a `/opt/academy-completo/stage-20261103/web-nginx` y montada para permitir generación de plantilla, con raíz de imagen solo lectura. No se reemplazó el diseño ni el contenido.
 - `cruje-vps` saludable usando únicamente el archivo Compose versionado, sin depender del override temporal de diagnóstico.
 - Cron de usuarios de VM: cero archivos de crontab en respaldo. Scheduler: inventario de 34 regiones recibido en VPS y comprobado, cero trabajos.
+
+## Actualización 2026-11-04: preflight nuevo y Academy
+
+La precopia nueva `cut-20261104.hnbahgcz` terminó con origen activo. SELECT 1 correcto en las dos bases por conexiones privadas (principal proxy 15432; Academy túnel IAP/VM 15435). SSH de transferencia renovado por el usuario. Ningún origen se pausó en esta sesión.
+
+Para reducir mantenimiento durante TTL, se instaló en VPS un puente HTTPS validado para API/Commerce a los run.app originales. El puente del colegio ya existía. La etapa intermedia fue autorizada previamente; sigue siendo obligatorio sustituirla por servicios y datos locales antes del límite. No anunciar independencia de GCP durante el puente.
+
+Squarespace vuelve a pedir reautenticación al editar API y muestra cuadro vacío; el TXT inocuo guardado solo probó creación. Cloudflare exige confirmación para retirar siete destinos Google de .com.mx. Se solicitó; el A probado se revirtió al original mientras llega la confirmación, porque TLS directo del VPS aún no completa handshake. Sitio público /api/health continúa en 200/TLS válido. No se dejaron destinos parciales deliberadamente.
+
+El diagnóstico de Academy cambió al contrastar aplicación y rutas: revisión activa 39 usa código de GiovSoft; revisión 38 sí contiene Academy (`node src/index.js`, auth, catálogo público y `/api/checkout/webhook`). Se está rescatando la imagen 38 para validación privada, no se eligió por un simple número de versión. El repo `Giovsoft/GiovSoft-Academy` y el contenido de la propia imagen corroboran esas rutas. El catálogo correcto es `/api/public/courses`.
+
+La aplicación Academy correcta sí usa Vertex. La conclusión anterior sobre variables heredadas describía únicamente la imagen incorrecta 39. Se conserva la decisión del usuario de posponer IA; no habilitar un stub de evaluación como sustituto de producción ni ejecutar código de alumnos dentro de la API con secretos. Preparar indisponibilidad explícita de esas funciones hasta aislar runner y sustituir Vertex. Cuentas/cursos/pagos requieren validación con imagen correcta y copia final de figma_academy.
+
+La firma del webhook Academy existente se recuperó desde su propio detalle Stripe y se guardó en archivo privado 0600 del VPS. No se habilitó Secret Manager 6 ni se sustituyó por la clave 5 del colegio. No se rotaron claves ni se alteraron endpoints. Comprobación de uso y firma aún pendiente en copia aislada.
