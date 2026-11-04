@@ -741,3 +741,10 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Cloudflare .com.mx: proxy activo, cifrado Completo automático y Usar siempre HTTPS apagado. Se preparará el corte conservando proxy y cifrado; no se han modificado estas protecciones.
 - Preflight de colegio/Commerce/API: revisiones activas coinciden con imágenes rescatadas; reversión de escalado/etiquetas guardada. Drenaje máximo 330 segundos.
 - Iniciado procedimiento coordinado de mantenimiento y copia final. Si falla antes de escrituras VPS, intenta reactivar orígenes con la configuración guardada. Verificar salida antes de declarar que el mantenimiento o la copia terminaron.
+
+### 2026-11-03 — Crüje recuperado y bloqueo de sesión DNS
+
+- Imagen exacta de Crüje recibida, checksum correcto y cargada en VPS. Primer arranque falló porque la plantilla Nginx genera `/etc/nginx/conf.d/default.conf` en raíz de solo lectura; la plantilla requiere PORT. Segundo diagnóstico mostró chown sin permiso por cap_drop ALL.
+- Corrección comprobada: PORT 8080, tmpfs para conf.d y únicamente CHOWN/SETUID/SETGID adicionales. Contenedor saludable y HTTP privado 200 en loopback 8094. DNS de Crüje todavía sin modificar.
+- Squarespace permite consultar registros, pero exige reautenticación al editarlos; cuadro de reautenticación vacío. Se solicitó al usuario completar acceso en la pestaña giovsoft.com. Ningún registro editado todavía.
+- Política operativa: no habilitar escritores públicos VPS con origen activo; si la sesión DNS no se resuelve al terminar la copia consistente, reactivar origen y repetir sincronización final antes del corte posterior.

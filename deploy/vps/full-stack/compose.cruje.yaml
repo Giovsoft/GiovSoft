@@ -7,7 +7,9 @@ services:
     read_only: true
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
-    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    cap_add: [CHOWN, SETUID, SETGID]
+    environment: {PORT: "8080"}
+    tmpfs: [/var/cache/nginx, /var/run, /tmp, /etc/nginx/conf.d]
     ports: ["127.0.0.1:8094:8080"]
     networks:
       edge:
