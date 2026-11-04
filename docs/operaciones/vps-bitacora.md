@@ -683,6 +683,16 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 
 - **Revisión posterior (2026-11-03T20:51:28-06:00):** consultas directas a `a.gtld-servers.net` y `b.gtld-servers.net` ya no devuelven DS. Retirada autoritativa observada; esperar 24 horas desde esta confirmación para cubrir el TTL anterior antes del cambio NS. Ambas raíces públicas comprobadas de nuevo: HTTPS 200.
 
+## 2026-11-03 — VPS preparado para ambos dominios con backend temporal GCP aprobado
+
+- **Decisión de Giovanni:** para que el último paso sea DNS, aprueba servir ambos dominios en VPS manteniendo temporalmente el backend GCP. Este es el alcance vigente; ya no se requiere pausa ni copia final en este corte. La salida completa de GCP queda para otra fase.
+- **Código/configuración:** commit `01d072d` amplía `colegio.caddy` a ambas raíces y sus www, cada www redirigiendo a su raíz. Nueva [guía vigente](colegio-dns-listo-vps.md) con DNS, HTTPS y reversión. Configuración Caddy validada localmente y en el VPS.
+- **VPS ejecutado:** pull hasta `01d072d`; se estableció únicamente `COLEGIO_SHARED_GATE=./colegio-shared-active.conf` en el archivo privado (permiso 0600), se recreó access y quedó healthy. La puerta ya permite las operaciones normales hacia el backend compartido; no quedan compras bloqueadas por la puerta de pruebas de este proyecto. Se instaló el snippet del colegio, se actualizó únicamente edge con el montaje sites-enabled y se recargó Caddy correctamente. No se inició `colegio-vps-live`, ni se copiaron cuentas a un almacenamiento escribible distinto.
+- **Verificación:** páginas inicio, tienda y admin, health/content/catalog HTTP 200 en 8085. Panel privado con credencial existente por proxy: HTTP 200, sin imprimir credencial ni cuerpo. Imagen actual de uploads: HTTP 200, image/png. Caddy alcanza `colegio-public/api/health` correctamente. Login con JSON vacío rechazado HTTP 401: la petición llega al backend; no se usó una cuenta real ni se creó sesión. Web y access healthy.
+- **Configuración efectiva:** consulta al administrador local de Caddy por `127.0.0.1:2019` confirma los cuatro nombres y el destino `colegio-public:80`. Una consulta anterior con grep falló por comillas y otra a localhost eligió un listener no disponible; se corrigió la consulta sin alterar la configuración.
+- **Continuidad pública:** GiovSoft y health de ambos dominios responden HTTPS 200 todavía por sus rutas actuales. Prueba HTTP directa al VPS con cada Host devuelve 308. TLS del colegio en VPS sigue pendiente de que DNS alcance el servidor; Caddy tiene automatización de certificados configurada, no se afirma emisión completada.
+- **Límites:** no se enviaron correos, crearon órdenes, pagos o cargos. No se certifica un checkout completo Stripe ni entrega de correo; sus servicios y configuración GCP siguen operando sin cambios. No se editó el DNS web en este paso. Se conserva la espera DNSSEC `.com` y el corte DNS de ambas zonas con verificación HTTPS posterior.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción

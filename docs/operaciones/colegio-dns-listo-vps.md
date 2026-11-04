@@ -45,3 +45,7 @@ Con backend compartido no se requiere pausa ni copia final para esta etapa y no 
 ## Reversión
 
 Restaurar A/AAAA web Google y los CNAME/proxy previos en la zona afectada; conservar backend GCP. No hay que reconciliar copias de cuentas. Retirar solo el snippet del colegio si fuera necesario, sin modificar GiovSoft ni borrar certificados. Mantener las copias iniciales privadas para la futura migración completa.
+
+## Estado ejecutado el 2026-11-03
+
+VPS actualizado a `01d072d`, web/access healthy, puerta activa, snippet de ambas raíces/www instalado y Caddy validado/recargado. Páginas y API 200; admin autenticado 200; imagen subida 200 image/png; login vacío 401; conexión de Caddy al colegio correcta. GiovSoft y dominios actuales mantienen HTTPS 200. No se requiere nueva activación de contenedores al cambiar DNS. Certificados del colegio en VPS y comprobación pública final permanecen pendientes del DNS. No apagar GCP.
