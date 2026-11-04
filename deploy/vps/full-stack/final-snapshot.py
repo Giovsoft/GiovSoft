@@ -55,6 +55,7 @@ def main(root):
         (cut / (svc + '.at-freeze.json')).write_text(json.dumps(s))
     print('PREFLIGHT_OK; comenzando pausa coordinada', flush=True)
     paused = False
+    watchdog = None
     try:
         paused = True
         watchdog = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), str(root), '--watchdog'], stdout=log, stderr=log, start_new_session=True)
@@ -121,6 +122,8 @@ def main(root):
               'bytes', archive.stat().st_size, flush=True)
         print('GCP_PAUSADO; restaurar VPS antes de habilitar escrituras. No revertir tras nuevas escrituras.', flush=True)
     except BaseException:
+        if watchdog is not None:
+            watchdog.terminate()
         if paused and not (cut / 'VPS_WRITES_ACTIVE').exists():
             print('FALLO_ANTES_DE_ESCRITURAS; restaurando origen', flush=True)
             subprocess.run(['bash', str(cut / 'rollback-before-vps-writes.sh')], stdout=log, stderr=log, check=True)
