@@ -2,6 +2,16 @@
 
 Giovanni comunica que GCP dejará de funcionar mañana a las 23:00. Se interpreta como 2026-11-04 23:00, hora de México; no se ha verificado causa de suspensión ni aviso de facturación. La estrategia temporal con backend en GCP ya no satisface ese plazo como destino final.
 
+## Estado actual — 4 de noviembre, corte publicado
+
+GiovSoft, Colegio (.com y .com.mx), Commerce, API de pagos, Academy (incluido admin-academy) y Crüje sirven desde el VPS. Colegio y Academy usan sus bases locales restauradas desde copias finales después de pausar y drenar los escritores GCP. El puente temporal ya no participa. HTTPS comprobado sin excepciones; www del colegio redirige con certificado válido.
+
+Los proyectos canónicos son `giovsoft-vps`, `colegio-completo-r2`, `academy-completo` y `cruje-vps`. No reactivar los escritores de GCP ni sobrescribir las bases locales con respaldos preliminares después del corte. Las copias antiguas se conservan como respaldo y las vistas previas están detenidas.
+
+Pendientes conocidos: IA de Academy (Vertex) deshabilitada explícitamente hasta preparar otro proveedor; delegación DNS .com a Cloudflare después de las 20:52 CDMX por caché DNSSEC. El alojamiento .com ya apunta al VPS desde Squarespace y no espera esa delegación. Stripe sigue habilitado para colegio y Academy; comprobaciones de proveedor solo de lectura, sin cargos ni correos enviados.
+
+Detalle verificable y rutas privadas: [bitácora](vps-bitacora.md), entradas del 4 de noviembre. Las secciones posteriores anteriores al corte son históricas y no describen el destino vigente.
+
 ## Estado al cierre del 3 de noviembre (histórico)
 
 - DNS sin cambios de alojamiento. Colegio (.com y .com.mx), Commerce y API principal nuevamente activos en GCP, comprobados HTTP 200 tras reactivación. GiovSoft principal conserva su despliegue previo en VPS.
