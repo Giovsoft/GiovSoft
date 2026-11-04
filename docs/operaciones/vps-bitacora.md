@@ -680,6 +680,9 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Decisión:** no sustituir NS mientras el DS anterior siga publicado o pueda quedar en cachés que validan DNSSEC. Esperar a comprobar ausencia en el padre `.com` y dejar transcurrir su TTL previo desde la retirada autoritativa confirmada; Squarespace advierte que la actualización puede tardar hasta 48 horas. Todavía no se ha confirmado la retirada del padre.
 - **Estado:** cambio NS autorizado pero pendiente, no ejecutado. Mantener origen GCP activo, ambos dominios operativos y sin copia final ni cambios de destinos al VPS. Próxima revisión: DS autoritativo y resolutores antes de delegación; luego reactivar DNSSEC usando parámetros Cloudflare una vez estable la nueva delegación.
 
+
+- **Revisión posterior (2026-11-03T20:51:28-06:00):** consultas directas a `a.gtld-servers.net` y `b.gtld-servers.net` ya no devuelven DS. Retirada autoritativa observada; esperar 24 horas desde esta confirmación para cubrir el TTL anterior antes del cambio NS. Ambas raíces públicas comprobadas de nuevo: HTTPS 200.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
