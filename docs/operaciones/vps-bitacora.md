@@ -654,6 +654,17 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - **Separación de cambios:** primero conservar destinos actuales y mover administración DNS; el cambio A al VPS se hará después de revisar Caddy/HTTPS y la instancia compartida. Usar DNS only inicialmente para no añadir proxy HTTP durante el diagnóstico. No transferir registro ni editar .com.mx.
 - **Estado:** no se creó una zona Cloudflare, cambió NS, desactivó DNSSEC, cambió DNS web o modificó GCP desde el asistente. Continúa pendiente acceso al panel Cloudflare y copia completa de registros de Squarespace. Fuente: guía oficial Cloudflare Full setup.
 
+## 2026-11-03 — Acceso delegado al asistente y preparación comprobada en VPS
+
+- **Autorización actual:** Giovanni deja las terminales Hostinger y GCP abiertas para que el asistente aplique cambios. Posteriormente amplía expresamente el alcance: migrar también `.com.mx`. La exclusión anterior deja de ser el alcance final; no se ha iniciado todavía el mantenimiento.
+- **VPS ejecutado:** actualización fast-forward de `/opt/giovsoft` desde `043c477` a `51ba78c`. El archivo Compose compartido faltaba antes de actualizar. Se levantó `colegio-com-shared` con la configuración privada existente: web y access healthy, health correcto, catálogo HTTP 200 y checkout POST HTTP 405. Puerto 8085 ligado a loopback; no se activó Caddy para el colegio ni se habilitaron compras.
+- **Preparación completa comprobada:** Compose live valida sin imprimir secretos; imagen `colegio-vps:9c867b6` disponible; disco 96G, 91G libres. `/opt/colegio/restauracion-final` todavía no existe. No iniciar live simultáneamente con shared por el alias común `colegio-public`.
+- **DNS real:** Cloudflare muestra `.com.mx` activo y `.com` pendiente de servidores de nombres. Consulta pública confirma `.com.mx` delegado a `aliza.ns.cloudflare.com` / `mack.ns.cloudflare.com`, con proxy Cloudflare. `.com` conserva NS Squarespace y A Google. Los NS asignados en la zona `.com` son `coen.ns.cloudflare.com` y `raquel.ns.cloudflare.com`. No intercambiar las parejas entre zonas.
+- **Origen GCP consultado sin cambios:** revisión `colegio-iberoamericano-wh-09151933` continúa con 100 % del tráfico y seis revisiones etiquetadas; timeout 300 segundos. Servicio y etiquetas no se pausaron ni retiraron. Commerce, API de pagos y Stripe sin cambios.
+- **Verificación pública:** health HTTPS de `.com.mx` y de GiovSoft responden 200. La prueba directa TLS del colegio contra 5.183.11.142 falló; HTTP devuelve redirección 308 de Caddy. No se presenta HTTPS del colegio en VPS como listo.
+- **Pendientes antes del corte:** acceso al panel Squarespace de `.com`, inventario completo de esa zona y DNSSEC, actualizar procedimiento/Caddy para ambos dominios, copia final coordinada y restauración, pruebas privadas de credenciales e integraciones, publicación y verificación HTTPS. No cortar DNS o pausar GCP antes de disponer de ambos paneles y la ruta de reversión. La copia inicial no sustituye la copia final.
+- **Incidencia de terminal:** el primer envío multilínea concatenó dos comandos de consulta y produjo un error de argumento; se corrigió enviando cada comando con Enter separado. No hubo modificación derivada de ese error.
+
 ## Plantilla para próximas entradas
 
 ### AAAA-MM-DD HH:MM — Acción
