@@ -69,6 +69,7 @@ def snapshot(root):
         print('ACADEMY_DRENAJE', drain, flush=True)
         time.sleep(drain)
         tables = int(run(['psql', '-Atc', "select count(*) from information_schema.tables where table_schema='public'"], env=env))
+        counts = json.loads(run(['psql', '-Atc', "select json_build_object('users',(select count(*) from users),'enrollments',(select count(*) from enrollments),'subscriptions',(select count(*) from subscriptions),'transactions',(select count(*) from transactions))"], env=env))
         dump = cut / 'figma-final.dump'
         run(['pg_dump', '--format=custom', '--no-owner', '--no-acl', '--file', str(dump)], env=env)
         assert tables > 0 and dump.stat().st_size > 10000
@@ -77,10 +78,10 @@ def snapshot(root):
         sha = cut / 'figma-final.dump.sha256'
         sha.write_text(digest + '  figma-final.dump\n')
         receipt = cut / 'receipt.json'
-        receipt.write_text(json.dumps({'final': True, 'tables': tables, 'sha256': digest, 'created_epoch': time.time(), 'revisions': REVISIONS}))
+        receipt.write_text(json.dumps({'final': True, 'tables': tables, 'counts': counts, 'sha256': digest, 'created_epoch': time.time(), 'revisions': REVISIONS}))
         run(ssh + ['install -d -m 700 ' + DEST])
         run(['scp', '-o', 'BatchMode=yes', '-o', 'ControlPath=' + control, str(dump), str(sha), str(receipt), 'root@5.183.11.142:' + DEST + '/'])
-        run(ssh + ['cd ' + DEST + ' && sha256sum -c figma-final.dump.sha256'])
+        run(ssh + ['cd ' + DEST + ' && sha256sum -c figma-final.dump.sha256 && touch SNAPSHOT_RECEIVED_OK'])
         (cut / 'FINAL_SNAPSHOT_OK').write_text(digest)
         print('ACADEMY_FINAL_SNAPSHOT_OK', tables, dump.stat().st_size, flush=True)
     except BaseException:
