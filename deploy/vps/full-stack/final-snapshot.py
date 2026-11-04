@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tarfile
 import time
 
@@ -56,6 +57,8 @@ def main(root):
     paused = False
     try:
         paused = True
+        watchdog = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), str(root), '--watchdog'], stdout=log, stderr=log, start_new_session=True)
+        (cut / 'WATCHDOG_PID').write_text(str(watchdog.pid))
         def freeze(svc):
             run(['gcloud', 'run', 'services', 'update-traffic', svc,
                  '--clear-tags', '--to-revisions=' + REVISIONS[svc] + '=100'] + FLAGS)
@@ -127,5 +130,16 @@ def main(root):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('root')
-    p.add_argument('--confirm-freeze', action='store_true', required=True)
-    main(p.parse_args().root)
+    mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--confirm-freeze', action='store_true')
+    mode.add_argument('--watchdog', action='store_true')
+    args = p.parse_args()
+    if args.watchdog:
+        root = Path(args.root).resolve()
+        cut = Path((root / 'prepared-cut-path').read_text()).resolve()
+        time.sleep(1200)
+        if not (cut / 'VPS_WRITES_ACTIVE').exists():
+            subprocess.run(['bash', str(cut / 'rollback-before-vps-writes.sh')], check=True)
+            (cut / 'WATCHDOG_ROLLBACK').write_text(str(time.time()))
+    else:
+        main(args.root)
