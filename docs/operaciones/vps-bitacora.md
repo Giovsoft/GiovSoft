@@ -799,3 +799,9 @@ docker compose --env-file deploy/vps/.env.production -f deploy/vps/compose.yaml 
 - Firma existente Academy comprobada en VPS: archivo presente, prefijo correcto y modo 0600. Bitácora hasta commit 19d17aa recibida por pull en VPS.
 - Validación privada automática preparada: espera archivo + checksum de imagen 38, carga binario, crea runtime38 separado conservando conexión a la copia SQL, aplica firma existente y recrea únicamente API de `academy-stage`. Gateway sigue solo lectura, red interna y sin salida. Informe esperado `api38-validation.json`; no declarar resultados antes de leerlo.
 - Imagen correcta Academy sí contiene dependencia Vertex; la inferencia anterior sin dependencia correspondía a imagen equivocada 39. Se mantiene autorización de posponer IA, con indisponibilidad explícita pendiente de preparar; no sustituir evaluaciones reales por stub local.
+
+### 2026-11-04 — Academy correcta restaurada y validada privadamente
+
+- Imagen revisión 38 recibida (146 MiB aprox.), SHA256 correcto y cargada como `rescue-academy-api38:saved`.
+- `runtime38.json` privado separado, firma existente y DATABASE_URL de la copia local; recreada únicamente API de academy-stage. Sin cambios a GCP, tráfico DNS ni base canónica.
+- Resultado leído: contenedor saludable; /api/health 200; /api/public/courses 200 con 121 cursos; /api/auth/me 401 sin sesión. Informe privado `api38-validation.json`. Esta prueba corrige la validación insuficiente de la imagen anterior; no equivale a login de usuario ni compra autenticada.
