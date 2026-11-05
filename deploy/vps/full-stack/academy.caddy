@@ -1,0 +1,4 @@
+academy.giovsoft.com, admin-academy.giovsoft.com {
+  encode zstd gzip
+  reverse_proxy academy-public:80
+}

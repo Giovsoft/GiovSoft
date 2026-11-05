@@ -1,0 +1,10 @@
+# Enable only after the full production stack and DNS are ready.
+commerce.giovsoft.com {
+  encode zstd gzip
+  reverse_proxy colegio-public:81
+}
+
+api.giovsoft.com {
+  encode zstd gzip
+  reverse_proxy colegio-public:82
+}

@@ -14,8 +14,8 @@ export default function ServicesPage() {
         <section className="services-catalog-hero">
           <div>
             <p className="site-kicker">Servicios GiovSoft</p>
-            <h1>Capacidades conectadas alrededor de tu operación.</h1>
-            <p>Integramos estrategia, desarrollo, infraestructura y marketing. Puedes iniciar con una necesidad puntual o construir una ruta completa con un solo aliado tecnológico.</p>
+            <h1>Inteligencia, diseño y software. Conectados a tu negocio.</h1>
+            <p>Diseñamos soluciones con IA, automatización y desarrollo a la medida. Conectamos estas capacidades con tu infraestructura y tus canales digitales para resolver lo que tu negocio necesita.</p>
             <div className="contact-actions">
               <a className="site-primary-button" href="/contacto">Cuéntanos tu proyecto <ArrowRight size={17} /></a>
               <a className="site-secondary-button" href="/proceso">Conocer el proceso</a>

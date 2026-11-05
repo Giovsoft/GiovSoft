@@ -1,0 +1,96 @@
+# Production Academy: use only with a NEW final database restore.
+# Runner has no database/Internet network and no financial credentials.
+name: academy-completo
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks: [database]
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d figma_academy]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  api:
+    image: rescue-academy-api38:saved
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]
+    networks: [database, app, runner]
+    depends_on:
+      database: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  web:
+    image: rescue-giovsoft-web-00035-xey:saved
+    restart: unless-stopped
+    read_only: true
+    environment: {PORT: "8080"}
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    networks: [app]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  access:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    networks:
+      app:
+      access:
+      edge:
+        aliases: [academy-public]
+    ports: ["127.0.0.1:8096:80"]
+    volumes:
+      - ./academy-production-access.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api: {condition: service_healthy}
+      web: {condition: service_healthy}
+  runner:
+    image: rescue-giovsoft-runner-00018-mw8:saved
+    command: [node, src/runner.js]
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=256m,mode=1777,exec"]
+    pids_limit: 128
+    mem_limit: 768m
+    cpus: 0.75
+    environment: {PORT: "8080", RUNNER_MAX_ACTIVE: "2"}
+    networks: [runner]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+networks:
+  database: {internal: true}
+  app:
+  runner: {internal: true}
+  edge:
+    external: true
+    name: giovsoft-vps_app
+  access:
+volumes:
+  database:

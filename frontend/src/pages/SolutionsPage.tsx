@@ -1,4 +1,5 @@
-import { ArrowRight, Boxes, Code2, MonitorSmartphone, Rocket } from "lucide-react";
+import ModuleSignal from "../components/ModuleSignal";
+import { ArrowRight, Boxes, Code2, MonitorSmartphone } from "lucide-react";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import { useSiteTheme } from "../hooks/useSiteTheme";
@@ -37,7 +38,6 @@ const pageContent = {
 export default function SolutionsPage({ type }: SolutionsPageProps) {
   const { isDark, toggleTheme } = useSiteTheme();
   const content = pageContent[type];
-  const Icon = content.icon;
 
   return (
     <div className={`service-page-shell ${isDark ? "is-dark" : ""}`}>
@@ -54,18 +54,16 @@ export default function SolutionsPage({ type }: SolutionsPageProps) {
                 Cuéntanos tu idea
                 <ArrowRight size={17} />
               </a>
-              <a className="site-secondary-button" href="/#proceso">
+              <a className="site-secondary-button" href="/proceso">
                 Conocer el proceso
               </a>
             </div>
           </div>
 
-          <div className="solutions-visual" aria-hidden="true">
-            <div className="solutions-icon-main"><Icon size={52} /></div>
-            <span><Boxes size={22} /></span>
-            <span><Rocket size={22} /></span>
-          </div>
+          <ModuleSignal label="COMERCIO CONECTADO" core="Tu negocio" nodes={["Catálogo", "Experiencia", "Operación"]} />
         </section>
+        <section className="gs-commerce-capabilities"><header><p className="site-kicker">Una operación conectada</p><h2>Cada paso de compra forma parte de la experiencia.</h2><p>Definimos el alcance alrededor de tu catálogo, tus canales y la forma en que trabaja tu equipo.</p></header><div>{[{title:"Descubrir",copy:"Un catálogo claro para encontrar productos, comparar opciones y comprender su valor."},{title:"Comprar",copy:"Una experiencia adaptable con carrito, checkout y proveedores de pago compatibles."},{title:"Operar",copy:"Pedidos, estados y conexiones con inventario o envíos según el alcance acordado."},{title:"Evolucionar",copy:"Medición e integraciones que permiten identificar el siguiente paso de tu canal digital."}].map((item,i)=><article key={item.title}><span>0{i+1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>)}</div></section>
+        <section className="gs-commerce-cta"><div><p className="site-kicker">Inteligencia donde aporta valor</p><h2>Tu canal de venta también puede evolucionar.</h2><p>Podemos explorar asistencia para consultar el catálogo y automatizaciones para organizar solicitudes. Primero validamos el caso de uso y las fuentes de información.</p></div><a className="site-primary-button" href="/contacto">Exploremos tu proyecto <ArrowRight size={17}/></a></section>
       </main>
 
       <SiteFooter isDark={isDark} />

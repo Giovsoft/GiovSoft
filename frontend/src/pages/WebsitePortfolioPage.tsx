@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowRight,
   ExternalLink,
@@ -33,6 +34,9 @@ const capabilities = [
 
 export default function WebsitePortfolioPage() {
   const { isDark, toggleTheme } = useSiteTheme();
+  const [category, setCategory] = useState("Todos");
+  const showSchool = category !== "Servicios";
+  const showGesove = category === "Todos" || category === "Servicios";
 
   return (
     <div className={`service-page-shell web-catalog-shell ${isDark ? "is-dark" : ""}`}>
@@ -64,15 +68,12 @@ export default function WebsitePortfolioPage() {
         <section className="web-catalog-controls" aria-label="Categorías del catálogo">
           <strong>Explorar</strong>
           <div>
-            <button className="is-active" type="button">Todos</button>
-            <button type="button">Institucionales</button>
-            <button type="button">Educación</button>
-            <button type="button">Servicios</button>
+            {["Todos", "Institucionales", "Educación", "Servicios"].map(item => <button key={item} className={category === item ? "is-active" : ""} type="button" aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
           </div>
-          <span>02 proyectos</span>
+          <span aria-live="polite">{category === "Todos" ? "02 proyectos" : "01 proyecto"}</span>
         </section>
 
-        <section className="web-project-feature">
+        {showSchool && (<section className="web-project-feature">
           <a className="web-project-image" href={project.url} target="_blank" rel="noreferrer" aria-label={`Visitar ${project.client}`}>
             <img src={project.image} alt={`Fachada del ${project.client}`} />
             <span>Ver sitio publicado <ExternalLink size={16} /></span>
@@ -91,9 +92,9 @@ export default function WebsitePortfolioPage() {
               <ArrowRight size={17} />
             </a>
           </div>
-        </section>
+        </section>)}
 
-        <section className="web-project-gesove">
+        {showGesove && (<section className="web-project-gesove">
           <div className="gesove-project-copy">
             <div className="web-project-number">Proyecto 02</div>
             <p className="site-kicker">Gesove</p>
@@ -131,9 +132,9 @@ export default function WebsitePortfolioPage() {
               <iframe src="https://gesove.com/" title="Vista previa del sitio Gesove" loading="lazy" tabIndex={-1} />
             </div>
           </a>
-        </section>
+        </section>)}
 
-        <section className="web-project-story">
+        {showSchool && (<section className="web-project-story">
           <div className="web-story-copy">
             <p className="site-kicker">La solución</p>
             <h2>Una escuela completa, explicada con claridad.</h2>
@@ -161,7 +162,7 @@ export default function WebsitePortfolioPage() {
               <img key={image} src={image} alt={`Actividad escolar del ${project.client} ${index + 1}`} />
             ))}
           </div>
-        </section>
+        </section>)}
 
         <section className="web-catalog-next">
           <div>

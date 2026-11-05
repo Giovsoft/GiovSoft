@@ -1,0 +1,76 @@
+# Private validation only. No GCP dependency and no outbound Internet access.
+name: colegio-completo-stage
+x-app: &app
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: [/tmp]
+  networks: [quarantine]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks: [database]
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d giovsoft]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+  payments:
+    <<: *app
+    image: payments-gcp:4aec95ec2172
+    networks: [quarantine, database]
+    depends_on:
+      database: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:4000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  commerce:
+    <<: *app
+    image: commerce-gcp:94f4584347bd
+    depends_on:
+      payments: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  school:
+    <<: *app
+    image: colegio-gcp:3366348b3bfc
+    depends_on:
+      commerce: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  access:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    ports:
+      - "127.0.0.1:8093:80"
+      - "127.0.0.1:8091:81"
+      - "127.0.0.1:8092:82"
+    volumes:
+      - ./stage-access.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [quarantine, access]
+    depends_on:
+      school: {condition: service_healthy}
+networks:
+  quarantine: {internal: true}
+  database: {internal: true}
+  access:
+volumes:
+  database:

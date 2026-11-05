@@ -86,7 +86,7 @@ export default function WebsiteServicePage() {
                 <div className="web-service-browser-cards"><i /><i /><i /></div>
               </div>
             </div>
-            <div className="web-service-score"><Gauge size={18} /><span><strong>98</strong><small>Performance</small></span></div>
+            <div className="web-service-score"><Gauge size={18} /><span><strong>Web</strong><small>Diseño + rendimiento</small></span></div>
             <div className="web-service-device"><MonitorSmartphone size={19} /><span><strong>Responsive</strong><small>Experiencia consistente</small></span></div>
           </div>
         </section>

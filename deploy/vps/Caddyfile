@@ -1,0 +1,22 @@
+{
+  email {$ACME_EMAIL}
+}
+
+{$SITE_DOMAIN} {
+  encode zstd gzip
+
+  @api path /api /api/*
+  handle @api {
+    reverse_proxy backend:4000
+  }
+  handle {
+    reverse_proxy frontend:80
+  }
+}
+
+www.{$SITE_DOMAIN} {
+  redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
+# Empty until an additional site is enabled explicitly on the VPS.
+import /etc/caddy/sites-enabled/*.caddy

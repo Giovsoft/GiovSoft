@@ -1,0 +1,85 @@
+# Live service. Starts with read-only HTTP gate until the final cut is approved/executed.
+name: colegio-vps-live
+
+services:
+  school:
+    image: ${COLEGIO_IMAGE:-colegio-vps:9c867b6}
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Copy current school admin password privately}
+      GCS_BUCKET: ""
+      GIOVCOMMERCE_API_URL: https://commerce.giovsoft.com
+      GIOVCOMMERCE_STORE_DOMAIN: colegioiberoamericano.com.mx
+      GIOVCOMMERCE_STOREFRONT_SECRET: ${GIOVCOMMERCE_STOREFRONT_SECRET:?Copy current school storefront secret privately}
+      PUBLIC_URL: https://colegioiberoamericano.com
+      SMTP_HOST: ${SMTP_HOST:?Copy school SMTP settings privately}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:?Copy school SMTP user privately}
+      SMTP_PASS: ${SMTP_PASS:?Copy school SMTP password privately}
+      MAIL_FROM: ${MAIL_FROM:?Copy school sender privately}
+      MAIL_TO: ${MAIL_TO:?Copy school recipient privately}
+      SUPPORT_SMTP_HOST: ${SUPPORT_SMTP_HOST:?Copy support SMTP settings privately}
+      SUPPORT_SMTP_PORT: ${SUPPORT_SMTP_PORT:-587}
+      SUPPORT_SMTP_SECURE: ${SUPPORT_SMTP_SECURE:-false}
+      SUPPORT_SMTP_USER: ${SUPPORT_SMTP_USER:?Copy support SMTP user privately}
+      SUPPORT_SMTP_PASS: ${SUPPORT_SMTP_PASS:?Copy support SMTP password privately}
+      SUPPORT_MAIL_FROM: ${SUPPORT_MAIL_FROM:?Copy support sender privately}
+    volumes:
+      - type: bind
+        source: ${COLEGIO_FINAL_DATA_DIR:-/opt/colegio/restauracion-final}/data
+        target: /app/data
+        read_only: false
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${COLEGIO_FINAL_DATA_DIR:-/opt/colegio/restauracion-final}/uploads
+        target: /app/public/uploads
+        read_only: false
+        bind: {create_host_path: false}
+    networks: [school]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/api/health', {signal: AbortSignal.timeout(4000)}).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+
+  access:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/var/cache/nginx, /var/run, /tmp]
+    ports:
+      - "127.0.0.1:${COLEGIO_LIVE_CHECK_PORT:-8084}:80"
+    volumes:
+      - ${COLEGIO_GATE_CONFIG:-./colegio-production-check.conf}:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      school:
+      edge:
+        aliases: [colegio-public]
+    depends_on:
+      school: {condition: service_healthy}
+    healthcheck:
+      test: [CMD-SHELL, "wget -q -O /dev/null http://127.0.0.1/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+
+networks:
+  school:
+  edge:
+    external: true
+    name: ${COLEGIO_EDGE_NETWORK:-giovsoft-vps_app}

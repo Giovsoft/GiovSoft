@@ -1,0 +1,20 @@
+# Apply only to a NEW final snapshot after all source writers are stopped.
+# This file is never used for the preliminary private validation.
+name: colegio-completo
+services:
+  access:
+    volumes:
+      - ./production-access.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      quarantine:
+      access:
+      edge:
+        aliases: [colegio-public]
+networks:
+  quarantine:
+    name: colegio-completo_live
+    internal: false
+  database: {internal: true}
+  edge:
+    external: true
+    name: giovsoft-vps_app

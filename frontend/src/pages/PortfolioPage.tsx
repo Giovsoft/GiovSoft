@@ -1,3 +1,4 @@
+import ModuleSignal from "../components/ModuleSignal";
 import {
   ArrowRight,
   Boxes,
@@ -10,7 +11,6 @@ import {
   MonitorSmartphone,
   Rocket,
   ShoppingCart,
-  Sparkles,
   Store,
   UsersRound,
 } from "lucide-react";
@@ -91,19 +91,7 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          <div className="portfolio-hero-visual" aria-hidden="true">
-            <div className="portfolio-orbit portfolio-orbit-one" />
-            <div className="portfolio-orbit portfolio-orbit-two" />
-            <div className="portfolio-core">
-              <Sparkles size={34} />
-              <strong>Soluciones</strong>
-              <span>pensadas para crecer</span>
-            </div>
-            <div className="portfolio-float-card card-code"><Code2 size={23} /><span>Software</span></div>
-            <div className="portfolio-float-card card-app"><MonitorSmartphone size={23} /><span>Apps</span></div>
-            <div className="portfolio-float-card card-web"><Globe2 size={23} /><span>Web</span></div>
-            <div className="portfolio-float-card card-shop"><ShoppingCart size={23} /><span>Ecommerce</span></div>
-          </div>
+          <ModuleSignal label="SOLUCIONES CONECTADAS" core="Tu proyecto" nodes={["Software", "Experiencia", "Integraciones"]} />
         </section>
 
         <section className="portfolio-definition">

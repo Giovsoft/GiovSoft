@@ -190,10 +190,8 @@ export default function AdminApplications() {
       const payload = {
         apiBaseUrl: form.apiBaseUrl,
         businessLineId: form.businessLineId,
-        outboundWebhookUrl: form.outboundWebhookUrl,
         config: {
           syncInvoices: form.syncInvoices,
-          syncPayments: form.syncPayments,
           syncSales: form.syncSales,
           syncUsers: form.syncUsers,
         },
@@ -301,14 +299,12 @@ export default function AdminApplications() {
             <label><span>Dominio</span><input onChange={(event) => setForm((current) => ({ ...current, domain: event.target.value }))} placeholder="commerce.giovsoft.com" value={form.domain} /></label>
             <label><span>Línea de negocio</span><select onChange={(event) => setForm((current) => ({ ...current, businessLineId: event.target.value }))} value={form.businessLineId}><option value="">Sin asignar</option>{businessLines.filter((line) => line.status === "active").map((line) => <option key={line.id} value={line.id}>{line.name}</option>)}</select></label>
             <label><span>API Base URL <b>*</b></span><input onChange={(event) => setForm((current) => ({ ...current, apiBaseUrl: event.target.value }))} placeholder="https://api.sistema.com" value={form.apiBaseUrl} /></label>
-            <label><span>Webhook saliente (pagos)</span><input onChange={(event) => setForm((current) => ({ ...current, outboundWebhookUrl: event.target.value }))} placeholder="https://api.sistema.com/api/payments/hub-webhook" value={form.outboundWebhookUrl} /></label>
             <label><span>URL retorno SSO</span><input onChange={(event) => setForm((current) => ({ ...current, loginRedirectUrl: event.target.value }))} placeholder="https://sistema.com/auth/giovsoft/callback" value={form.loginRedirectUrl} /></label>
             <label><span>Estado</span><select onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as ApplicationStatus }))} value={form.status}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
             <label className="billing-entry-check"><input checked={form.ssoEnabled} onChange={(event) => setForm((current) => ({ ...current, ssoEnabled: event.target.checked }))} type="checkbox" /><span>Login centralizado activo</span></label>
             <label className="billing-entry-check"><input checked={form.syncUsers} onChange={(event) => setForm((current) => ({ ...current, syncUsers: event.target.checked }))} type="checkbox" /><span>Usuarios</span></label>
             <label className="billing-entry-check"><input checked={form.syncSales} onChange={(event) => setForm((current) => ({ ...current, syncSales: event.target.checked }))} type="checkbox" /><span>Ventas</span></label>
             <label className="billing-entry-check"><input checked={form.syncInvoices} onChange={(event) => setForm((current) => ({ ...current, syncInvoices: event.target.checked }))} type="checkbox" /><span>Facturas</span></label>
-            <label className="billing-entry-check"><input checked={form.syncPayments} onChange={(event) => setForm((current) => ({ ...current, syncPayments: event.target.checked }))} type="checkbox" /><span>Pagos</span></label>
             <div className="billing-entry-actions applications-entry-actions">
               <button onClick={() => setShowForm(false)} type="button">Cancelar</button>
               <button type="submit"><Save size={16} /> {editingId ? "Guardar cambios" : "Crear aplicación"}</button>

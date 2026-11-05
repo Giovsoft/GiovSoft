@@ -79,7 +79,7 @@ export default function SoftwarePortfolioPage() {
               <i /><i /><i /><i />
             </aside>
             <div className="clinic-dashboard-main">
-              <header><div><small>Resumen</small><strong>Buenos días, Doctor</strong></div><span /></header>
+              <header><div><small>Vista conceptual · Datos de ejemplo</small><strong>Buenos días, Doctor</strong></div><span /></header>
               <div className="clinic-stats"><article><small>Citas de hoy</small><strong>08</strong></article><article><small>Pacientes</small><strong>124</strong></article><article><small>Pendientes</small><strong>03</strong></article></div>
               <div className="clinic-dashboard-grid">
                 <section><strong>Próximas citas</strong><p><i />09:30 <span>Consulta general</span></p><p><i />11:00 <span>Seguimiento</span></p><p><i />13:30 <span>Primera consulta</span></p></section>

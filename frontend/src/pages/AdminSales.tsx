@@ -2,7 +2,6 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  BadgeCheck,
   CircleDollarSign,
   Clock3,
   CreditCard,
@@ -166,27 +165,6 @@ export default function AdminSales() {
       setDeliveries(response.data.deliveries || []);
     } catch (error: any) {
       setMessage(error?.response?.data?.message || "No se pudo cargar el detalle de la orden.");
-    }
-  }
-
-  async function markPaid(order: Order) {
-    try {
-      const response = await api.post(`/api/admin/orders/${order.id}/mark-paid`);
-      setMessage(response.data.message || "Orden marcada como pagada.");
-      await openOrder(response.data.order);
-      await loadData();
-    } catch (error: any) {
-      setMessage(error?.response?.data?.message || "No se pudo marcar la orden como pagada.");
-    }
-  }
-
-  async function retryDelivery(order: Order, delivery: Delivery) {
-    try {
-      const response = await api.post(`/api/admin/orders/${order.id}/deliveries/${delivery.id}/retry`);
-      setMessage(response.data.message || "Reintento ejecutado.");
-      await openOrder(order);
-    } catch (error: any) {
-      setMessage(error?.response?.data?.message || "No se pudo reintentar la entrega.");
     }
   }
 
@@ -362,11 +340,7 @@ export default function AdminSales() {
             <div className="sales-drawer-body">
               <div className="sales-drawer-status">
                 <span className={`billing-status ${statusTones[selectedOrder.status]}`}>{statusLabels[selectedOrder.status]}</span>
-                {selectedOrder.status === "pending" && (
-                  <button className="clients-secondary-action" onClick={() => markPaid(selectedOrder)} type="button">
-                    <BadgeCheck size={16} /> Marcar pagada
-                  </button>
-                )}
+
               </div>
 
               <dl className="sales-drawer-facts">
@@ -395,11 +369,7 @@ export default function AdminSales() {
                         {delivery.status === "delivered" ? "Entregada" : delivery.status === "exhausted" ? "Agotada" : "Pendiente"}
                       </span>
                       <small>{delivery.attempts} intento(s)</small>
-                      {delivery.status !== "delivered" && (
-                        <button className="clients-secondary-action" onClick={() => retryDelivery(selectedOrder, delivery)} type="button">
-                          <RefreshCw size={14} /> Reintentar
-                        </button>
-                      )}
+
                     </div>
                   </div>
                 ))}

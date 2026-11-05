@@ -9,9 +9,9 @@ const defaultImage = `${origin}/img/og/giovsoft-social.png`;
 type SeoData = { title: string; description: string; noindex?: boolean };
 
 const pages: Record<string, SeoData> = {
-  "/": { title: "GiovSoft | Soluciones digitales y software a la medida", description: "GiovSoft es tu aliado tecnológico en Guadalajara. Integramos software, sitios web, marketing digital, ecommerce e infraestructura de red para impulsar tu operación." },
+  "/": { title: "GiovSoft | Inteligencia artificial, diseño y software", description: "Soluciones con inteligencia artificial, automatización, diseño y software a la medida. Conectamos información, herramientas y procesos para impulsar tu negocio." },
   "/nosotros": { title: "Nosotros | GiovSoft Technologies", description: "Conoce la historia, misión y valores de GiovSoft Technologies, aliado tecnológico nacido en Guadalajara en 2016." },
-  "/servicios": { title: "Servicios tecnológicos para empresas | GiovSoft", description: "Conoce los servicios de estrategia, desarrollo digital, infraestructura, productividad y marketing que GiovSoft integra para tu negocio." },
+  "/servicios": { title: "Soluciones de IA, automatización y software | GiovSoft", description: "Explora soluciones de inteligencia artificial, automatización, software, diseño y cloud para conectar tu operación con nuevas posibilidades." },
   "/proceso": { title: "Nuestro proceso de trabajo | GiovSoft", description: "Conoce cómo GiovSoft transforma una necesidad de negocio en una solución tecnológica implementada, validada y preparada para evolucionar." },
   "/articulos": { title: "Artículos de tecnología y estrategia digital | GiovSoft", description: "Guías y conocimiento sobre tecnología, desarrollo, infraestructura, marketing y decisiones digitales para negocios." },
   "/portafolio": { title: "Soluciones digitales | GiovSoft", description: "Explora nuestras soluciones de software, aplicaciones móviles, sitios web y ecommerce desarrolladas para resolver necesidades reales." },
@@ -19,6 +19,7 @@ const pages: Record<string, SeoData> = {
   "/portafolio/aplicaciones": { title: "Aplicaciones móviles | GiovSoft", description: "Descubre GFin, GFit y GiovTrips: aplicaciones creadas para finanzas, entrenamiento, nutrición y agencias de viajes." },
   "/portafolio/sitios-web": { title: "Diseño y desarrollo de sitios web | GiovSoft", description: "Catálogo de sitios web profesionales, rápidos y responsivos desarrollados por GiovSoft para empresas y organizaciones." },
   "/portafolio/ecommerce": { title: "Desarrollo de ecommerce y tiendas en línea | GiovSoft", description: "Creamos tiendas en línea con catálogo, pagos, pedidos e integraciones para convertir tu presencia digital en un canal de ventas." },
+  "/akira": { title: "Akira | IA para aprender y automatizar · GiovSoft", description: "Conoce Akira Students y Business, el proyecto de inteligencia artificial de GiovSoft para transformar información en aprendizaje y acción. En desarrollo." },
   "/academy": { title: "GiovSoft Academy | Aprende tecnología practicando", description: "Conoce GiovSoft Academy, una plataforma educativa con cursos de programación, tecnología, diseño, datos e inteligencia artificial." },
   "/studios": { title: "GiovSoft Studios | Nuestros videojuegos", description: "Descubre los videojuegos originales de GiovSoft Studios, conoce los próximos lanzamientos y encuentra dónde adquirirlos y jugarlos." },
   "/payments": { title: "GiovSoft Payments | Pagos, Tap to Pay y facturación", description: "Recibe, organiza e integra pagos digitales y presenciales con Tap to Pay, facturación conectada y mayor control para tu negocio." },
@@ -59,6 +60,8 @@ export default function SeoManager() {
     const canonical = `${origin}${canonicalPath}`;
     const robots = data.noindex || isPrivate ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
 
+    const socialImage = article?.coverImage ? `${origin}${article.coverImage}` : normalizedPath === "/akira" ? `${origin}/img/akira/logo.jpeg` : defaultImage;
+
     document.documentElement.lang = "es-MX";
     document.title = data.title;
     setMeta('meta[name="description"]', "name", "description", data.description);
@@ -66,10 +69,10 @@ export default function SeoManager() {
     setMeta('meta[property="og:title"]', "property", "og:title", data.title);
     setMeta('meta[property="og:description"]', "property", "og:description", data.description);
     setMeta('meta[property="og:url"]', "property", "og:url", canonical);
-    setMeta('meta[property="og:image"]', "property", "og:image", defaultImage);
+    setMeta('meta[property="og:image"]', "property", "og:image", socialImage);
     setMeta('meta[name="twitter:title"]', "name", "twitter:title", data.title);
     setMeta('meta[name="twitter:description"]', "name", "twitter:description", data.description);
-    setMeta('meta[name="twitter:image"]', "name", "twitter:image", defaultImage);
+    setMeta('meta[name="twitter:image"]', "name", "twitter:image", socialImage);
 
     let canonicalElement = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalElement) {

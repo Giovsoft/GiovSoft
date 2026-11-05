@@ -1,0 +1,115 @@
+# Salida completa de GCP — emergencia comunicada 2026-11-03
+
+Giovanni comunica que GCP dejará de funcionar mañana a las 23:00. Se interpreta como 2026-11-04 23:00, hora de México; no se ha verificado causa de suspensión ni aviso de facturación. La estrategia temporal con backend en GCP ya no satisface ese plazo como destino final.
+
+## Estado actual — 4 de noviembre, corte publicado
+
+GiovSoft, Colegio (.com y .com.mx), Commerce, API de pagos, Academy (incluido admin-academy) y Crüje sirven desde el VPS. Colegio y Academy usan sus bases locales restauradas desde copias finales después de pausar y drenar los escritores GCP. El puente temporal ya no participa. HTTPS comprobado sin excepciones; www del colegio redirige con certificado válido.
+
+Los proyectos canónicos son `giovsoft-vps`, `colegio-completo-r2`, `academy-completo` y `cruje-vps`. No reactivar los escritores de GCP ni sobrescribir las bases locales con respaldos preliminares después del corte. Las copias antiguas se conservan como respaldo y las vistas previas están detenidas.
+
+Pendientes conocidos: IA de Academy (Vertex) deshabilitada explícitamente hasta preparar otro proveedor; delegación DNS .com a Cloudflare después de las 20:52 CDMX por caché DNSSEC. El alojamiento .com ya apunta al VPS desde Squarespace y no espera esa delegación. Stripe sigue habilitado para colegio y Academy; comprobaciones de proveedor solo de lectura, sin cargos ni correos enviados.
+
+Detalle verificable y rutas privadas: [bitácora](vps-bitacora.md), entradas del 4 de noviembre. Las secciones posteriores anteriores al corte son históricas y no describen el destino vigente.
+
+## Estado al cierre del 3 de noviembre (histórico)
+
+- DNS sin cambios de alojamiento. Colegio (.com y .com.mx), Commerce y API principal nuevamente activos en GCP, comprobados HTTP 200 tras reactivación. GiovSoft principal conserva su despliegue previo en VPS.
+- VPS: dos bases restauradas en recursos privados separados; colegio/Commerce/pagos saludables y autenticación interna comprobada; Crüje privado saludable/200; API adicional saludable/200 y perfil sin autenticación 401. API adicional sin puertos publicados, frontend/API vía gateway de solo lectura en loopback 8095 y aplicaciones financieras sin salida a Internet.
+- Configuraciones y dumps preliminares recibidos fuera de GCP. Siete imágenes exactas cargadas (colegio, Commerce, pagos, Crüje, API/runner/web adicionales); checksums correctos. No se promovió una copia preliminar como producción.
+- Corte interrumpido por reautenticación de Squarespace al editar DNS. Orígenes reactivados; la carpeta `corte-final.iknfumhu` está marcada `NOT_FINAL_DNS_SESSION_BLOCKED` y no sirve como copia final. Referencia movida a `last-aborted-cut-path` para impedir reutilización accidental.
+- Bloqueo para corte principal: recuperar edición DNS en Squarespace. La API adicional conserva una referencia heredada al secreto webhook versión 6 deshabilitada; no sustituirlo por otro ni reactivar la versión automáticamente. El endpoint Stripe Academy `/api/checkout/webhook` no aparece en el código activo de esa API (sí `/api/webhooks/stripe`); revisar esa integración antes de reactivarla. Esta referencia no bloquea el receptor principal del colegio, que usa versión 5 explícita y se probó en aislamiento.
+
+## Prioridad inmediata
+
+1. Sacar de GCP configuración privada, secretos referenciados por revisiones activas, datos y binarios exactos. Un respaldo que solo vive en Cloud Shell todavía depende de GCP.
+2. Restaurar colegio, Commerce y API de pagos en recursos privados nuevos del VPS; preservar el GiovSoft ya publicado y su base local.
+3. Probar en aislamiento de red: las copias de producción no deben enviar correos, crear pagos ni despachar webhooks pendientes durante la prueba. No usar el sandbox con datos ficticios como reemplazo de producción.
+4. Coordinar mantenimiento breve y copia final de todos los escritores: colegio, Commerce y API. Conservar IDs de pedidos, aplicaciones, eventos y entregas para idempotencia. No promover la copia preliminar como última versión.
+5. Publicar servicios del VPS con HTTPS y cambiar DNS de colegio (ambas zonas), `commerce.giovsoft.com` y `api.giovsoft.com`. Mantener nombres públicos para conservar endpoints webhook y callbacks; localizar en Stripe cualquier destino que use directamente run.app antes del corte.
+6. Verificar Stripe mediante lecturas y eventos de prueba autorizados, sin cargos reales. No borrar ni revocar recursos originales antes de comprobar el corte.
+
+## Inventario confirmado
+
+| Servicio | Revisión con tráfico | Persistencia |
+| --- | --- | --- |
+| Colegio | colegio-iberoamericano-wh-09151933 | bucket healthy-genre-497401-j7-iberoamericano, prefijo colegio-iberoamericano |
+| Commerce | giovcommerce-00036-jux | bucket healthy-genre-497401-j7-giovcommerce-data montado /app/data; commerce.json |
+| API pagos | giovsoft-backend-wh-09151933 | Cloud SQL giovsoft-db, PostgreSQL 16, base giovsoft |
+
+Se capturaron las configuraciones de servicio y las revisiones con porcentaje de tráfico mayor a cero, no únicamente la plantilla más reciente. Imágenes exactas de Artifact Registry:
+
+- Colegio: sha256:3366348b3bfce011cfb4d3e2f82028b384e9edd18a0bec8dc7d97ddaf2a1f96b
+- Commerce: sha256:94f4584347bde0d5fb308b399b3dd52ed90df7a9ea9ed682859197d52d5ae08e
+- API: sha256:4aec95ec2172f1c95f1030ca10277b23612429e924bc7a90fcc580334bd873ba
+
+## Rescate privado en curso
+
+Carpeta Cloud Shell `/home/gioramos/colegio-emergencia.telNwx`, umask 077. Configuraciones resueltas guardadas en JSON privados 0600 sin mostrar valores. Las referencias latest se resolvieron al momento de esta copia; no se afirma igualdad con valores inyectados en instancias antiguas antes de una posible rotación.
+
+Base PostgreSQL preliminar: `giovsoft-preliminar.dump`, 203199 bytes; pg_dump 16.15 y pg_restore --list correctos. Conexión por Cloud SQL Auth Proxy instalado 2.26.3, autenticación gcloud existente, listener loopback 15432; sin abrir redes autorizadas ni crear claves de servicio.
+
+Copias GCS e imágenes principales recibidas y verificadas en `/root/colegio-emergencia-20261103` del VPS, permiso 0700. Payload de 380529058 bytes, checksum y 47 hashes internos correctos; configuración y dump inicial con checksum correcto. Las copias siguen siendo preliminares hasta el corte coordinado definitivo.
+
+## Pendientes importantes
+
+- Validar, transferir y restaurar todos los respaldos; obtener copia final al bloquear escritores.
+- Configurar red, volúmenes y PostgreSQL separados del sitio GiovSoft existente.
+- Evitar ejecución de colas/reintentos de webhooks de las copias mientras GCP sigue activo.
+- Revisar rutas de webhook Stripe, claves de firma, Connected Account y callback Commerce conservando autenticación/idempotencia.
+- DNSSEC .com: respetar retirada DS/TTL documentados, ventana segura desde 2026-11-04 20:52. .com.mx ya está en Cloudflare. Si hay problemas, priorizar continuidad de .com.mx y api/commerce antes del límite comunicado.
+- Documentar prueba final y reversión; no prometer disponibilidad total hasta verificaciones completas.
+
+## Ampliación confirmada: todo el proyecto
+
+El usuario confirma que el límite afecta todo el proyecto. Inventario adicional: servicios `cruje`, `giovsoft`, `giovsoft-frontend`, `giovsoft-api`, `giovsoft-runner`, `giovsoft-web`; VM `giovsoft-ops` en northamerica-south1-a; Cloud SQL `giovsoft-pg`, PostgreSQL 16, base `figma_academy`, solo IP privada. La configuración adicional conserva variables Vertex y runner. La revisión posterior del arranque exacto confirmó `npm start` → `node index.js`, sin override en Cloud Run, sin dependencias Vertex y sin referencias VERTEX_PROJECT/RUNNER_URL en ese archivo. Se retiró la inferencia inicial de dependencia activa; no se necesita cambiar proveedor por esa configuración heredada.
+
+Configuración principal y dump preliminar: recibidos y checksum correcto en VPS. Archivo `production-payload.tar.gz` de 380529058 bytes recibido, checksum correcto y extraído en carpeta privada; verificación del manifiesto interno y carga de imágenes en curso. No es copia final de escritores detenidos.
+
+La segunda base se rescató mediante túnel SSH/IAP por VM existente hacia la IP SQL privada y pg_dump 16 desde Cloud Shell. Dump de 2036638 bytes recibido con checksum correcto en VPS y restaurado en `academy-stage`, 68 tablas públicas. No se publicó SQL en Internet. Los intentos anteriores de región/proxy y cliente 15 quedaron descartados.
+
+La referencia `latest` del secreto webhook usada por la API adicional apunta a versión 6 deshabilitada; versión 5 está habilitada y es la referencia explícita de la API principal. No se ha sustituido silenciosamente una referencia por otra.
+
+Consulta Stripe de solo lectura: webhook habilitado en `https://api.giovsoft.com/api/webhooks/stripe`, otro duplicado deshabilitado y un webhook habilitado en `https://academy.giovsoft.com/api/checkout/webhook`. No se modificaron endpoints ni se generaron pagos. Conservar Academy y comprobar sus dependencias antes de retirar el proyecto.
+
+El cambio de alojamiento puede adelantarse cambiando A/AAAA en Squarespace; la espera DNSSEC corresponde a delegación de nameservers. Mantener también actualizada la zona pendiente de Cloudflare antes de delegarla.
+
+## Secuencia corregida antes de repetir el corte
+
+1. Comprobar que TODOS los paneles permiten abrir la edición de registros; cancelar la prueba sin guardar. La lectura del panel no prueba que la sesión permita guardar cambios. Resolver la reautenticación antes de pausar servicios.
+2. Preparar una carpeta nueva y precalentar los archivos desde el respaldo validado mientras el origen está activo. Ejecutar sincronización previa; no recopiarlos desde cero durante mantenimiento. En el corte, usar comparación por checksum y volver a validar inventarios antes/después.
+3. Guardar nueva reversión y estado de tráfico/etiquetas; no reutilizar el intento abortado. Pausar todos los escritores, drenar 330 segundos y verificar bloqueo de URL principal y etiquetas anteriores.
+4. Sincronizar únicamente diferencias, obtener dump PostgreSQL final y manifiesto completo. Transferir diferencias + dump; reconstruir y verificar todos los hashes en una carpeta nueva del VPS.
+5. Restaurar producción separada de las copias de prueba y del PostgreSQL de GiovSoft. Aplicar la configuración de correo de recuperación ya comprobada en VPS, conservada privadamente como `config/vps-support-mail.json`.
+6. Verificar y sustituir alias `colegio-public` sin dos proyectos activos con el mismo alias. La red de producción usa nombre distinto `colegio-completo_live`; las copias de prueba permanecen aisladas.
+7. Cambiar colegio (dos zonas), api/commerce y después los destinos adicionales preparados. Conservar por ahora proxy/cifrado .com.mx. HTTPS de origen aún requiere emisión y prueba; no afirmar certificado emitido por tener Caddy configurado.
+8. Si falla antes de escrituras VPS, reactivar el origen y confirmar HTTP público 200; después de nuevas escrituras, reconciliar antes de revertir. No dejar el colegio pausado esperando una sesión del usuario.
+
+Scheduler: inventariadas 34 ubicaciones soportadas, sin errores y sin trabajos. Configuración cron/systemd de VM rescatada y checksum correcto fuera de GCP. Esto no sustituye revisar los reintentos internos de cada aplicación.
+
+## Evidencia y disponibilidad privada consolidada
+
+- `/root/colegio-emergencia-20261103/rescue-index.json`: catálogo privado de siete archivos de respaldo con hashes/tamaños; `production_cut=false` y aviso de snapshot preliminar.
+- `cut-audit-not-final.tar.gz`: registros del intento abortado y la reversión, recibido con checksum correcto; no contiene una copia final aprobada.
+- `academy-stage`: base/API/web/access saludables. Gateway loopback 8095: `/` y `/api/health` 200, `/api/admin/profile` sin credenciales 401, POST 405. HTML de origen y copia privada coincide por SHA256; sin referencias run.app encontradas en los archivos estáticos inspeccionados. No se probó un login autenticado ni pagos de Academy.
+- Configuración Nginx original de Academy copiada desde su imagen a `/opt/academy-completo/stage-20261103/web-nginx` y montada para permitir generación de plantilla, con raíz de imagen solo lectura. No se reemplazó el diseño ni el contenido.
+- `cruje-vps` saludable usando únicamente el archivo Compose versionado, sin depender del override temporal de diagnóstico.
+- Cron de usuarios de VM: cero archivos de crontab en respaldo. Scheduler: inventario de 34 regiones recibido en VPS y comprobado, cero trabajos.
+
+## Actualización 2026-11-04: preflight nuevo y Academy
+
+La precopia nueva `cut-20261104.hnbahgcz` terminó con origen activo. SELECT 1 correcto en las dos bases por conexiones privadas (principal proxy 15432; Academy túnel IAP/VM 15435). SSH de transferencia renovado por el usuario. Ningún origen se pausó en esta sesión.
+
+Para reducir mantenimiento durante TTL, se instaló en VPS un puente HTTPS validado para API/Commerce a los run.app originales. El puente del colegio ya existía. La etapa intermedia fue autorizada previamente; sigue siendo obligatorio sustituirla por servicios y datos locales antes del límite. No anunciar independencia de GCP durante el puente.
+
+Squarespace vuelve a pedir reautenticación al editar API y muestra cuadro vacío; el TXT inocuo guardado solo probó creación. Cloudflare exige confirmación para retirar siete destinos Google de .com.mx. Se solicitó; el A probado se revirtió al original mientras llega la confirmación, porque TLS directo del VPS aún no completa handshake. Sitio público /api/health continúa en 200/TLS válido. No se dejaron destinos parciales deliberadamente.
+
+El diagnóstico de Academy cambió al contrastar aplicación y rutas: revisión activa 39 usa código de GiovSoft; revisión 38 sí contiene Academy (`node src/index.js`, auth, catálogo público y `/api/checkout/webhook`). Se está rescatando la imagen 38 para validación privada, no se eligió por un simple número de versión. El repo `Giovsoft/GiovSoft-Academy` y el contenido de la propia imagen corroboran esas rutas. El catálogo correcto es `/api/public/courses`.
+
+La aplicación Academy correcta sí usa Vertex. La conclusión anterior sobre variables heredadas describía únicamente la imagen incorrecta 39. Se conserva la decisión del usuario de posponer IA; no habilitar un stub de evaluación como sustituto de producción ni ejecutar código de alumnos dentro de la API con secretos. Preparar indisponibilidad explícita de esas funciones hasta aislar runner y sustituir Vertex. Cuentas/cursos/pagos requieren validación con imagen correcta y copia final de figma_academy.
+
+La firma del webhook Academy existente se recuperó desde su propio detalle Stripe y se guardó en archivo privado 0600 del VPS. No se habilitó Secret Manager 6 ni se sustituyó por la clave 5 del colegio. No se rotaron claves ni se alteraron endpoints. Comprobación de uso y firma aún pendiente en copia aislada.
+
+### Academy: comprobación final de esta preparación
+
+Imagen 38 recibida y checksum correcto. API privada saludable, catálogo público 200 con 121 cursos y auth/me 401 sin sesión. Webhook sintético tipo migration.validation probado solo por loopback dentro de contenedor aislado: firma inválida 400, firma válida 200. Sin contacto con Stripe, cargos, correos ni cambio en endpoint. No es prueba de compra/login reales ni copia final de producción.

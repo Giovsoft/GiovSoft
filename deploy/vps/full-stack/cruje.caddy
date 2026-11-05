@@ -1,0 +1,4 @@
+cruje.mx, www.cruje.mx {
+    encode zstd gzip
+    reverse_proxy cruje-public:8080
+}
